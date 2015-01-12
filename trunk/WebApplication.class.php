@@ -46,8 +46,7 @@ final class WebApplication extends Application
 				throw new FatalErrorException('identify_not_defined');
 			}
 		} catch (FileNotFoundException $ex) {
-			var_dump($ex);
-			//throw new FatalErrorException('identify_not_defined_2');
+			throw new FatalErrorException('identify_not_defined');
 		}
 	}
 

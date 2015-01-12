@@ -19,22 +19,29 @@
 namespace Raindrop;
 
 use Raindrop\ActionResult\ViewData;
-use Raindrop\Interfaces\IController;
 
-abstract class Controller implements IController
+/**
+ * Class Controller
+ *
+ * @package Raindrop
+ *
+ * @property Request $Request Request
+ * @property IdentifyAbstract $Identify Identify
+ * @property ViewData $ViewData ViewData
+ */
+abstract class Controller
 {
-	/**
-	 * @var null|Request
-	 */
-	protected $_oRequest = null;
-	/**
-	 * @var null|Dispatcher
-	 */
-	protected $_oDispatcher = null;
+	protected $_aDependency = array();
 
-	protected $_oIdentify = null;
+	/**
+	 * @var Request
+	 */
+	protected $Request;
+	/**
+	 * @var Identify
+	 */
+	protected $Identify;
 
-	protected $_oViewData = null;
 
 	#region Identify
 	/**
@@ -61,16 +68,39 @@ abstract class Controller implements IController
 
 	public final function __construct()
 	{
-		$this->_oRequest    = Application::GetRequest();
-		$this->_oDispatcher = Dispatcher::GetInstance();
-		$this->_oIdentify   = Application::GetIdentify();
-		$this->_oViewData   = ViewData::GetInstance();
+		$this->Request  = Application::GetRequest();
+		$this->Identify = Application::GetIdentify();
 
+		$this->_aDependency = [
+			'viewdata' => function () {
+				return ViewData::GetInstance();
+			},
+		];
+
+		//call user-defined constructor
 		$this->_initialize();
 	}
 
 	public final function __destruct()
 	{
+	}
+
+	public final function __get($sPropName)
+	{
+		//Dependency Last
+		$sDepName = strtolower($sPropName);
+		if (property_exists($this, $sPropName)) {
+			return $this->$sPropName;
+		} else if (array_key_exists($sDepName, $this->_aDependency)) {
+			return $this->_aDependency[$sDepName];
+		} else {
+			return null;
+		}
+	}
+
+	public final function __set($sPropName, $mValue)
+	{
+
 	}
 
 	public function prepare()

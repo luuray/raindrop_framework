@@ -18,10 +18,10 @@
 
 namespace Raindrop;
 
+use Raindrop\ActionResult\ErrorPage;
 use Raindrop\ActionResult\HttpCode;
 use Raindrop\ActionResult\Json;
 use Raindrop\ActionResult\Redirect;
-use Raindrop\ActionResult\View;
 use Raindrop\ActionResult\Xml;
 
 final class Dispatcher
@@ -48,6 +48,8 @@ final class Dispatcher
 	protected $_oActionResult = null;
 
 	protected $_sCallStack = null;
+
+	protected $_exLastException = null;
 	#endregion
 
 	#region Symbol Properties
@@ -128,7 +130,7 @@ final class Dispatcher
 
 		try {
 			$oRefCtrl = new \ReflectionClass($sCtrlName);
-			if ($oRefCtrl->implementsInterface('Raindrop\Interfaces\IController') == false) {
+			if ($oRefCtrl->isSubclassOf('Raindrop\Controller') == false) {
 				throw new FatalErrorException('not_controller_object');
 			}
 			//detect action
@@ -223,17 +225,20 @@ final class Dispatcher
 					$this->_oRequest->getAction(),
 					$ex));
 			}
-			$this->_oActionResult = 'not_found';
+			$this->_oActionResult = 404;
 		} catch (IdentifyException $ex) {
 			if ($ex instanceof NoPermissionException) {
-				$this->_oActionResult = 'no_permission';
+				$this->_oActionResult = 403;
 			} else {
-				$this->_oActionResult = 'not_login';
+				$this->_oActionResult = 401;
 			}
+		} catch (ApplicationException $ex) {
+			$this->_oActionResult   = 500;
+			$this->_exLastException = $ex;
 		}
 
 		if ($this->_oActionResult === null) {
-			$this->_oActionResult = 'no_result';
+			$this->_oActionResult = 204;
 		}
 
 		$this->_bDispatched = true;
@@ -247,60 +252,89 @@ final class Dispatcher
 		if ($this->_bDispatched == false) {
 			throw new FatalErrorException('not_dispatched');
 		}
-		/*
-				if($this->_oActionResult === null){
-					throw new FatalErrorException('no_action_result');
-				}
-		*/
-		//Action Result Model
-		if ($this->_oActionResult instanceof ActionResult) {
-			$this->_oActionResult->Output();
-		} //Text-base Defined Result, switch by RequestType
-		else {
-			$oResult = null;
-			if ($this->_oActionResult == 'not_found') {
-				if ($this->_oRequest->getType() == 'view') {
-					$oResult = new View('/shared/notfound.phtml');
-				} else if ($this->_oRequest->getType() == 'json') {
-					$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
-				} else if ($this->_oRequest->getType() == 'xml') {
-					$oResult = new Xml(true, array('status' => false, 'message' => 'not_found'));
+
+		try {
+			//Action Result Model
+			if ($this->_oActionResult instanceof ActionResult) {
+				$this->_oActionResult->Output();
+			} //Text-base Defined Result, switch by RequestType
+			else {
+				$oResult = null;
+				if ($this->_oActionResult == 404) {
+					if ($this->_oRequest->getType() == 'view') {
+						$oResult = new ErrorPage(404);
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
+					} else if ($this->_oRequest->getType() == 'xml') {
+						$oResult = new Xml(true, array('status' => false, 'message' => 'not_found'));
+					} else {
+						$oResult = new HttpCode(404);
+					}
+				} else if ($this->_oActionResult == 204) {
+					if ($this->_oRequest->getType() == 'view') {
+						$oResult = new ErrorPage(204, array('CallStack' => $this->_sCallStack));
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
+					} else {
+						$oResult = new HttpCode(204);
+					}
+				} else if ($this->_oActionResult == 401) {
+					if ($this->_oRequest->getType() == 'view') {
+						//redirect to login
+						$oResult = new Redirect('Default', 'Account', 'Login', array('return' => $this->_oRequest->getRequestUri()));
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => 'not_login'));
+					} else if ($this->_oRequest->getType() == 'xml') {
+						$oResult = new Xml(true, array('status' => false, 'message' => 'not_login'));
+					} else {
+						$oResult = new HttpCode(401);
+					}
+				} else if ($this->_oActionResult == 403) {
+					if ($this->_oRequest->getType() == 'view') {
+						//show no permission page
+						$oResult = new ErrorPage(403);
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => 'no_permission'));
+					} else if ($this->_oRequest->getType() == 'xml') {
+						$oResult = new Xml(true, array('status' => false, 'message' => 'no_permission'));
+					} else {
+						$oResult = new HttpCode(403);
+					}
+				} else if ($this->_oActionResult == 500) {
+					if ($this->_oRequest->getType() == 'view') {
+						//show no permission page
+						$oResult = new ErrorPage(500, $this->_exLastException);
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
+					} else if ($this->_oRequest->getType() == 'xml') {
+						$oResult = new Xml(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
+					} else {
+						$oResult = new HttpCode(403);
+					}
 				} else {
-					$oResult = new HttpCode(404);
+					//bad request
+					if ($this->_oRequest->getType() == 'view') {
+						$oResult = new ErrorPage(400);
+					} else if ($this->_oRequest->getType() == 'json') {
+						$oResult = new Json(true, array('status' => false, 'message' => 'bad_request'));
+					} else if ($this->_oRequest->getType() == 'xml') {
+						$oResult = new Xml(true, array('status' => false, 'message' => 'bad_request'));
+					} else {
+						$oResult = new HttpCode(400);
+					}
 				}
-			} else if ($this->_oActionResult == 'no_result') {
-				if ($this->_oRequest->getType() == 'view') {
-					$oResult = new View('/shared/noresult.phtml', array('CallStack' => $this->_sCallStack));
-				} else if ($this->_oRequest->getType() == 'json') {
-					$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
-				} else {
-					$oResult = new HttpCode(204);
-				}
-			} else if ($this->_oActionResult == 'not_login') {
-				if ($this->_oRequest->getType() == 'view') {
-					//redirect to login
-					$oResult = new Redirect('Default', 'Account', 'Login', array('return' => $this->_oRequest->getRequestUri()));
-				} else if ($this->_oRequest->getType() == 'json') {
-					$oResult = new Json(true, array('status' => false, 'message' => 'not_login'));
-				} else if ($this->_oRequest->getType() == 'xml') {
-					$oResult = new Xml(true, array('status' => false, 'message' => 'not_login'));
-				} else {
-					$oResult = new HttpCode(401);
-				}
-			} else if ($this->_oActionResult == 'no_permission') {
-				if ($this->_oRequest->getType() == 'view') {
-					//show no permission page
-					$oResult = new View('/shared/no-permission.phtml');
-				} else if ($this->_oRequest->getType() == 'json') {
-					$oResult = new Json(true, array('status' => false, 'message' => 'no_permission'));
-				} else if ($this->_oRequest->getType() == 'xml') {
-					$oResult = new Xml(true, array('status' => false, 'message' => 'no_permission'));
-				} else {
-					$oResult = new HttpCode(403);
-				}
+				$oResult->Output();
+			}
+		} catch (ApplicationException $ex) {
+			if ($this->_oRequest->getType() == 'view') {
+				//show no permission page
+				$oResult = new ErrorPage(500, $this->_exLastException);
+			} else if ($this->_oRequest->getType() == 'json') {
+				$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
+			} else if ($this->_oRequest->getType() == 'xml') {
+				$oResult = new Xml(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
 			} else {
-				//undefined
-				$oResult = new HttpCode(404);
+				$oResult = new HttpCode(403);
 			}
 			$oResult->Output();
 		}
