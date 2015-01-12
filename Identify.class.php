@@ -20,7 +20,62 @@ namespace Raindrop;
 
 use Raindrop\Component\RandomString;
 
+
 abstract class Identify
+{
+	protected static $_oInstance = null;
+
+	protected $_bIdentified = false;
+
+	public static function GetInstance()
+	{
+		if (self::$_oInstance instanceof Identify) {
+			//no action
+		} else {
+			self::$_oInstance = (new \ReflectionClass(get_called_class()))->newInstance();
+		}
+
+		return self::$_oInstance;
+	}
+
+	public final function __construct()
+	{
+		if (self::$_oInstance instanceof Identify) {
+			throw new InitializedException;
+		}
+
+		$this->_initialize();
+
+		$this->_load();
+	}
+
+	/**
+	 * Load Identify Status
+	 * @return bool
+	 */
+	protected abstract function _load();
+
+	/**
+	 * Create Identify
+	 *
+	 * @return mixed
+	 */
+	protected abstract function _create();
+
+	/**
+	 * Revoke Identify
+	 *
+	 * @return mixed
+	 */
+	protected abstract function _revoke();
+
+	protected function _initialize()
+	{
+
+	}
+}
+
+abstract class Identify_bak
 {
 	/**
 	 * @var null|IdentifyAbstract

@@ -88,7 +88,7 @@ class Router
 	protected function __construct(Request $oRequest)
 	{
 		//Load special route
-		Loader::Import('config.route.php', AppDir, false);
+		Loader::Import('config.route.php', AppDir);
 
 		$this->_oRequest = $oRequest;
 

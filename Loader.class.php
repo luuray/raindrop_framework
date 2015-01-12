@@ -45,26 +45,60 @@ class Loader
 		return self::$_oInstance;
 	}
 
-	public static function Import($sFileName, $sDir, $bCheckExists = true, $bAutoLoad = true)
+	/**
+	 * @return bool
+	 */
+	public static function CheckLoadable()
 	{
-		$oLoader = self::GetInstance();
+		$aArgs = func_get_args();
+		//Directory/FileName
+		if (func_num_args() == 1) {
+			if (self::SecurityCheck($aArgs[0])) {
+				return is_readable($aArgs[0]);
+			} else {
+				return false;
+			}
+		} else {
+			$aArgs = array_reverse($aArgs);
+			$sPath = implode(DIRECTORY_SEPARATOR, $aArgs);
 
-		if (self::SecurityCheck($sFileName) == false) {
-			throw new FatalErrorException('loader_unsecured_filename: ' . $sFileName);
+			if (self::SecurityCheck($sPath)) {
+				return is_readable($sPath);
+			} else {
+				return false;
+			}
+		}
+	}
+
+	public static function Import($sFileName, $sDir = null, $bAutoLoad = true)
+	{
+		$sPath = str_nullorwhitespace($sDir) ? $sFileName : $sDir . DIRECTORY_SEPARATOR . $sFileName;
+
+		$aSearchPath = array();
+		if (pathinfo($sPath, PATHINFO_DIRNAME) == null) {
+			$aSearchPath[] = AppDir . DIRECTORY_SEPARATOR . $sFileName;
+			$aSearchPath[] = CorePath . DIRECTORY_SEPARATOR . $sFileName;
+		} else {
+			$aSearchPath[] = $sPath;
 		}
 
-		if ($bCheckExists == true && is_readable($sDir . DIRECTORY_SEPARATOR . $sFileName) == false) {
-			//debug
-			Logger::Warning(sprintf('[FileNotFound]Path: %s, FileName: %s', $sDir, $sFileName));
+		$sLoadPath = null;
+		foreach ($aSearchPath AS &$_path) {
+			$_path = preg_replace(['/\.+/', '/[\/\\\]+/'], ['.', '/'], $_path);
+			if (self::SecurityCheck($_path) AND is_readable($_path)) {
+				$sLoadPath = $_path;
+				continue;
+			}
+		}
 
-			throw new FileNotFoundException($sDir . DIRECTORY_SEPARATOR . $sFileName);
+		if (empty($sLoadPath)) {
+			throw new FileNotFoundException(str_replace([AppDir, CorePath], ['%AppDir%', '%CorePath%'], $_path));
 		}
 
 		if ($bAutoLoad == true) {
-			//return @include_once $sDir . DIRECTORY_SEPARATOR . $sFileName;
-			return require_once $sDir . DIRECTORY_SEPARATOR . $sFileName;
+			return require_once $sLoadPath;
 		} else {
-			return $sDir . DIRECTORY_SEPARATOR . $sFileName;
+			return $sLoadPath;
 		}
 	}
 
