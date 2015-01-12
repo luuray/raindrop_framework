@@ -20,7 +20,7 @@ namespace Raindrop;
 
 use Raindrop\Interfaces\IController;
 
-abstract class ApiController implements IController
+abstract class ApiController
 {
 	/**
 	 * @var null|Request
