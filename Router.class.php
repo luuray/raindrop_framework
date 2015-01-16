@@ -151,7 +151,7 @@ class Router
 			else {
 				if (in_array($sType, array('htm', 'html'))) {
 					$this->_oRequest->setType('View');
-				} else if (in_array($sType, array('js', 'json'))) {
+				} else if (in_array($sType, array('json', 'jsonp'))) {
 					$this->_oRequest->setType('Json');
 				} else if ($sType == 'xml') {
 					$this->_oRequest->setType('Xml');

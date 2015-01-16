@@ -328,7 +328,7 @@ final class Dispatcher
 		} catch (ApplicationException $ex) {
 			if ($this->_oRequest->getType() == 'view') {
 				//show no permission page
-				$oResult = new ErrorPage(500, $this->_exLastException);
+				$oResult = new ErrorPage(500, $ex);//$this->_exLastException);
 			} else if ($this->_oRequest->getType() == 'json') {
 				$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
 			} else if ($this->_oRequest->getType() == 'xml') {

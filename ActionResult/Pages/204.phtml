@@ -1,0 +1,50 @@
+<?php
+/**
+ * Raindrop Framework for PHP
+ *
+ * Error Page View - HTTP/1.1 204 No Content
+ *
+ * @author $Author$
+ * @copyright Rainhan System
+ * @date $Date$
+ *
+ * Copyright (c) 2010-2015, Rainhan System
+ * Site: raindrop-php.rainhan.net
+ *
+ * $Id$
+ *
+ * @version $Rev$
+ */
+
+use Raindrop\Application;
+
+$View->setLayout(null);
+?><!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="robots" content="noindex, nofollow">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="pragma" content="no-cache">
+	<title>No Content</title>
+</head>
+<body>
+<p style="font-weight: bold; font-size:2em">No Result</p>
+<i>RequestUri:</i> <?= Application::GetRequest()->getRequestUri() ?><br>
+<i>Module:</i> <?= Application::GetRequest()->getModule() == null ? 'default' : Application::GetRequest()->getModule() ?>
+<br>
+<i>Controller:</i> <?= Application::GetRequest()->getController() ?><br>
+<i>Action:</i> <?= Application::GetRequest()->getAction() ?><br>
+<?php
+if (Application::IsDebugging()) {
+	?>
+	<i>CallStack:</i> <?= $ViewData->CallStack ?><br>
+	<p><i>Backtrace:</i></p>
+	<pre>
+	<?= debug_print_backtrace() ?>
+	</pre>
+<?php
+}
+?>
+</body>
+</html>
