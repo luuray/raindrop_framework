@@ -38,6 +38,14 @@ abstract class Identify
 		return self::$_oInstance;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public final static function IsIdentified()
+	{
+		return false;
+	}
+
 	public final function __construct()
 	{
 		if (self::$_oInstance instanceof Identify) {

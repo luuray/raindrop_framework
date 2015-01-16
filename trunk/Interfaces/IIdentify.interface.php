@@ -21,8 +21,6 @@ namespace Raindrop\Interfaces;
 
 interface IIdentify
 {
-	public static function IsIdentified();
-
 	public static function GetUserId();
 
 	public static function GetAccount();

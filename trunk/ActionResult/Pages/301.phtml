@@ -1,0 +1,34 @@
+<?php
+/**
+ * Raindrop Framework for PHP
+ *
+ * Error Page View - HTTP/1.1 301 Move Permanently
+ *
+ * @author $Author$
+ * @copyright Rainhan System
+ * @date $Date$
+ *
+ * Copyright (c) 2010-2015, Rainhan System
+ * Site: raindrop-php.rainhan.net
+ *
+ * $Id$
+ *
+ * @version $Rev$
+ */
+
+$View->setLayout(null);
+?>
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="robots" content="noindex, nofollow">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="refresh" content="3;URL=<?= $this->Target ?>">
+	<title>正在跳转，请稍候...</title>
+</head>
+<body>
+<p>页面正在跳转，请稍候。若长时间未刷新，请点击<a href="<?= $this->Target ?>">这里</a>手动跳转</p>
+</body>
+</html>

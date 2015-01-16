@@ -33,11 +33,17 @@ class View extends ActionResult
 	#region View Validation Status
 	protected static $_bIsValid = true;
 	protected static $_sValidMessage = null;
+	protected static $_sTitle = null;
 
 	public static function SetValid($bIsValid = false, $sValidMessage = null)
 	{
 		self::$_bIsValid      = $bIsValid;
 		self::$_sValidMessage = $sValidMessage;
+	}
+
+	public static function SetTitle($sTitle)
+	{
+		self::$_sTitle = $sTitle;
 	}
 	#endregion
 
@@ -66,6 +72,8 @@ class View extends ActionResult
 	#region Implement Methods from ActionResult
 	public function __construct($sTpl = null, $mData = null)
 	{
+		$this->SiteName = $this->Title = Configuration::Get('System\SiteName', AppName);
+		$this->BaseUrl  = Application::GetRequest()->getBaseUri();
 		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
 		$this->_oRequest  = Application::GetRequest();
 
@@ -92,7 +100,8 @@ class View extends ActionResult
 		}
 
 		echo $this->_render();
-		@ob_end_flush();
+
+		return true;
 	}
 
 	public function toString()
@@ -123,6 +132,7 @@ class View extends ActionResult
 	 */
 	public function includePartial($sPartialPage)
 	{
+		return $this->_render($this->_decidePath($sPartialPage));
 	}
 
 	/**
@@ -180,13 +190,20 @@ class View extends ActionResult
 		} else {
 
 			$func = function () use ($sViewName) {
+				$Title    = self::$_sTitle;
+				$SiteName = $this->SiteName;
+				$BaseUrl  = $this->BaseUrl;
+
 				$View     = $this;
 				$ViewData = $this->_oViewData;
 
 				require Loader::Import($sViewName, null, false);
 			};
 
-			return $func();
+			ob_start();
+			$func();
+
+			return ob_get_clean();
 		}
 	}
 
@@ -210,39 +227,43 @@ class View extends ActionResult
 		$sPage .= pathinfo($sPage, PATHINFO_EXTENSION) == null ? '.phtml' : null;
 		$sPage = preg_replace(['/\.+/', '/[\/\\\]+/'], ['.', '/'], $sPage);
 
+		$aPaths = array();
+
 		if (str_beginwith($sPage, '/')) {
-			$sPath = AppDir . $sPage;
-
-			return Loader::CheckLoadable($sPath) ? $sPath : false;
+			$aPaths[] = AppDir . $sPage;
 		} else if (str_beginwith($sPage, '~')) {
-			$sPage = preg_replace('/^~\/', '', $sPage);
-			$sPath = AppDir . DIRECTORY_SEPARATOR . ($this->_oRequest->getModule() == null ? '' : $this->_oRequest->getModule()
-					. DIRECTORY_SEPARATOR) . 'view' . DIRECTORY_SEPARATOR . $sPage;
+			$sPage = preg_replace('/^~\//', '', $sPage);
 
-			return Loader::CheckLoadable($sPath) ? $sPath : false;
+			if ($this->_oRequest->getModule() != null) {
+				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
+			}
+			$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
+
 		} else {
 			if (str_beginwith('./', $sPage)) {
 				$sPage = substr($sPage, 1);
 			}
-			$aPaths = [
-				AppDir . DIRECTORY_SEPARATOR .
-				($this->_oRequest->getModule() == null ? '' : $this->_oRequest->getModule() . DIRECTORY_SEPARATOR) .
-				'view' . DIRECTORY_SEPARATOR . $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sPage,
-				AppDir . DIRECTORY_SEPARATOR .
-				($this->_oRequest->getModule() == null ? '' : $this->_oRequest->getModule() . DIRECTORY_SEPARATOR) .
-				'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage,
-				AppDir . DIRECTORY_SEPARATOR .
-				'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage,
-				CorePath . DIRECTORY_SEPARATOR .
-				'ActionResult' . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $sPage
-			];
-			foreach ($aPaths AS $_path) {
-				if (Loader::CheckLoadable($_path)) {
-					return $_path;
-				}
+
+			if ($this->_oRequest->getModule() != null) {
+				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
+					'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
 			}
 
-			return false;
+			$aPaths[] =
+				AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sPage;
+
+			$aPaths[] = AppDir . DIRECTORY_SEPARATOR .
+				'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
+			$aPaths[] = CorePath . DIRECTORY_SEPARATOR .
+				'ActionResult' . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $sPage;
 		}
+
+		foreach ($aPaths AS $_path) {
+			if (Loader::CheckLoadable($_path)) {
+				return $_path;
+			}
+		}
+
+		return false;
 	}
 }

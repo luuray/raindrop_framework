@@ -266,6 +266,23 @@ function str_find_first()
 	}
 }
 
+function str_combine()
+{
+	if (func_num_args() == 1) {
+		return func_get_arg(0);
+	}
+	$aItem = func_get_args();
+
+	$sSplit = array_shift($aItem);
+	foreach ($aItem AS $_k => $_v) {
+		if (empty($_v) AND !is_int($_v)) {
+			unset($aItem[$_k]);
+		}
+	}
+
+	return implode($sSplit, $aItem);
+}
+
 /**
  * Merge arrays, replace item when array's key is same
  *

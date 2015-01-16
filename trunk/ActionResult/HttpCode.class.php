@@ -51,7 +51,10 @@ class HttpCode extends ActionResult
 	public function Output()
 	{
 		// TODO: Implement Output() method.
-		die('HttpCode:' . $this->_iCode . '<br>Message:' . $this->_aParam);
+		ob_end_clean();
+		header('HTTP/1.1 404 Not Found');
+		die();
+		///die('HttpCode:' . $this->_iCode . '<br>Message:' . $this->_aParam);
 	}
 
 	public function toString()

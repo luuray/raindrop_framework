@@ -70,9 +70,10 @@ class Loader
 		}
 	}
 
-	public static function Import($sFileName, $sDir = null, $bAutoLoad = true)
+	public static function Import($sFileName, $sDir = null, $bAutoLoad = true, $bLowerCase = true)
 	{
-		$sPath = str_nullorwhitespace($sDir) ? $sFileName : $sDir . DIRECTORY_SEPARATOR . $sFileName;
+		$sPath = str_nullorwhitespace($sDir) ? null : $sDir . DIRECTORY_SEPARATOR;
+		$sPath .= $bLowerCase == true ? strtolower($sFileName) : $sFileName;
 
 		$aSearchPath = array();
 		if (pathinfo($sPath, PATHINFO_DIRNAME) == null) {
@@ -85,12 +86,12 @@ class Loader
 		$sLoadPath = null;
 		foreach ($aSearchPath AS &$_path) {
 			$_path = preg_replace(['/\.+/', '/[\/\\\]+/'], ['.', '/'], $_path);
+
 			if (self::SecurityCheck($_path) AND is_readable($_path)) {
 				$sLoadPath = $_path;
 				continue;
 			}
 		}
-
 		if (empty($sLoadPath)) {
 			throw new FileNotFoundException(str_replace([AppDir, CorePath], ['%AppDir%', '%CorePath%'], $_path));
 		}
@@ -105,12 +106,13 @@ class Loader
 	/**
 	 * Security Check for FileName
 	 *
-	 * @param $sFileName
+	 * @param $sPath
 	 * @return bool
 	 */
-	public static function SecurityCheck($sFileName)
+	public static function SecurityCheck($sPath)
 	{
-		return !(bool)preg_match('/[^a-z0-9\\/\\\\_.:-]/i', $sFileName);
+		//return !(bool)preg_match('/[^a-z0-9\\/\\\\_.:-]/i', $sPath);
+		return (bool)preg_match('/^(|[\/\\\]+).*(|\.\w+)$/i', $sPath);
 	}
 
 	public function __construct()
@@ -135,11 +137,7 @@ class Loader
 			return;
 		}
 
-		if (self::SecurityCheck($sTargetClass)) {
-			self::Import($sTargetClass, $sPath);
-		} else {
-			throw new FatalErrorException('loader_unsecured_filename: ' . $sTargetClass);
-		}
+		self::Import($sTargetClass, $sPath, true, false);
 	}
 
 	protected function _loadFramework(&$sTargetClass)
