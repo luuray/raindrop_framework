@@ -64,6 +64,16 @@ class View extends ActionResult
 	 * @var null|string
 	 */
 	protected $_sBodyView = null;
+
+	/**
+	 * @var bool
+	 */
+	protected $_bIsBodyRendered = false;
+	/**
+	 * @var null|string
+	 */
+	protected $_sRenderedBody = null;
+
 	/**
 	 * @var array
 	 */
@@ -99,6 +109,10 @@ class View extends ActionResult
 			Debugger::Output($this->_oViewData, 'ViewData');
 		}
 
+		if ($this->_bIsBodyRendered != true) {
+			$this->renderBody();
+		}
+
 		echo $this->_render();
 
 		return true;
@@ -106,6 +120,10 @@ class View extends ActionResult
 
 	public function toString()
 	{
+		if ($this->_bIsBodyRendered != true) {
+			$this->renderBody();
+		}
+
 		return $this->_render();
 	}
 	#endregion
@@ -170,10 +188,15 @@ class View extends ActionResult
 		return array_key_exists($sName, $this->_aSections) ? $this->_aSections[$sName] : null;
 	}
 
-	public function renderBody()
+	public function renderBody($bRefresh = false)
 	{
 		if ($this->_sBodyView !== null) {
-			return $this->_render($this->_sBodyView);
+			if ($this->_bIsBodyRendered == false || $bRefresh == true) {
+				$this->_sRenderedBody   = $this->_render($this->_sBodyView);
+				$this->_bIsBodyRendered = true;
+			}
+
+			return $this->_sRenderedBody;
 		} else {
 			throw new FatalErrorException('Undefined_BodyView');
 		}
