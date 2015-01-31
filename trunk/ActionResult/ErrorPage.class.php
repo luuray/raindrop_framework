@@ -32,7 +32,7 @@ class ErrorPage extends View
 {
 	public function __construct($mCode = 404, $mData = null)
 	{
-		var_dump($mData);
+		var_dump($mCode, $mData);
 		echo '<pre>';
 		debug_print_backtrace();
 		echo '</pre>';

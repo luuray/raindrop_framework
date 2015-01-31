@@ -239,7 +239,7 @@ abstract class Request
 
 	public function setType($sType)
 	{
-		$sType = strtolower(trim($sType, '\\/'));
+		//$sType = strtolower(trim($sType, '\\/'));
 		try {
 			if (class_exists('Raindrop\ActionResult\\' . $sType)) {
 				$this->_sType = $sType;

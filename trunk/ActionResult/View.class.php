@@ -87,16 +87,15 @@ class View extends ActionResult
 		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
 		$this->_oRequest  = Application::GetRequest();
 
+		$sBodyView = null;
+
 		//decide bodyPage
-		if (str_nullorwhitespace($sTpl) !== true) {
-			$sTpl             = strtolower(trim($sTpl));
-			$this->_sBodyView = $this->_decidePath($sTpl);
-		} else {
-			$this->_sBodyView = $this->_decidePath($this->_oRequest->getAction());
-		}
+		$sBodyView = str_nullorwhitespace($sTpl) ?
+			implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]) : strtolower($sTpl);
+		$this->_sBodyView = $this->_decidePath($sBodyView);
 
 		if ($this->_sBodyView == false) {
-			throw new ViewNotFound('View:' . htmlentities($sTpl, ENT_QUOTES));
+			throw new ViewNotFound('View:' . htmlentities($sBodyView, ENT_QUOTES));
 		}
 
 		//default layout
@@ -107,6 +106,7 @@ class View extends ActionResult
 	{
 		if (Application::IsDebugging()) {
 			Debugger::Output($this->_oViewData, 'ViewData');
+			Debugger::Output(['BodyView'=>Loader::ClearPath($this->_sBodyView), 'Layout'=>Loader::ClearPath($this->_sLayout)], 'ViewPage');
 		}
 
 		if ($this->_bIsBodyRendered != true) {
@@ -231,6 +231,8 @@ class View extends ActionResult
 	}
 
 	/**
+	 * Decide ViewFile Path
+	 *
 	 * @param string $sPage
 	 * @return string|false
 	 */
@@ -258,7 +260,7 @@ class View extends ActionResult
 			$sPage = preg_replace('/^~\//', '', $sPage);
 
 			if ($this->_oRequest->getModule() != null) {
-				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
+				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'module' . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
 			}
 			$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
 
@@ -268,7 +270,7 @@ class View extends ActionResult
 			}
 
 			if ($this->_oRequest->getModule() != null) {
-				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
+				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'module' . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
 					'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
 			}
 
