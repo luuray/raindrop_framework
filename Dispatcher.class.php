@@ -261,63 +261,63 @@ final class Dispatcher
 			else {
 				$oResult = null;
 				if ($this->_oActionResult == 404) {
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						$oResult = new ErrorPage(404);
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
-					} else if ($this->_oRequest->getType() == 'xml') {
+					} else if ($this->_oRequest->getType() == 'Xml') {
 						$oResult = new Xml(true, array('status' => false, 'message' => 'not_found'));
 					} else {
 						$oResult = new HttpCode(404);
 					}
 				} else if ($this->_oActionResult == 204) {
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						$oResult = new ErrorPage(204, array('CallStack' => $this->_sCallStack));
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult));
 					} else {
 						$oResult = new HttpCode(204);
 					}
 				} else if ($this->_oActionResult == 401) {
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						//redirect to login
 						$oResult = new Redirect('Default', 'Account', 'Login', array('return' => $this->_oRequest->getRequestUri()));
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'not_login'));
-					} else if ($this->_oRequest->getType() == 'xml') {
+					} else if ($this->_oRequest->getType() == 'Xml') {
 						$oResult = new Xml(true, array('status' => false, 'message' => 'not_login'));
 					} else {
 						$oResult = new HttpCode(401);
 					}
 				} else if ($this->_oActionResult == 403) {
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						//show no permission page
 						$oResult = new ErrorPage(403);
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'no_permission'));
-					} else if ($this->_oRequest->getType() == 'xml') {
+					} else if ($this->_oRequest->getType() == 'Xml') {
 						$oResult = new Xml(true, array('status' => false, 'message' => 'no_permission'));
 					} else {
 						$oResult = new HttpCode(403);
 					}
 				} else if ($this->_oActionResult == 500) {
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						//show no permission page
 						$oResult = new ErrorPage(500, $this->_exLastException);
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
-					} else if ($this->_oRequest->getType() == 'xml') {
+					} else if ($this->_oRequest->getType() == 'Xml') {
 						$oResult = new Xml(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
 					} else {
 						$oResult = new HttpCode(403);
 					}
 				} else {
 					//bad request
-					if ($this->_oRequest->getType() == 'view') {
+					if ($this->_oRequest->getType() == 'View') {
 						$oResult = new ErrorPage(400);
-					} else if ($this->_oRequest->getType() == 'json') {
+					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'bad_request'));
-					} else if ($this->_oRequest->getType() == 'xml') {
+					} else if ($this->_oRequest->getType() == 'Xml') {
 						$oResult = new Xml(true, array('status' => false, 'message' => 'bad_request'));
 					} else {
 						$oResult = new HttpCode(400);
@@ -326,12 +326,12 @@ final class Dispatcher
 				$oResult->Output();
 			}
 		} catch (ApplicationException $ex) {
-			if ($this->_oRequest->getType() == 'view') {
+			if ($this->_oRequest->getType() == 'View') {
 				//show no permission page
 				$oResult = new ErrorPage(500, $ex);//$this->_exLastException);
-			} else if ($this->_oRequest->getType() == 'json') {
+			} else if ($this->_oRequest->getType() == 'Json') {
 				$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
-			} else if ($this->_oRequest->getType() == 'xml') {
+			} else if ($this->_oRequest->getType() == 'Xml') {
 				$oResult = new Xml(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
 			} else {
 				$oResult = new HttpCode(403);

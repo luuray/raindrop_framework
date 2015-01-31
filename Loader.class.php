@@ -93,7 +93,7 @@ class Loader
 			}
 		}
 		if (empty($sLoadPath)) {
-			throw new FileNotFoundException(str_replace([AppDir, CorePath], ['%AppDir%', '%CorePath%'], $_path));
+			throw new FileNotFoundException(self::ClearPath($_path));
 		}
 
 		if ($bAutoLoad == true) {
@@ -101,6 +101,14 @@ class Loader
 		} else {
 			return $sLoadPath;
 		}
+	}
+
+	public static function ClearPath($sSource)
+	{
+		return preg_replace([
+			'#^'.addslashes(AppDir).'#',
+			'#^'.addslashes(CorePath).'#'
+		], ['%AppDir%', '%CoreDir%'], $sSource);
 	}
 
 	/**
