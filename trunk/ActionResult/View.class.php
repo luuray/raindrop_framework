@@ -82,16 +82,24 @@ class View extends ActionResult
 	#region Implement Methods from ActionResult
 	public function __construct($sTpl = null, $mData = null)
 	{
-		$this->SiteName = $this->Title = Configuration::Get('System\SiteName', AppName);
-		$this->BaseUrl  = Application::GetRequest()->getBaseUri();
+		$this->SiteName   = $this->Title = Configuration::Get('System\SiteName', AppName);
+		$this->BaseUrl    = Application::GetRequest()->getBaseUri();
 		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
 		$this->_oRequest  = Application::GetRequest();
 
 		$sBodyView = null;
 
 		//decide bodyPage
-		$sBodyView = str_nullorwhitespace($sTpl) ?
-			implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]) : strtolower($sTpl);
+		if (str_nullorwhitespace($sTpl)) {
+			$sBodyView = implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]);
+		} else {
+			if (strpos($sTpl, '\\') !== false AND strpos($sTpl, '/') !== false) {
+				$sBodyView = $sTpl;
+			} else {
+				$sBodyView = $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sTpl;
+			}
+		}
+
 		$this->_sBodyView = $this->_decidePath($sBodyView);
 
 		if ($this->_sBodyView == false) {
@@ -270,6 +278,19 @@ class View extends ActionResult
 			}
 
 			if ($this->_oRequest->getModule() != null) {
+				//controller's
+				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'module', $this->_oRequest->getModule(), 'view']) . DIRECTORY_SEPARATOR . $sPage;
+				//shared
+				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'module', $this->_oRequest->getModule(), 'view', 'shared']) . DIRECTORY_SEPARATOR . $sPage;
+			} else {
+				//controller's
+				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'view']) . DIRECTORY_SEPARATOR . $sPage;
+			}
+
+			//public shared
+			$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'view', 'shared']) . DIRECTORY_SEPARATOR . $sPage;
+/*
+			if ($this->_oRequest->getModule() != null) {
 				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'module' . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
 					'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
 			}
@@ -281,6 +302,7 @@ class View extends ActionResult
 				'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
 			$aPaths[] = CorePath . DIRECTORY_SEPARATOR .
 				'ActionResult' . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $sPage;
+*/
 		}
 
 		foreach ($aPaths AS $_path) {
