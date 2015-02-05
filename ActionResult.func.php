@@ -26,9 +26,9 @@ function Json($bAllowGet = false, $mData = null)
 	return new \Raindrop\ActionResult\Json($bAllowGet, $mData);
 }
 
-function SendFile($sFileName)
+function FileStream($sFileName)
 {
-	return new \Raindrop\ActionResult\File($sFileName);
+	return new \Raindrop\ActionResult\FileStream($sFileName);
 }
 
 function HttpCode($iCode, $mParams = null)

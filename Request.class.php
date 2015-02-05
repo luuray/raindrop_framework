@@ -41,7 +41,7 @@ abstract class Request
 	protected $_sModule = null;
 	protected $_sController = 'default';
 	protected $_sAction = 'index';
-	protected $_sType = 'view';
+	protected $_sType = 'View';
 
 	protected $_bIsAjax = null;
 
