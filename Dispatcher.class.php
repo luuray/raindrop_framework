@@ -160,41 +160,62 @@ final class Dispatcher
 			//Invoke Controller's Instance
 			$oController = $oRefCtrl->newInstance();
 
-			//permission check
-			if ($oController->identifyRequired()) {
-				$oIdentify = Application::GetIdentify();
-
-				//get action's permission required
-				//and check recent identify has required permission
-				if ($oIdentify::IsIdentified()) {
-					$aPermReq = $oController->requiredPermission();
-
-					//null=>just need login
-					if ($aPermReq != null) {
-						if (is_array($aPermReq)) {
-							$aPermReq = array_key_case($aPermReq, CASE_LOWER);
-						} else {
+			//need identify
+			if($oController->identifyRequired() == true){
+				$mRequiredPerms = $oController->requiredPermission();
+				//replace identify flag to not identify
+				if($mRequiredPerms == null){
+					//noting at all!
+				}
+				//need to identified
+				else {
+					//no special perms
+					if ($mRequiredPerms == '*') {
+						if(Identify::IsIdentified() == false){
+							throw new UnidentifiedException($this->_sCallStack);
+						}
+					} else {
+						if (!is_array($mRequiredPerms)) {
 							throw new FatalErrorException('identify_invalid_permission_format');
 						}
 
-						$sAct          = strtolower($this->_oRequest->getAction());
-						$aRequiredPerm = null;
-						if (array_key_exists($sAct, $aPermReq)) $aRequiredPerm = $aPermReq[$sAct];
-						else if (array_key_exists('*', $aPermReq)) $aRequiredPerm = $aPermReq['*'];
+						$mRequiredPerms = array_key_case($mRequiredPerms, CASE_LOWER);
+						$sActionFull    = strtolower($oRequest->getMethod() . '_' . $oRequest->getAction());
+						$sAction        = strtolower($oRequest->getAction());
 
-						$aRequiredPerm = str_nullorwhitespace($aRequiredPerm) ? array() : explode(',', $aRequiredPerm);
-						array_walk($aRequiredPerm,
-							function (&$_v, $_k) {
-								$_v = trim($_v);
-							});
-						if ($oIdentify->hasPermission($aRequiredPerm) == false) {
+						$sPermission = null;
+						if (array_key_exists($sActionFull, $mRequiredPerms)) {
+							$sPermission = $mRequiredPerms[$sActionFull];
+						} else if (array_key_exists($sAction, $mRequiredPerms)) {
+							$sPermission = $mRequiredPerms[$sAction];
+						} else {
 							throw new NoPermissionException($this->_sCallStack);
 						}
+
+						if ($sPermission == null) {
+
+						} else {
+							if (Identify::IsIdentified() == false) {
+								throw new UnidentifiedException($this->_sCallStack);
+							}
+
+							if ($sPermission == '*') {
+								//nothing
+							}
+							$aPerms = explode(',', $sPermission);
+							foreach($aPerms AS $_k => &$_v){
+								$_v = trim($_v);
+								if(str_nullorwhitespace($_v)) unset($aPerms[$_k]);
+							}
+
+							if(Identify::GetInstance()->hasPermission($aPerms) == false){
+								throw new NoPermissionException($this->_sCallStack);
+							}
+						}
 					}
-				} else {
-					throw new UnidentifiedException($this->_sCallStack);
 				}
 			}
+			//all-anonymous, null
 
 			//prepare
 			$oPrepareResult = $oController->prepare();
