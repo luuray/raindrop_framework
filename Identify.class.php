@@ -57,6 +57,8 @@ abstract class Identify
 		$this->_load();
 	}
 
+	public abstract function inSession();
+
 	/**
 	 * Load Identify Status
 	 * @return bool

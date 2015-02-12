@@ -21,7 +21,33 @@ namespace Raindrop\Interfaces;
 
 interface IIdentify
 {
+	/**
+	 * @return mixed
+	 */
 	public static function GetUserId();
 
+	/**
+	 * @return mixed
+	 */
 	public static function GetAccount();
+
+	/**
+	 * @param $sIdentify
+	 * @param $sPassword
+	 * @return mixed
+	 */
+	public static function Login($sIdentify, $sPassword);
+
+	/**
+	 * @return mixed
+	 */
+	public static function LogOut();
+
+	/**
+	 * @param $sAccount
+	 * @param $sPassword
+	 * @param $aParams
+	 * @return mixed
+	 */
+	public static function Register($sAccount, $sPassword, $aParams);
 } 
