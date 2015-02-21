@@ -180,8 +180,8 @@ final class Dispatcher
 						}
 
 						$mRequiredPerms = array_key_case($mRequiredPerms, CASE_LOWER);
-						$sActionFull    = strtolower($oRequest->getMethod() . '_' . $oRequest->getAction());
-						$sAction        = strtolower($oRequest->getAction());
+						$sActionFull    = strtolower($this->_oRequest->getMethod() . '_' . $this->_oRequest->getAction());
+						$sAction        = strtolower($this->_oRequest->getAction());
 
 						$sPermission = null;
 						if (array_key_exists($sActionFull, $mRequiredPerms)) {
@@ -302,7 +302,7 @@ final class Dispatcher
 				} else if ($this->_oActionResult == 401) {
 					if ($this->_oRequest->getType() == 'View') {
 						//redirect to login
-						$oResult = new Redirect('Default', 'Account', 'Login', array('return' => $this->_oRequest->getRequestUri()));
+						$oResult = new Redirect('Default', 'Passport', 'SignIn', array('return' => $this->_oRequest->getRequestUri()));
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'not_login'));
 					} else if ($this->_oRequest->getType() == 'Xml') {
