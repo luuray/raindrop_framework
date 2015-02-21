@@ -137,31 +137,6 @@ abstract class Identify_bak
 	#endregion
 
 	#region Identify Action
-	/**
-	 * Login
-	 *
-	 * @param $sUser
-	 * @param $sPassword
-	 * @return bool
-	 */
-	public abstract function login($sUser, $sPassword);
-
-	/**
-	 * Logout
-	 *
-	 * @return bool
-	 */
-	public abstract function logout();
-
-	/**
-	 * Sign Up
-	 *
-	 * @param $sAccount
-	 * @param $sPassword
-	 * @param null $aProperties
-	 * @return mixed
-	 */
-	public abstract function signUp($sAccount, $sPassword, $aProperties = null);
 
 	/**
 	 * @return bool

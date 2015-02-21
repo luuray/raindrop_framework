@@ -92,7 +92,13 @@ abstract class Controller
 		if (property_exists($this, $sPropName)) {
 			return $this->$sPropName;
 		} else if (array_key_exists($sDepName, $this->_aDependency)) {
-			return $this->_aDependency[$sDepName];
+			$pDep = &$this->_aDependency[$sDepName];
+			if(is_callable($pDep)){
+				$this->_aDependency[$sDepName] = $pDep();
+			}
+
+			return $pDep;
+
 		} else {
 			return null;
 		}

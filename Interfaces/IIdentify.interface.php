@@ -36,12 +36,12 @@ interface IIdentify
 	 * @param $sPassword
 	 * @return mixed
 	 */
-	public static function Login($sIdentify, $sPassword);
+	public static function SignIn($sIdentify, $sPassword);
 
 	/**
 	 * @return mixed
 	 */
-	public static function LogOut();
+	public static function SignOut();
 
 	/**
 	 * @param $sAccount
@@ -49,5 +49,5 @@ interface IIdentify
 	 * @param $aParams
 	 * @return mixed
 	 */
-	public static function Register($sAccount, $sPassword, $aParams);
+	public static function SignUp($sAccount, $sPassword, $aParams);
 } 
