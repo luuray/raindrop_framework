@@ -26,6 +26,11 @@ class ConsoleRequest extends Request
 		return Request::METHOD_CLI;
 	}
 
+	public function getRequestTime()
+	{
+		return time();
+	}
+
 	public function getRawPost()
 	{
 		//todo console request write-down
