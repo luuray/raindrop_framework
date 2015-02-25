@@ -48,6 +48,15 @@ class PHPMailer implements INotification
 		$this->_oPHPMailer->Port     = $aConfig['Port'];
 	}
 
+	/**
+	 * @param $mReceiver
+	 * @param $sContent
+	 * @param string $sTitle
+	 * @param null $aAttr
+	 * @return bool
+	 * @throws FatalErrorException
+	 * @throws InvalidArgumentException
+	 */
 	public function send($mReceiver, $sContent, $sTitle = 'no subject', $aAttr = null)
 	{
 		if (is_array($mReceiver)) {

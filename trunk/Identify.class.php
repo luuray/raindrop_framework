@@ -27,6 +27,9 @@ abstract class Identify
 
 	protected $_bIdentified = false;
 
+	/**
+	 * @return Identify
+	 */
 	public static function GetInstance()
 	{
 		if (self::$_oInstance instanceof Identify) {
@@ -43,7 +46,7 @@ abstract class Identify
 	 */
 	public final static function IsIdentified()
 	{
-		return false;
+		return self::GetInstance()->_bIdentified;
 	}
 
 	public final function __construct()

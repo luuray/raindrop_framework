@@ -112,7 +112,7 @@ abstract class Request
 		$this->_aData  = array_key_case($_POST, CASE_LOWER);
 	}
 
-	public final function getRequestTime()
+	public function getRequestTime()
 	{
 		return $this->_iRequestTime;
 	}
