@@ -17,7 +17,7 @@
  */
 namespace Raindrop\Component;
 
-use Raindrop\ArgumentException;
+use Raindrop\InvalidArgumentException;
 
 class RandomString
 {
@@ -36,10 +36,10 @@ class RandomString
 	public function __construct($iMode = self::CHAR_ALL, $iLength = 8)
 	{
 		if (!in_array($iMode, array(0, 1))) {
-			throw new ArgumentException('string_mode');
+			throw new InvalidArgumentException('string_mode');
 		}
 		if (!settype($iLength, 'int') OR $iLength <= 0) {
-			throw new ArgumentException('string_length');
+			throw new InvalidArgumentException('string_length');
 		}
 
 		$this->_iMode       = $iMode;
@@ -53,7 +53,7 @@ class RandomString
 		if ($iLength === null) {
 			return $this->_generator($this->_iMode, $this->_iDefaultLen);
 		} else if (!settype($iLength, 'int') OR $iLength <= 0) {
-			throw new ArgumentException('string_length');
+			throw new InvalidArgumentException('string_length');
 		}
 
 		return $this->_generator($this->_iMode, $iLength);

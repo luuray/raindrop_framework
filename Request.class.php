@@ -19,7 +19,7 @@
 namespace Raindrop;
 
 
-abstract class Request
+abstract class Request implements \ArrayAccess
 {
 	#region Method Constants
 	const METHOD_OPTIONS = 'OPTIONS';
@@ -110,6 +110,25 @@ abstract class Request
 
 		$this->_aQuery = array_key_case($_GET, CASE_LOWER);
 		$this->_aData  = array_key_case($_POST, CASE_LOWER);
+	}
+
+	public function __get($sKey)
+	{
+		$sKey = strtolower($sKey);
+
+
+		if(array_key_exists($sKey, $this->_aQuery)){
+			return $this->_aQuery[$sKey];
+		}
+		else if(array_key_exists($sKey, $this->_aData)){
+			return $this->_aData[$sKey];
+		}
+		else if(property_exists($this, $sKey)){
+			return $this->$sKey;
+		}
+		else{
+			return null;
+		}
 	}
 
 	public function getRequestTime()
@@ -297,6 +316,36 @@ abstract class Request
 	public function getType()
 	{
 		return $this->_sType;
+	}
+	#endregion
+
+	#region ArrayAccess
+	public function offsetExists($mOffset)
+	{
+		$mOffset = strtolower($mOffset);
+
+		return array_key_exists($mOffset, $this->_aQuery) OR array_key_exists($mOffset, $this->_aData);
+
+	}
+	public function offsetGet($mOffset)
+	{
+		if(array_key_exists($mOffset, $this->_aQuery)){
+			return $this->_aQuery[$mOffset];
+		}
+		else if(array_key_exists($mOffset, $this->_aData)){
+			return $this->_aData[$mOffset];
+		}
+		else{
+			return null;
+		}
+	}
+	public function offsetSet($mOffset, $mValue)
+	{
+		return false;
+	}
+	public function offsetUnset($mOffset)
+	{
+		return false;
 	}
 	#endregion
 }

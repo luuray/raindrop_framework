@@ -35,7 +35,7 @@ class View extends ActionResult
 	protected static $_sValidMessage = null;
 	protected static $_sTitle = null;
 
-	public static function SetValid($bIsValid = false, $sValidMessage = null)
+	public static function SetValid($bIsValid, $sValidMessage = null)
 	{
 		self::$_bIsValid      = $bIsValid;
 		self::$_sValidMessage = $sValidMessage;
@@ -93,7 +93,7 @@ class View extends ActionResult
 		if (str_nullorwhitespace($sTpl)) {
 			$sBodyView = implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]);
 		} else {
-			if (strpos($sTpl, '\\') !== false AND strpos($sTpl, '/') !== false) {
+			if (strpos($sTpl, '\\') !== false OR strpos($sTpl, '/') !== false) {
 				$sBodyView = $sTpl;
 			} else {
 				$sBodyView = $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sTpl;
@@ -108,6 +108,20 @@ class View extends ActionResult
 
 		//default layout
 		$this->_sLayout = $this->_decidePath('layout');
+	}
+
+	public function __get($sName)
+	{
+		$sName = strtolower($sName);
+
+		switch($sName){
+			case 'isvalid':
+				return self::$_bIsValid;
+			case 'validmessage':
+				return self::$_sValidMessage;
+			default:
+				return $this->_oViewData[$sName];
+		}
 	}
 
 	public function Output()
@@ -273,7 +287,7 @@ class View extends ActionResult
 			$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $sPage;
 
 		} else {
-			if (str_beginwith('./', $sPage)) {
+			if (str_beginwith($sPage, './')) {
 				$sPage = substr($sPage, 1);
 			}
 
