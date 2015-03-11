@@ -40,6 +40,10 @@ class WebRequest extends Request
 		return file_get_contents('php://input');
 	}
 
+	public function getFile($sKey)
+	{
+	}
+
 	public function getRemoteAddress()
 	{
 		if ($_SERVER['HTTP_CLIENT_IP'])

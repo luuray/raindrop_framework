@@ -52,7 +52,10 @@ class HttpCode extends ActionResult
 	{
 		// TODO: Implement Output() method.
 		ob_end_clean();
-		header('HTTP/1.1 404 Not Found');
+		//die("Code:".$this->_iCode);
+		//header('HTTP/1.1 404 Not Found');
+		//header(null, true, $this->_iCode);
+		http_response_code($this->_iCode);
 		die();
 		///die('HttpCode:' . $this->_iCode . '<br>Message:' . $this->_aParam);
 	}

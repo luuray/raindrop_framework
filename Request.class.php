@@ -92,6 +92,14 @@ abstract class Request implements \ArrayAccess
 	public abstract function getRawPost();
 
 	/**
+	 * Get Uploaded File
+	 *
+	 * @param $sKey
+	 * @return mixed
+	 */
+	public abstract function getFile($sKey);
+
+	/**
 	 * @param null $sRequestUri
 	 * @param null $sBaseUri
 	 */
@@ -329,6 +337,8 @@ abstract class Request implements \ArrayAccess
 	}
 	public function offsetGet($mOffset)
 	{
+		$mOffset = strtolower($mOffset);
+
 		if(array_key_exists($mOffset, $this->_aQuery)){
 			return $this->_aQuery[$mOffset];
 		}
