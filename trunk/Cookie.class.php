@@ -32,7 +32,7 @@ final class Cookie implements \ArrayAccess
 		return self::$_oInstance;
 	}
 
-	public static function Set($sKey, $mValue, $iLifetime = 0)
+	public static function Set($sKey, $mValue, $iLifetime = null)
 	{
 		return self::GetInstance()->_setItem($sKey, $mValue, $iLifetime);
 	}
@@ -60,6 +60,7 @@ final class Cookie implements \ArrayAccess
 
 	protected $_sPrefix;
 	protected $_sDomain;
+	protected $_iLifetime;
 	protected $_bHttpOnly;
 	protected $_bIsHttps;
 
@@ -67,6 +68,7 @@ final class Cookie implements \ArrayAccess
 	{
 		$this->_sPrefix   = Configuration::Get('Cookie\Prefix', AppName);
 		$this->_sDomain   = Configuration::Get('Cookie\Domain', '');
+		$this->_iLifetime = Configuration::Get('Cookie\Lifetime', 86400);
 		$this->_bHttpOnly = Configuration::Get('Cookie\HttpOnly', true);
 		$this->_bIsHttps  = (isset($_SERVER['HTTPS']) AND !in_array($_SERVER['HTTPS'], array('off', false))) ? true : false;
 	}
@@ -91,11 +93,19 @@ final class Cookie implements \ArrayAccess
 		return false;
 	}
 
-	protected function _setItem($sKey, $mValue, $iLifetime = 0)
+	protected function _setItem($sKey, $mValue, $iLifetime)
 	{
 		$sKey = $this->_generateKey($sKey);
 
-		setcookie($sKey, serialize($mValue), $iLifetime == 0 ? time() + 31536000 : time() + $iLifetime, '/', $this->_sDomain, $this->_bIsHttps, $this->_bHttpOnly);
+		setcookie(
+			$sKey,
+			serialize($mValue),
+			$iLifetime === null ?
+				time() + $this->_iLifetime : time() + $iLifetime,
+			'/',
+			$this->_sDomain,
+			$this->_bIsHttps,
+			$this->_bHttpOnly);
 	}
 
 	protected function _hasItem($sKey)

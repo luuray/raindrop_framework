@@ -23,10 +23,13 @@ class RandomString
 {
 	const CHAR_ALL = 0;
 	const CHAR_UNCONFUSED = 1;
+	const CHAR_CASELESS = 2;
 
 	public $aAllChars = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 		'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
 		'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
+	public $aCassLess = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+		'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 	public $aUnconfusedChars = array('2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 		'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
@@ -70,6 +73,8 @@ class RandomString
 			$aChars = $this->aAllChars;
 		} else if ($iMode == 1) {
 			$aChars = $this->aUnconfusedChars;
+		} else if($iMode == 2){
+			$aChars = $this->aCaseLess;
 		}
 
 		$sResult     = '';
