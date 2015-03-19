@@ -23,6 +23,11 @@ use Raindrop\ActionResult\HttpCode;
 use Raindrop\ActionResult\Json;
 use Raindrop\ActionResult\Redirect;
 use Raindrop\ActionResult\Xml;
+use Raindrop\Exceptions\ApplicationException;
+use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\Identify\IdentifyException;
+use Raindrop\Exceptions\Identify\NoPermissionException;
+use Raindrop\Exceptions\Identify\UnidentifiedException;
 
 final class Dispatcher
 {
@@ -189,7 +194,8 @@ final class Dispatcher
 						} else if (array_key_exists($sAction, $mRequiredPerms)) {
 							$sPermission = $mRequiredPerms[$sAction];
 						} else {
-							throw new NoPermissionException($this->_sCallStack);
+							//throw new NoPermissionException($this->_sCallStack);
+							$sPermission = '*';
 						}
 
 						if ($sPermission == null) {
@@ -201,15 +207,16 @@ final class Dispatcher
 
 							if ($sPermission == '*') {
 								//nothing
-							}
-							$aPerms = explode(',', $sPermission);
-							foreach($aPerms AS $_k => &$_v){
-								$_v = trim($_v);
-								if(str_nullorwhitespace($_v)) unset($aPerms[$_k]);
-							}
+							} else {
+								$aPerms = explode(',', $sPermission);
+								foreach ($aPerms AS $_k => &$_v) {
+									$_v = trim($_v);
+									if (str_nullorwhitespace($_v)) unset($aPerms[$_k]);
+								}
 
-							if(Identify::GetInstance()->hasPermission($aPerms) == false){
-								throw new NoPermissionException($this->_sCallStack);
+								if (Identify::GetInstance()->hasRole($aPerms) == false) {
+									throw new NoPermissionException($this->_sCallStack);
+								}
 							}
 						}
 					}

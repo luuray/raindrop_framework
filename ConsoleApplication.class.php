@@ -18,6 +18,9 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\FileNotFoundException;
+
 require_once 'Application.class.php';
 
 final class ConsoleApplication extends Application

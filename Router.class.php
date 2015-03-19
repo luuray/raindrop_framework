@@ -19,6 +19,10 @@
 namespace Raindrop;
 
 
+use Raindrop\Exceptions\InitializedException;
+use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Exceptions\NotInitializeException;
+
 class Router
 {
 	/**

@@ -17,9 +17,7 @@
  */
 namespace Raindrop;
 
-use Raindrop\ORM\TableSchema;
-
-require_once 'Exceptions.class.php';
+require_once CorePath.'/Exceptions/System.php';
 require_once 'Common.func.php';
 require_once 'ActionResult.func.php';
 
@@ -161,8 +159,8 @@ abstract class Application
 
 		//Debug Mode
 		if (self::$_bEnableDebug == true) {
-			//Flush ORM TableSchema
-			TableSchema::FlushSchemaCache();
+			//Flush FileCache
+			del_recursive(SysRoot.'/cache');
 		}
 
 		//Load Config

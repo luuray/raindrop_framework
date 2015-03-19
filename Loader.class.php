@@ -17,6 +17,9 @@
  */
 namespace Raindrop;
 
+use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\FileNotFoundException;
+
 class Loader
 {
 	protected static $_oInstance = null;
@@ -144,8 +147,6 @@ class Loader
 			//jump to other spl registered loader
 			return;
 		}
-
-		self::Import($sTargetClass, $sPath, true, false);
 	}
 
 	protected function _loadFramework(&$sTargetClass)
@@ -154,13 +155,37 @@ class Loader
 		//shift root namespace out(Raindrop)
 		array_shift($aNameTree);
 
-		if ($aNameTree[0] == 'Interfaces') {
+		if (strtolower($aNameTree[0]) == 'interfaces') {
 			$sTargetClass = array_pop($aNameTree) . '.interface.php';
+		} else if (strtolower($aNameTree[0]) == 'exceptions') {
+			//Controller, Database, Identify, Model, System, View;
+			array_shift($aNameTree);
+
+			switch (strtolower($aNameTree[0])) {
+				case 'controller':
+					$sTargetClass = 'Controller.php';
+					break;
+				case 'database' :
+					$sTargetClass = 'Database.php';
+					break;
+				case 'identify':
+					$sTargetClass = 'Identify.php';
+					break;
+				case 'model':
+					$sTargetClass = 'Model.php';
+					break;
+				case 'view':
+					$sTargetClass = 'View.php';
+					break;
+				default:
+					throw new FatalErrorException('undefined_exception_type:' . $aNameTree[0]);
+			}
+			$aNameTree = ['Exceptions'];
 		} else {
 			$sTargetClass = array_pop($aNameTree) . '.class.php';
 		}
 
-		return CorePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $aNameTree);
+		return self::Import($sTargetClass, CorePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $aNameTree), true, false);
 	}
 
 	protected function _loadApplication(&$sTargetClass)
@@ -178,6 +203,6 @@ class Loader
 			substr($sClassName, 0, -10) . '.controller.php' :
 			$sClassName . '.class.php';
 
-		return $sPath;
+		self::Import($sTargetClass, $sPath, true, false);
 	}
 }

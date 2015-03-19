@@ -20,6 +20,7 @@ namespace Raindrop;
 
 
 use Raindrop\Component\PHPMailer;
+use Raindrop\Exceptions\FatalErrorException;
 
 class SendMail
 {
