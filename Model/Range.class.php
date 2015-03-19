@@ -17,9 +17,8 @@
  */
 
 namespace Raindrop\Model;
-
-use Raindrop\InvalidArgumentException;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
 
 
 /**

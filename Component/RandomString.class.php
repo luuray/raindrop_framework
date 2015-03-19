@@ -17,7 +17,7 @@
  */
 namespace Raindrop\Component;
 
-use Raindrop\InvalidArgumentException;
+use Raindrop\Exceptions\InvalidArgumentException;
 
 class RandomString
 {

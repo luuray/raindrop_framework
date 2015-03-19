@@ -18,9 +18,9 @@
 
 namespace Raindrop\Component;
 
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Interfaces\INotification;
-use Raindrop\InvalidArgumentException;
-use Raindrop\NotificationException;
 
 class SMSNotification implements INotification
 {
@@ -72,7 +72,7 @@ class SMSNotification implements INotification
 
 		$sResponse = curl_exec($rApi);
 		if ($sResponse === false) {
-			throw new NotificationException(curl_error($rApi), curl_errno($rApi));
+			throw new RuntimeException(curl_error($rApi), curl_errno($rApi));
 		}
 		$aResult = array();
 		parse_str($sResponse, $aResult);

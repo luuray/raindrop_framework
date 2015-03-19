@@ -19,13 +19,13 @@
 namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
-use Raindrop\InvalidArgumentException;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
 
 class HttpCode extends ActionResult
 {
 	protected $_iCode = null;
-	protected $_aParam = null;
+	protected $_mParam = null;
 
 	/**
 	 * Create a ActionResult Object
@@ -40,7 +40,7 @@ class HttpCode extends ActionResult
 			throw new InvalidArgumentException('httpcode');
 		}
 		$this->_iCode  = $iHttpCode;
-		$this->_aParam = $mParam;
+		$this->_mParam = $mParam;
 	}
 
 	/**
@@ -56,7 +56,7 @@ class HttpCode extends ActionResult
 		//header('HTTP/1.1 404 Not Found');
 		//header(null, true, $this->_iCode);
 		http_response_code($this->_iCode);
-		die();
+		die($this->_mParam);
 		///die('HttpCode:' . $this->_iCode . '<br>Message:' . $this->_aParam);
 	}
 

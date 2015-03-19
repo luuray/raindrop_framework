@@ -1,15 +1,15 @@
 <?php
 /**
- * BoostCenter
+ * Raindrop Framework for PHP
  *
- *
+ * TimeArea Model
  *
  * @author $Author$
- * @copyright
+ * @copyright Rainhan System
  * @date $Date$
  *
- * Copyright (c) 2010-2015,
- * Site:
+ * Copyright (c) 2010-2015, Rainhan System
+ * Site: raindrop-php.rainhan.net
  *
  * $Id$
  *
@@ -17,9 +17,8 @@
  */
 
 namespace Raindrop\Model;
+use Raindrop\Exceptions\InvalidArgumentException;
 
-
-use Raindrop\InvalidArgumentException;
 
 /**
  * Class TimeArea

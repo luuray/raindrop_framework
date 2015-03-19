@@ -18,9 +18,9 @@
 
 namespace Raindrop\Component;
 
-use Raindrop\CacheHandlerException;
+use Raindrop\Exceptions\CacheFailException;
+use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
-use Raindrop\InvalidArgumentException;
 
 class MemCache implements ICache
 {
@@ -71,7 +71,7 @@ class MemCache implements ICache
 		if ($bConnected !== true) {
 			$this->_oMemcache = null;
 			$aErr             = error_get_last();
-			throw new CacheHandlerException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')', 0);
+			throw new CacheFailException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')', 0);
 		}
 	}
 
@@ -87,7 +87,7 @@ class MemCache implements ICache
 	public function set($sName, $mValue, $iLifetime = 0)
 	{
 		if ($this->_oMemcache == null) {
-			throw new CacheHandlerException($this->_sHandlerName, 'handler_error: not_connect', 0);
+			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
 		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime < 0 ? 0 : $iLifetime);
@@ -103,7 +103,7 @@ class MemCache implements ICache
 	public function get($sName)
 	{
 		if ($this->_oMemcache == null) {
-			throw new CacheHandlerException($this->_sHandlerName, 'handler_error: not_connect', 0);
+			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
 		return $this->_oMemcache->get($this->_sPrefix . strtolower($sName));
@@ -119,7 +119,7 @@ class MemCache implements ICache
 	public function del($sName)
 	{
 		if ($this->_oMemcache == null) {
-			throw new CacheHandlerException($this->_sHandlerName, 'handler_error: not_connect', 0);
+			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
 		return $this->_oMemcache->delete($this->_sPrefix . strtolower($sName));
@@ -134,7 +134,7 @@ class MemCache implements ICache
 	public function flush()
 	{
 		if ($this->_oMemcache == null) {
-			throw new CacheHandlerException($this->_sHandlerName, 'handler_error: not_connect', 0);
+			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
 		return $this->_oMemcache->flush();

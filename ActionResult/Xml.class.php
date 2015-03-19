@@ -19,7 +19,7 @@
 namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\NotImplementedException;
 
 class Xml extends ActionResult
 {

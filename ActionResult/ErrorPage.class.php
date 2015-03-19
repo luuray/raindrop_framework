@@ -20,13 +20,7 @@ namespace Raindrop\ActionResult;
 
 
 use Raindrop\ActionResult;
-use Raindrop\Application;
-use Raindrop\ApplicationException;
-use Raindrop\Configuration;
-use Raindrop\FatalErrorException;
-use Raindrop\FileNotFoundException;
-use Raindrop\Loader;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\NotImplementedException;
 
 class ErrorPage extends View
 {
