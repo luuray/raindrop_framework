@@ -18,9 +18,8 @@
 
 namespace Raindrop\Component;
 
-use Raindrop\FatalErrorException;
-use Raindrop\Interfaces\INotification;
-use Raindrop\InvalidArgumentException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\RuntimeException;
 
 class PHPMailer implements INotification
 {
@@ -82,7 +81,7 @@ class PHPMailer implements INotification
 
 		try {
 			if ($this->_oPHPMailer->send() == false) {
-				throw new FatalErrorException($this->_oPHPMailer->ErrorInfo);
+				throw new RuntimeException($this->_oPHPMailer->ErrorInfo);
 			}
 			//cleanup
 			$this->_oPHPMailer->clearAddresses();
@@ -95,7 +94,7 @@ class PHPMailer implements INotification
 			$this->_oPHPMailer->clearAddresses();
 			$this->_oPHPMailer->clearAttachments();
 
-			throw new FatalErrorException($ex->getMessage(), $ex->getCode(), $ex);
+			throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
 		}
 	}
 }

@@ -50,4 +50,8 @@ interface IIdentify
 	 * @return mixed
 	 */
 	public static function SignUp($sAccount, $sPassword, $aParams);
+
+	public function getRoles();
+
+	public function hasRole($mRole);
 } 

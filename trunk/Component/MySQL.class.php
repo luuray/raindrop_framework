@@ -22,14 +22,14 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Raindrop\Application;
-use Raindrop\DatabaseConnectionException;
-use Raindrop\DatabaseQueryException;
-use Raindrop\FileNotFoundException;
+use Raindrop\Exceptions\Database\DatabaseConnectionException;
+use Raindrop\Exceptions\Database\DatabaseQueryException;
+use Raindrop\Exceptions\FileNotFoundException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\Model\ModelNotFoundException;
 use Raindrop\Interfaces\IDbConnector;
 use Raindrop\Interfaces\ModelAbstract;
-use Raindrop\InvalidArgumentException;
 use Raindrop\Logger;
-use Raindrop\ModelNotFoundException;
 
 class MySQL implements IDbConnector
 {

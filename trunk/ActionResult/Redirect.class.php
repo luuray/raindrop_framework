@@ -20,9 +20,9 @@ namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
 use Raindrop\Application;
-use Raindrop\ArgumentNullException;
-use Raindrop\InvalidArgumentException;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\ArgumentNullException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
 
 class Redirect extends ActionResult
 {

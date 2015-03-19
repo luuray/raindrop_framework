@@ -18,7 +18,7 @@
 namespace Raindrop\Html;
 
 use Raindrop\Application;
-use Raindrop\InvalidArgumentException;
+use Raindrop\Exceptions\InvalidArgumentException;
 
 class Url extends Html
 {
@@ -111,7 +111,7 @@ class Url extends Html
 
 		} //undefined
 		else {
-			throw new ArgumentNullException('parameter_to_much');
+			throw new InvalidArgumentException('parameter_to_much');
 		}
 	}
 

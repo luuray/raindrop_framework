@@ -19,7 +19,7 @@
 namespace Raindrop\Model;
 
 
-use Raindrop\InvalidArgumentException;
+use Raindrop\Exceptions\InvalidArgumentException;
 
 abstract class RecursiveArrayObject implements \ArrayAccess, \Iterator
 {

@@ -22,11 +22,10 @@ use Raindrop\ActionResult;
 use Raindrop\Application;
 use Raindrop\Configuration;
 use Raindrop\Debugger;
-use Raindrop\FatalErrorException;
-use Raindrop\Identify;
-use Raindrop\InvalidArgumentException;
+use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\View\ViewNotFoundException;
 use Raindrop\Loader;
-use Raindrop\ViewNotFound;
 
 class View extends ActionResult
 {
@@ -103,7 +102,7 @@ class View extends ActionResult
 		$this->_sBodyView = $this->_decidePath($sBodyView);
 
 		if ($this->_sBodyView == false) {
-			throw new ViewNotFound('View:' . htmlentities($sBodyView, ENT_QUOTES));
+			throw new ViewNotFoundException('View:' . htmlentities($sBodyView, ENT_QUOTES));
 		}
 
 		//default layout

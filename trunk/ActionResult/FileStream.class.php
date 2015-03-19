@@ -18,9 +18,8 @@
 namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
-use Raindrop\InvalidArgumentException;
-use Raindrop\mix;
-use Raindrop\NotImplementedException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
 
 class FileStream extends ActionResult
 {
@@ -44,7 +43,7 @@ class FileStream extends ActionResult
 	/**
 	 * Output Result
 	 *
-	 * @return mix
+	 * @return mixed
 	 */
 	public function Output()
 	{
