@@ -19,6 +19,8 @@
 namespace Raindrop;
 
 
+use Raindrop\Exceptions\NotImplementedException;
+
 final class Cookie implements \ArrayAccess
 {
 	protected static $_oInstance = null;

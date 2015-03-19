@@ -16,7 +16,7 @@
  * @version $Rev$
  */
 
-namespace Raindrop;
+namespace Raindrop\Model;
 
 ///TODO ArrayList Strut
 class ArrayList implements \ArrayAccess, \Countable, \Iterator, \Serializable

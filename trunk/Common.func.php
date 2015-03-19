@@ -15,8 +15,8 @@
  *
  * @version $Rev$
  */
-use Raindrop\ArgumentException;
-use Raindrop\InvalidArgumentException;
+
+use Raindrop\Exceptions\InvalidArgumentException;
 
 if (!defined('SysRoot')) {
 	@header('HTTP/1.1 404 Not Found');
@@ -285,8 +285,6 @@ function str_combine()
 
 /**
  * Merge arrays, replace item when array's key is same
- *
- * @throws ArgumentException
  */
 function array_merge_replace()
 {
@@ -388,4 +386,32 @@ function md5_short($sSubject)
 	}
 
 	return substr(md5($sSubject), 8, 16);
+}
+
+function del_recursive($sPath)
+{
+	if (is_dir($sPath)) {
+		foreach (array_diff(scandir($sPath), ['.', '..']) AS $_item) {
+			if (del_recursive($_item) == false) {
+				return false;
+			}
+		}
+
+		return true;
+	} else if (is_file($sPath)) {
+		return @unlink($sPath);
+	}
+}
+
+function str_lowercase($sSource, $sGlue = '_')
+{
+	if (is_string($sSource)) {
+		return trim(preg_replace_callback('/[A-Z]/', function ($match) use ($sGlue) {
+			var_dump($match);
+
+			return $sGlue . strtolower($match[0]);
+		}, $sSource), $sGlue);
+	} else {
+		return false;
+	}
 }

@@ -18,6 +18,8 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\ComponentNotFoundException;
+
 class Logger
 {
 	protected static $_oLogger = null;

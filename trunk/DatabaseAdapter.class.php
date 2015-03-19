@@ -18,6 +18,8 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\Database\DatabaseConnectionException;
+
 final class DatabaseAdapter
 {
 	/**

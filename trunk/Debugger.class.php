@@ -18,6 +18,9 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\ComponentNotFoundException;
+use Raindrop\Exceptions\FileNotFoundException;
+
 class Debugger
 {
 	/**
