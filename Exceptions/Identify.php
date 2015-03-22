@@ -20,7 +20,7 @@ namespace Raindrop\Exceptions\Identify;
 use Raindrop\Exceptions\ApplicationException;
 
 
-abstract class IdentifyException extends ApplicationException
+class IdentifyException extends ApplicationException
 {
 }
 

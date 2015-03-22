@@ -20,6 +20,28 @@ namespace Raindrop;
 
 class WebRequest extends Request
 {
+	protected function _initialize()
+	{
+		//$this->_aHeader = array_key_case($_SERVER, CASE_LOWER);
+		foreach ($_SERVER AS $_k => $_v) {
+			if (str_beginwith($_k, 'HTTP_')) {
+				$this->_aHeader[strtolower(substr($_k, 4))] = $_v;
+			}
+		}
+		$this->_aQuery = array_key_case($_GET, CASE_LOWER);
+
+		//empty post, try json decode raw post
+		if (empty($_POST)) {
+			$mResult = json_decode($this->getRawPost(), true);
+			if ($mResult != false) {
+				$this->_aData   = array_key_case($mResult, CASE_LOWER);
+				$this->_bIsAjax = true;
+			}
+		} else {
+			$this->_aData = array_key_case($_POST, CASE_LOWER);
+		}
+	}
+
 	public function getMethod()
 	{
 		if ($this->_sMethod !== null) {
@@ -33,6 +55,15 @@ class WebRequest extends Request
 		}
 
 		return $this->_sMethod;
+	}
+
+	public function getType()
+	{
+		if ($this->_bIsAjax) {
+			return 'Json';
+		} else {
+			return $this->_sType;
+		}
 	}
 
 	public function getRawPost()
