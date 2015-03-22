@@ -166,63 +166,9 @@ final class Dispatcher
 			$oController = $oRefCtrl->newInstance();
 
 			//need identify
-			if($oController->identifyRequired() == true){
-				$mRequiredPerms = $oController->requiredPermission();
-				//replace identify flag to not identify
-				if($mRequiredPerms == null){
-					//noting at all!
-				}
-				//need to identified
-				else {
-					//no special perms
-					if ($mRequiredPerms == '*') {
-						if(Identify::IsIdentified() == false){
-							throw new UnidentifiedException($this->_sCallStack);
-						}
-					} else {
-						if (!is_array($mRequiredPerms)) {
-							throw new FatalErrorException('identify_invalid_permission_format');
-						}
-
-						$mRequiredPerms = array_key_case($mRequiredPerms, CASE_LOWER);
-						$sActionFull    = strtolower($this->_oRequest->getMethod() . '_' . $this->_oRequest->getAction());
-						$sAction        = strtolower($this->_oRequest->getAction());
-
-						$sPermission = null;
-						if (array_key_exists($sActionFull, $mRequiredPerms)) {
-							$sPermission = $mRequiredPerms[$sActionFull];
-						} else if (array_key_exists($sAction, $mRequiredPerms)) {
-							$sPermission = $mRequiredPerms[$sAction];
-						} else {
-							//throw new NoPermissionException($this->_sCallStack);
-							$sPermission = '*';
-						}
-
-						if ($sPermission == null) {
-
-						} else {
-							if (Identify::IsIdentified() == false) {
-								throw new UnidentifiedException($this->_sCallStack);
-							}
-
-							if ($sPermission == '*') {
-								//nothing
-							} else {
-								$aPerms = explode(',', $sPermission);
-								foreach ($aPerms AS $_k => &$_v) {
-									$_v = trim($_v);
-									if (str_nullorwhitespace($_v)) unset($aPerms[$_k]);
-								}
-
-								if (Identify::GetInstance()->hasRole($aPerms) == false) {
-									throw new NoPermissionException($this->_sCallStack);
-								}
-							}
-						}
-					}
-				}
+			if ($this->_identification($oController->identifyRequired(), $oController->requiredPermission) == false) {
+				throw new NoPermissionException;
 			}
-			//all-anonymous, null
 
 			//prepare
 			$oPrepareResult = $oController->prepare();
@@ -309,7 +255,8 @@ final class Dispatcher
 				} else if ($this->_oActionResult == 401) {
 					if ($this->_oRequest->getType() == 'View') {
 						//redirect to login
-						$oResult = new Redirect('Default', 'Passport', 'SignIn', array('return' => $this->_oRequest->getRequestUri()));
+						//$oResult = new Redirect('Default', 'Passport', 'SignIn', array('return' => $this->_oRequest->getRequestUri()));
+						$oResult = new Redirect(Configuration::Get('System/Identify', '/'));
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'not_login'));
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -366,5 +313,60 @@ final class Dispatcher
 			}
 			$oResult->Output();
 		}
+	}
+
+	protected function _identification($bIdentify, $mPermRequired)
+	{
+		#region Controller Level
+		//without identification
+		if ($bIdentify != true) {
+			return true;
+		}
+
+		//no permission required
+		if ($mPermRequired == null) {
+			return true;
+		}
+
+		//any permission allowed
+		if (is_string($mPermRequired) AND $mPermRequired == '*') {
+			return Identify::IsIdentified();
+		}
+		#endregion
+
+		#region Action Level
+		if (!is_array($mPermRequired)) {
+			throw new IdentifyException('invalid_permission_defined');
+		}
+
+		$mPermRequired = array_key_case($mPermRequired, CASE_LOWER);
+		$sActionFull   = strtolower($this->_oRequest->getMethod() . '_' . $this->_oRequest->getAction());
+		$sAction       = strtolower($this->_oRequest->getAction());
+
+		if (array_key_exists($sActionFull, $mPermRequired)) {
+			$mActionPerm = $mPermRequired[$sActionFull];
+		} else if (array_key_exists($sAction, $mPermRequired)) {
+			$mActionPerm = $mPermRequired[$sAction];
+		} else {
+			$mActionPerm = '*';
+		}
+
+		if (is_string($mActionPerm) AND $mActionPerm == '*') {
+			return Identify::IsIdentified();
+		} else {
+			$mActionPerm = is_string($mActionPerm) ? preg_split('/\|,/', $mActionPerm) : (is_array($mActionPerm) ? $mActionPerm : false);
+
+			if ($mActionPerm == false) throw new IdentifyException('invalid_permission_defined');
+
+			//some cleanup
+			$mActionPerm = array_values($mActionPerm);
+			foreach ($mActionPerm AS $_k => &$_v) {
+				$_v = strtolower(trim($_v));
+				if (empty($_v)) unset($mActionPerm[$_k]);
+			}
+
+			return Identify::GetInstance()->hasRole($mActionPerm);
+		}
+		#endregion
 	}
 } 

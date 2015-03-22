@@ -45,6 +45,7 @@ abstract class Request implements \ArrayAccess
 
 	protected $_bIsAjax = null;
 
+	protected $_aHeader = array();
 	protected $_aQuery = array();
 	protected $_aData = array();
 
@@ -85,6 +86,20 @@ abstract class Request implements \ArrayAccess
 	}
 
 	/**
+	 * Get Request Header
+	 *
+	 * @param string $sKey
+	 * @param null $mDefault
+	 * @return null|string
+	 */
+	public function getHeader($sKey, $mDefault = null)
+	{
+		$sKey = strtolower($sKey);
+
+		return array_key_exists($sKey, $this->_aHeader) ? $this->_aHeader[$sKey] : $mDefault;
+	}
+
+	/**
 	 * Get Raw Post Data
 	 *
 	 * @return string
@@ -116,8 +131,11 @@ abstract class Request implements \ArrayAccess
 
 		$this->_sMethod = $this->getMethod();
 
-		$this->_aQuery = array_key_case($_GET, CASE_LOWER);
-		$this->_aData  = array_key_case($_POST, CASE_LOWER);
+		$this->_initialize();
+	}
+
+	protected function _initialize()
+	{
 	}
 
 	public function __get($sKey)
