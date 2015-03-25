@@ -21,7 +21,7 @@ use Raindrop\DatabaseAdapter;
 use Raindrop\InvalidArgumentException;
 use Raindrop\Logger;
 
-abstract class BaseModel implements \Serializable
+abstract class BaseModel implements \Serializable, \JsonSerializable
 {
 	const ACTION_INSERT = 1;
 	const ACTION_UPDATE = 2;
@@ -90,6 +90,11 @@ abstract class BaseModel implements \Serializable
 		$this->_oTableSchema   = $aData['schema'];
 		$this->_iAction        = $aData['action'];
 		$this->_aChangedColumn = $aData['changed'];
+	}
+
+	public function jsonSerialize()
+	{
+		return $this->_oTableSchema->getColumnsName();
 	}
 
 	public function setColumnsValue($mSource, $bResetChangeFlag = true)

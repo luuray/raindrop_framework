@@ -23,6 +23,6 @@ class ControllerNotFoundException extends FileNotFoundException
 {
 }
 
-class ActionNotFoundException extends \ControllerNotFoundException
+class ActionNotFoundException extends ControllerNotFoundException
 {
 }

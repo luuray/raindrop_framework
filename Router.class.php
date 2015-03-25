@@ -161,7 +161,7 @@ class Router
 					$this->_oRequest->setType('Xml');
 				} //other extension make it as a download file
 				else {
-					$this->_oRequest->setType('File');
+					$this->_oRequest->setType('FileStream');
 				}
 			}
 		} else {

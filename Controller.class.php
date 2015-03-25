@@ -61,7 +61,7 @@ abstract class Controller
 	 */
 	public function requiredPermission()
 	{
-		return null;
+		return '*';
 	}
 
 	#endregion
