@@ -25,6 +25,7 @@ class Json extends ActionResult
 {
 	protected $_bAllowGet = false;
 	protected $_mData = null;
+	protected $_iHttoCode = 200;
 
 	/**
 	 * Create a ActionResult Object
@@ -32,10 +33,11 @@ class Json extends ActionResult
 	 * @param bool $bAllowGet Allow Request by GET Method
 	 * @param null|array $mData Result Data
 	 */
-	public function __construct($bAllowGet = false, $mData = null)
+	public function __construct($bAllowGet = false, $mData = null, $iHttpCode=200)
 	{
 		$this->_bAllowGet = $bAllowGet;
 		$this->_mData     = $mData;
+		$this->_iHttoCode = $iHttpCode;
 	}
 
 	/**
@@ -49,6 +51,7 @@ class Json extends ActionResult
 
 		ob_start();
 
+		http_response_code($this->_iHttoCode);
 		@header('Content-type: application/json');
 
 		if ($this->_bAllowGet == false AND Application::GetRequest()->getMethod() != 'POST') {

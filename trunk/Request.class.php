@@ -305,7 +305,7 @@ abstract class Request implements \ArrayAccess
 	 */
 	public function isAjax()
 	{
-		if ($this->_bIsAjax === null) $this->_bIsAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+		if ($this->_bIsAjax === null) ($this->_bIsAjax = $this->getType()=='Json') || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
 		return $this->_bIsAjax;
 	}

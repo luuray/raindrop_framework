@@ -240,6 +240,7 @@ class View extends ActionResult
 
 				$View     = $this;
 				$ViewData = $this->_oViewData;
+				$Identify = Application::GetIdentify();
 
 				require Loader::Import($sViewName, null, false);
 			};
