@@ -82,14 +82,9 @@ final class Cookie implements \ArrayAccess
 
 	protected function _getItem($sKey)
 	{
-		$sProgressedKey = $this->_generateKey($sKey);
+		$sKey = $this->_generateKey($sKey);
 		if (array_key_exists($sKey, $_COOKIE)) {
-			$mValue = @unserialize($_COOKIE[$sProgressedKey]);
-			if ($mValue === false && error_get_last() != null) {
-				$this->_delItem($sKey);
-			} else {
-				return $mValue;
-			}
+			return $_COOKIE[$sKey];
 		}
 
 		return false;
@@ -98,10 +93,13 @@ final class Cookie implements \ArrayAccess
 	protected function _setItem($sKey, $mValue, $iLifetime)
 	{
 		$sKey = $this->_generateKey($sKey);
+		if(!is_string($mValue) OR !is_numeric($mValue)){
+			return false;
+		}
 
 		setcookie(
 			$sKey,
-			serialize($mValue),
+			$mValue,
 			$iLifetime === null ?
 				time() + $this->_iLifetime : time() + $iLifetime,
 			'/',
