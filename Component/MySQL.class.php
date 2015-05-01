@@ -251,6 +251,10 @@ class MySQL implements IDbConnector
 	 */
 	public function beginTransaction($sFlag = null)
 	{
+		if ($this->isConnected() === false) {
+			$this->connect();
+		}
+
 		return $this->_oConn->beginTransaction();
 	}
 
@@ -261,6 +265,7 @@ class MySQL implements IDbConnector
 	 */
 	public function commitTransaction($sFlag = null)
 	{
+		if($this->isConnected() == false) return false;//not connect, no transaction exists.
 		return $this->_oConn->commit();
 	}
 
@@ -272,6 +277,7 @@ class MySQL implements IDbConnector
 	 */
 	public function rollbackTransaction($sFlag = null)
 	{
+		if($this->isConnected() == false) return false;//not connect, no transaction exists.
 		return $this->_oConn->rollBack();
 	}
 	#endregion
