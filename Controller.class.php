@@ -49,7 +49,7 @@ abstract class Controller
 	 *
 	 * @return bool
 	 */
-	public function identifyRequired()
+	public static function identifyRequired()
 	{
 		return false;
 	}
@@ -59,7 +59,7 @@ abstract class Controller
 	 *
 	 * @return null
 	 */
-	public function requiredPermission()
+	public static function requiredPermission()
 	{
 		return '*';
 	}

@@ -18,10 +18,10 @@
 
 namespace Raindrop\ActionResult;
 
-
 use Raindrop\ActionResult;
 use Raindrop\Exceptions\NotImplementedException;
 
+///TODO Output Error Page
 class ErrorPage extends View
 {
 	public function __construct($mCode = 404, $mData = null)

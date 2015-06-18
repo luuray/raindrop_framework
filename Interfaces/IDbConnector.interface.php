@@ -16,8 +16,7 @@
  * @version $Rev$
  */
 namespace Raindrop\Interfaces;
-
-use Raindrop\ModelAbstract;
+use Raindrop\ORM\BaseModel;
 
 interface IDbConnector
 {
@@ -104,7 +103,7 @@ interface IDbConnector
 	 * @param string $sQuery
 	 * @param null|array $aParam
 	 * @param string $sModelName
-	 * @return array|ModelAbstract
+	 * @return BaseModel
 	 */
 	public function getLine($sQuery, $aParam = null, $sModelName = null);
 
@@ -113,7 +112,7 @@ interface IDbConnector
 	 * @param string $sQuery
 	 * @param null|array $aParam
 	 * @param string $sModelName
-	 * @return array|ModelAbstractArray
+	 * @return array
 	 */
 	public function getData($sQuery, $aParam = null, $sModelName = null);
 	#endregion
