@@ -33,7 +33,7 @@ class FileStream extends ActionResult
 	 */
 	public function __construct($sFileName = null)
 	{
-		if (empty($sFileName) or !is_readable(SysRoot . '/' . $sFileName)) {
+		if (empty($sFileName) or !is_readable(SysRoot . '/' . $sFileName) OR !is_file(SysRoot.'/'.$sFileName)) {
 			throw new InvalidArgumentException('filename');
 		}
 
@@ -47,20 +47,17 @@ class FileStream extends ActionResult
 	 */
 	public function Output()
 	{
-		$oFileInfo = new \SplFileInfo($this->_sFileName);
-		if($oFileInfo->isFile() == false){
-			(new HttpCode(500))->Output();
-		}
-
 		ob_end_clean();
+
 		header('Content-Description: File Transfer');
-		header('Content-Type: application/octet-stream');
+		header('Content-Type: ' . (function_exists('finfo_file')?finfo_file(finfo_open(FILEINFO_MIME_TYPE), $this->_sFileName) : 'application/octet-stream'));
 		header('Content-Disposition: attachment; filename='.basename($this->_sFileName));
 		header('Expires: 0');
 		header('Cache-Control: must-revalidate');
 		header('Pragma: public');
 		header('Content-Length: ' . filesize($this->_sFileName));
 		readfile($this->_sFileName);
+
 		exit;
 	}
 

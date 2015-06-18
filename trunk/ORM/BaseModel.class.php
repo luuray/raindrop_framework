@@ -119,17 +119,17 @@ abstract class BaseModel implements \Serializable, \JsonSerializable
 	}
 
 	//property in method
-	public function getTableName()
+	public static function getTableName()
 	{
 		return get_called_class();
 	}
 
-	public function getDbConnect()
+	public static function getDbConnect()
 	{
 		return 'default';
 	}
 
-	public function getPkName()
+	public static function getPkName()
 	{
 		return null;
 	}

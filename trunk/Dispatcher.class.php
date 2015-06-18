@@ -159,7 +159,7 @@ final class Dispatcher
 				$oRefAct = $oRefCtrl->getMethod($sActFailOver);
 			} else {
 				//$this->_oActionResult = HttpCode(404, 'not_found: call_stack=' . $this->_sCallStack);
-				$this->_oActionResult = 'not_found';
+				$this->_oActionResult = 404;
 				$this->_bDispatched   = true;
 
 				return false;
@@ -168,13 +168,13 @@ final class Dispatcher
 				Debugger::Output('CallStack:' . $this->_sCallStack, 'Dispatcher');
 			}
 
-			//Invoke Controller's Instance
-			$oController = $oRefCtrl->newInstance();
-
 			//need identify
-			if ($this->_identification($oController->identifyRequired(), $oController->requiredPermission()) == false) {
+			if ($this->_identification($sCtrlName::IdentifyRequired(), $sCtrlName::RequiredPermission()) == false) {
 				throw new NoPermissionException;
 			}
+
+			//Invoke Controller's Instance
+			$oController = $oRefCtrl->newInstance();
 
 			//prepare
 			$oPrepareResult = $oController->prepare();
