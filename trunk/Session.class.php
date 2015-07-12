@@ -49,8 +49,22 @@ final class Session implements \Iterator, \ArrayAccess
 	 */
 	public static function Start()
 	{
-		if (self::$_oInstance === null) self::GetInstance();
-		else            throw new InitializedException();
+		if (self::$_oInstance === null) {
+			self::GetInstance()->_initialize();
+		} else {
+			throw new InitializedException();
+		}
+	}
+
+	public static function Restart()
+	{
+		if (self::$_oInstance === null) {
+			self::GetInstance()->_initialize();
+		} else {
+			self::GetInstance()->destroy();
+
+			self::GetInstance()->_initialize(true);
+		}
 	}
 
 	/**
@@ -101,13 +115,20 @@ final class Session implements \Iterator, \ArrayAccess
 	 */
 	protected function __construct()
 	{
+		$this->_initialize();
+	}
+
+	protected function _initialize($bRestart=false)
+	{
 		//todo session to memCache
 
-		if (@session_start() == false) {
-			throw new FatalErrorException('session_start_fail');
+		if ($bRestart) {
+			session_regenerate_id(true);
+		} else {
+			if (@session_start() == false) throw new FatalErrorException('session_start_fail');
 		}
 
-		$this->_pSession   = &$_SESSION;
+		$this->_pSession = &$_SESSION;
 		$this->_mOffset    = key($this->_pSession);
 		$this->_sSessionId = session_id();
 		$this->_sPrefix    = Configuration::Get('Cookie\Prefix', AppName);

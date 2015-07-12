@@ -17,73 +17,48 @@
  */
 namespace Raindrop\Component;
 
-use Raindrop\Exceptions\InvalidArgumentException;
-
 class RandomString
 {
-	const CHAR_ALL = 0;
-	const CHAR_UNCONFUSED = 1;
-	const CHAR_CASELESS = 2;
+	protected static $_aAllChars = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
+	protected static $_aCassLess = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+	protected static $_aUnconfusedChars = array('2', '3', '4', '5', '6', '7', '8', '9',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 
-	public $aAllChars = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-		'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
-		'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
-	public $aCassLess = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-		'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-	public $aUnconfusedChars = array('2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-		'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-
-	protected $_iDefaultLen = 0;
-	protected $_iMode = 0;
-
-	public function __construct($iMode = self::CHAR_ALL, $iLength = 8)
+	protected function __construct()
 	{
-		if (!in_array($iMode, array(0, 1))) {
-			throw new InvalidArgumentException('string_mode');
-		}
-		if (!settype($iLength, 'int') OR $iLength <= 0) {
-			throw new InvalidArgumentException('string_length');
-		}
-
-		$this->_iMode       = $iMode;
-		$this->_iDefaultLen = $iLength;
-
-		return $this;
 	}
 
-	public function GetString($iLength = null)
+	public static function GetString($iLength = 8, $bCaseSensitive = true)
 	{
-		if ($iLength === null) {
-			return $this->_generator($this->_iMode, $this->_iDefaultLen);
-		} else if (!settype($iLength, 'int') OR $iLength <= 0) {
-			throw new InvalidArgumentException('string_length');
+		if ($iLength <= 0) return null;
+
+		$sReturn = '';
+		$pTable  = null;
+
+		$aCodeTable = $bCaseSensitive ? self::$_aAllChars : self::$_aCassLess;
+		$iCount     = count($aCodeTable) - 1;
+
+		for ($i = 0; $i < $iLength; $i++) {
+			$sReturn .= $aCodeTable[mt_rand(0, $iCount)];
 		}
 
-		return $this->_generator($this->_iMode, $iLength);
+		return $sReturn;
 	}
 
-	public function __toString()
+	public static function GetUnconfused($iLength = 8)
 	{
-		return $this->_generator($this->_iMode, $this->_iDefaultLen);
-	}
+		if ($iLength <= 0) return null;
 
-	protected function _generator($iMode, $iLength)
-	{
-		if ($iMode == 0) {
-			$aChars = $this->aAllChars;
-		} else if ($iMode == 1) {
-			$aChars = $this->aUnconfusedChars;
-		} else if($iMode == 2){
-			$aChars = $this->aCaseLess;
+		$sReturn = '';
+		$iCount  = count(self::$_aUnconfusedChars) - 1;
+
+		for ($i = 0; $i < $iLength; $i++) {
+			$sReturn .= self::$_aUnconfusedChars[mt_rand(0, $iCount)];
 		}
 
-		$sResult     = '';
-		$iCharsCount = count($aChars) - 1;
-		while ($iLength > 0) {
-			$sResult .= $aChars[mt_rand(0, $iCharsCount)];
-			$iLength--;
-		}
-
-		return $sResult;
+		return $sReturn;
 	}
 }

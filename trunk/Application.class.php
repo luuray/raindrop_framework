@@ -17,6 +17,8 @@
  */
 namespace Raindrop;
 
+use Raindrop\Exceptions\NotInitializeException;
+
 require_once CorePath.'/Exceptions/System.php';
 require_once 'Common.func.php';
 require_once 'ActionResult.func.php';
@@ -29,7 +31,7 @@ abstract class Application
 	protected static $_bEnableDebug = false;
 
 	/**
-	 * @var null|IdentifyAbstract
+	 * @var null|Identify
 	 */
 	protected $_oIdentify = null;
 	/**
@@ -102,7 +104,7 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance->_oRequest;
 		} else {
-			return null;
+			throw new NotInitializeException;
 		}
 	}
 
@@ -111,7 +113,7 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance->_oRequest->getRequestTime();
 		} else {
-			return null;
+			throw new NotInitializeException;
 		}
 	}
 
@@ -120,7 +122,7 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance->_oIdentify;
 		} else {
-			return null;
+			throw new NotInitializeException;
 		}
 	}
 

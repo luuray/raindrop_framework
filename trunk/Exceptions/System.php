@@ -30,6 +30,10 @@ abstract class ApplicationException extends Exception
 	{
 		Application::SetLastException($this);
 
+		$message = empty($message) ?
+			('Exception:' . get_called_class() . '; Line:' . $this->line .
+				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
+
 		parent::__construct($message, $code, $previous);
 	}
 }
