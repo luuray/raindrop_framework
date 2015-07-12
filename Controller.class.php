@@ -26,7 +26,7 @@ use Raindrop\ActionResult\ViewData;
  * @package Raindrop
  *
  * @property Request $Request Request
- * @property IdentifyAbstract $Identify Identify
+ * @property Identify $Identify Identify
  * @property ViewData $ViewData ViewData
  */
 abstract class Controller

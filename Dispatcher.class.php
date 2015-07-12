@@ -338,12 +338,12 @@ final class Dispatcher
 
 		//same permission for all actions
 		if (is_string($mPermRequired)) {
-			if (Identify::IsIdentified() == false) throw new UnidentifiedException;
+			if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
 			if($mPermRequired == '*') {
 				return true;
 			}
 			else{
-				return Identify::GetInstance()->hasRole($mPermRequired);
+				return Application::GetIdentify()->hasRole($mPermRequired);
 			}
 		}
 		#endregion
@@ -369,7 +369,7 @@ final class Dispatcher
 			return true;
 		}
 		else if (is_string($mActionPerm) AND $mActionPerm == '*') {
-			if(Identify::IsIdentified()) return true;
+			if(Application::GetIdentify()->IsIdentified()) return true;
 			throw new UnidentifiedException;
 		} else {
 			$mActionPerm = is_string($mActionPerm) ? preg_split('/\|,/', $mActionPerm) : (is_array($mActionPerm) ? $mActionPerm : false);
@@ -383,7 +383,7 @@ final class Dispatcher
 				if (empty($_v)) unset($mActionPerm[$_k]);
 			}
 
-			return Identify::GetInstance()->hasRole($mActionPerm);
+			return Application::GetIdentify()->hasRole($mActionPerm);
 		}
 		#endregion
 	}

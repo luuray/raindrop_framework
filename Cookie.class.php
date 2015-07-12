@@ -93,11 +93,11 @@ final class Cookie implements \ArrayAccess
 	protected function _setItem($sKey, $mValue, $iLifetime)
 	{
 		$sKey = $this->_generateKey($sKey);
-		if(!is_string($mValue) OR !is_numeric($mValue)){
+		if(!is_string($mValue) AND !is_numeric($mValue)){
 			return false;
 		}
 
-		setcookie(
+		return setcookie(
 			$sKey,
 			$mValue,
 			$iLifetime === null ?
