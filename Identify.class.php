@@ -160,6 +160,11 @@ abstract class Identify
 	 * Get DisplayName
 	 */
 	public abstract function GetDisplayName();
+
+	/**
+	 * Get User Model
+	 */
+	public abstract function GetUser();
 	#endregion
 
 	#region Session Operators

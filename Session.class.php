@@ -20,6 +20,7 @@ namespace Raindrop;
 
 
 use Raindrop\Exceptions\InitializedException;
+use Raindrop\Exceptions\NotInitializeException;
 
 final class Session implements \Iterator, \ArrayAccess
 {
@@ -72,7 +73,10 @@ final class Session implements \Iterator, \ArrayAccess
 	 */
 	public static final function GetSessionId()
 	{
-		return self::$_oInstance == null ? null : self::$_oInstance->_sSessionId;
+		if(self::$_oInstance == null){
+			throw new NotInitializeException;
+		}
+		return self::$_oInstance->_sSessionId;
 	}
 
 	/**

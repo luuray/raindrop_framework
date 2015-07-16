@@ -19,7 +19,7 @@ namespace Raindrop;
 
 use Raindrop\Exceptions\NotInitializeException;
 
-require_once CorePath.'/Exceptions/System.php';
+require_once 'Exceptions/System.php';
 require_once 'Common.func.php';
 require_once 'ActionResult.func.php';
 
