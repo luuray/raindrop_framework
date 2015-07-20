@@ -19,7 +19,30 @@
 namespace Raindrop;
 
 use Raindrop\Exceptions\Database\DatabaseConnectionException;
+use Raindrop\Exceptions\Database\DatabaseException;
+use Raindrop\Exceptions\Database\DatabaseQueryException;
+use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Exceptions\RuntimeException;
+use Raindrop\Interfaces\IDbConnector;
+use Raindrop\ORM\BaseModel;
 
+/**
+ * Class DatabaseAdapter
+ *
+ * @package Raindrop
+ *
+ * @method int GetLastId() GetLastId($sQuery, $aParam=null, $sDAtasource='default')
+ * @method int GetAffectedRowNum() GetAffectedRowNum($sQuery, $aParam=null, $sDAtasource='default')
+ * @method mixed GetVar() GetVar($sQuery, $aParam=null, $sDAtasource='default')
+ * @method BaseModel GetLine() GetLine($sQuery, $aParam=null, $sDAtasource='default')
+ * @method array GetData() GetData($sQuery, $aParam=null, $sDAtasource='default')
+ * @method bool BeginTransaction() BeginTransaction($sDataSource)
+ * @method bool CommitTransaction() CommitTransaction($sDataSource)
+ * @method bool RollbackTransaction() RollbackTransaction($sDataSource)
+ * @method \PDOStatement Query() Query($sQuery, $aParam=null, $sDatasource='defualt')
+ */
 final class DatabaseAdapter
 {
 	/**
@@ -99,96 +122,41 @@ final class DatabaseAdapter
 		}
 	}
 
-#region Query Methods
-	public static function Query($sQuery, $aParam = null, $sDatasource = 'default')
+	public static function __callStatic($sName, $aArgs)
 	{
-		return self::GetInstance()->_getDatasource($sDatasource)->query($sQuery, $aParam);
-	}
+		try{
+			if(count($aArgs) == 1){
+				$oConn = self::GetInstance()->_getDatasource($aArgs[0]);
+				if($oConn instanceof IDbConnector){
+					return $oConn->$sName();
+				}
+			}
+			else if(count($aArgs) == 3){
+				$oConn = self::GetInstance()->_getDatasource($aArgs[2]);
+				if($oConn instanceof IDbConnector){
+					return $oConn->$sName($aArgs[0], $aArgs[1]);
+				}
+			}
+			else{
+				throw new InvalidArgumentException;
+			}
 
-	/**
-	 * @param $sQuery
-	 * @param null $aParam
-	 * @param string $sDatasource
-	 * @return mixed
-	 */
-	public static function GetLastId($sQuery, $aParam = null, $sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->getLastId($sQuery, $aParam);
+			throw new NotImplementedException($sName);
+		}
+		catch(DatabaseConnectionException $ex){
+			throw new FatalErrorException('Database Connection:' + $ex->getMessage());
+		}
+		catch(DatabaseQueryException $ex){
+			throw new RuntimeException('Database Query:' + $ex->getMessage());
+		}
+		catch(DatabaseException $ex){
+			throw new FatalErrorException('Databaes:' + $ex->getMessage());
+		}
+		catch(NotImplementedException $ex){
+			throw $ex;
+		}
+		catch(FatalErrorException $ex){
+			throw $ex;
+		}
 	}
-
-	/**
-	 * @param $sQuery
-	 * @param null $aParam
-	 * @param string $sDatasource
-	 * @return mixed
-	 */
-	public static function GetAffectedRowNum($sQuery, $aParam = null, $sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->getAffectedRowNum($sQuery, $aParam);
-	}
-
-	/**
-	 * @param $sQuery
-	 * @param null $aParam
-	 * @param string $sDatasource
-	 * @return mixed
-	 */
-	public static function GetVar($sQuery, $aParam = null, $sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->getVar($sQuery, $aParam);
-	}
-
-	/**
-	 * @param $sQuery
-	 * @param null $aParam
-	 * @param string $sDatasource
-	 * @param null $sModel
-	 * @return mixed
-	 */
-	public static function GetLine($sQuery, $aParam = null, $sDatasource = 'default', $sModel = null)
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->getLine($sQuery, $aParam, $sModel);
-	}
-
-	/**
-	 * @param $sQuery
-	 * @param null $aParam
-	 * @param string $sDatasource
-	 * @param null $sModel
-	 * @return mixed
-	 */
-	public static function GetData($sQuery, $aParam = null, $sDatasource = 'default', $sModel = null)
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->getData($sQuery, $aParam, $sModel);
-	}
-#endregion
-
-#region Transaction Operations
-	/**
-	 * @param string $sDatasource
-	 * @return bool
-	 */
-	public static function BeginTransaction($sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->beginTransaction();
-	}
-
-	/**
-	 * @param string $sDatasource
-	 * @return bool
-	 */
-	public static function RollbackTransaction($sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->rollbackTransaction();
-	}
-
-	/**
-	 * @param string $sDatasource
-	 * @return bool
-	 */
-	public static function CommitTransaction($sDatasource = 'default')
-	{
-		return self::GetInstance()->_getDatasource($sDatasource)->commitTransaction();
-	}
-#endregion
 }

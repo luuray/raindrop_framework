@@ -17,6 +17,7 @@
  */
 namespace Raindrop;
 
+use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\NotInitializeException;
 
 require_once 'Exceptions/System.php';
@@ -53,8 +54,15 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance;
 		} else {
-			$sAppType = get_called_class();
-			new $sAppType();
+			try {
+				$sAppType = get_called_class();
+				new $sAppType();
+			}
+			catch(\Exception $ex){
+				@header_remove();
+				@header('Uncaught exception', true, 500);
+				exit();
+			}
 		}
 	}
 
@@ -63,15 +71,33 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance;
 		} else {
-			self::$_bEnableDebug = true;
+			try {
+				self::$_bEnableDebug = true;
 
-			//clean file stat cache
-			clearstatcache();
+				//clean file stat cache
+				clearstatcache();
 
-			ob_start();
+				ob_start();
 
-			$sAppType = get_called_class();
-			new $sAppType();
+				$sAppType = get_called_class();
+				new $sAppType();
+			} catch (\Exception $ex) {
+				@header_remove();
+				@header('Uncaught exception:' + $ex->getMessage(), true, 500);
+				$sProtocol = (empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https';
+				$sPost = file_get_contents('php://input');
+				echo <<<EXP
+<strong>Message:</strong><pre>{$ex->getMessage()}</pre><hr>
+<strong>File:</strong>{$ex->getFile()}<br>
+<strong>Line:</strong>{$ex->getLine()}<br>
+<strong>Trace:</strong><pre>{$ex->getTraceAsString()}<pre><hr>
+<strong>Request</strong>
+<strong>Uri:</strong>{$sProtocol}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']} @{$_SERVER['REQUEST_TIME']}
+<strong>Query:</strong>{$_SERVER['QUERY_STRING']}
+<strong>PostData:</strong><pre>{$sPost}</pre>
+EXP;
+				exit;
+			}
 		}
 	}
 
@@ -199,7 +225,7 @@ abstract class Application
 				}
 			}
 		} catch (FileNotFoundException $ex) {
-
+			throw new FatalErrorException('Bootstrap Scripte Not Found');
 		}
 
 		//Prepare to Begin Route

@@ -113,7 +113,7 @@ class MySQL implements IDbConnector
 
 			return true;
 		} catch (PDOException $ex) {
-			var_dump($ex);
+			//var_dump($ex);
 			throw new DatabaseConnectionException($this->_sDSName, $ex->getMessage(), $ex->getCode());
 		}
 	}
