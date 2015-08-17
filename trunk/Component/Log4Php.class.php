@@ -17,6 +17,7 @@
  */
 namespace Raindrop\Component;
 
+use Raindrop\Configuration;
 use Raindrop\Interfaces\ILogger;
 
 class Log4Php implements ILogger
@@ -27,7 +28,7 @@ class Log4Php implements ILogger
 	protected $_oLogger = null;
 	protected $_sLoggerName = null;
 
-	public function __construct($aConfig)
+	public function __construct(Configuration $aConfig)
 	{
 		$this->_sLoggerName = md5(microtime(true) . '-' . mt_rand(100, 999));
 		require_once __DIR__ . '/log4php/Logger.php';

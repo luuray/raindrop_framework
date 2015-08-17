@@ -121,13 +121,8 @@ final class Dispatcher
 	/**
 	 * Dispatch Request
 	 */
-	public function dispatch(Request $oRequest = null)
+	public function dispatch()
 	{
-		//change request
-		if ($oRequest !== null) {
-			$this->_oRequest = $oRequest;
-		}
-
 		//get controller
 		$sCtrlName =
 			AppName . '\\'

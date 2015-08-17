@@ -2,13 +2,13 @@
 /**
  * Raindrop Framework for PHP
  *
- * Interface for ScheduleJob
+ * TaskQueue Interface
  *
  * @author $Author$
  * @copyright Rainhan System
  * @date $Date$
  *
- * Copyright (c) 2010-2014, Rainhan System
+ * Copyright (c) 2010-2015, Rainhan System
  * Site: raindrop-php.rainhan.net
  *
  * $Id$
@@ -19,11 +19,9 @@
 namespace Raindrop\Interfaces;
 
 
-interface IScheduleJob
+use Raindrop\Configuration;
+
+interface ITaskQueue
 {
-	public function start();
-
-	public function status();
-
-	public function stop();
+	public function __construct($sName, Configuration $oConfig);
 }

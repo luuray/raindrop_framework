@@ -17,9 +17,11 @@
  */
 namespace Raindrop\Interfaces;
 
+use Raindrop\Configuration;
+
 interface ILogger
 {
-	public function __construct($aConfig);
+	public function __construct(Configuration $oConfig);
 
 	public function Trace($mMsg);
 
