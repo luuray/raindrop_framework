@@ -31,6 +31,8 @@ abstract class Application
 	protected static $_oInstance = null;
 	protected static $_bEnableDebug = false;
 
+	protected $_aAppArgs = null;
+
 	/**
 	 * @var null|Identify
 	 */
@@ -55,8 +57,7 @@ abstract class Application
 			return self::$_oInstance;
 		} else {
 			try {
-				$sAppType = get_called_class();
-				new $sAppType();
+				return (new \ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
 			}
 			catch(\Exception $ex){
 				@header_remove();
@@ -79,24 +80,39 @@ abstract class Application
 
 				ob_start();
 
-				$sAppType = get_called_class();
-				new $sAppType();
+				return (new \ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
 			} catch (\Exception $ex) {
 				@header_remove();
 				@header('Uncaught exception:' + $ex->getMessage(), true, 500);
-				$sProtocol = (empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https';
+				$sRequestUri =
+					isset($_SERVER['HTTP_HOST']) ?
+						(((empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) :
+						'Console';
 				$sPost = file_get_contents('php://input');
-				echo <<<EXP
+				$sGet = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'NULL';
+
+				if ($sRequestUri == 'Console') {
+					echo <<<EXP
+Message: {$ex->getMessage()} \r\n
+File: {$ex->getFile()} \r\n
+Line: {$ex->getLine()} \r\n
+------ Trace Begin ------ \r\n
+{$ex->getTraceAsString()}\r\n
+------- Trace End -------\r\n
+EXP;
+				} else {
+					echo <<<EXP
 <strong>Message:</strong><pre>{$ex->getMessage()}</pre><hr>
 <strong>File:</strong>{$ex->getFile()}<br>
 <strong>Line:</strong>{$ex->getLine()}<br>
 <strong>Trace:</strong><pre>{$ex->getTraceAsString()}<pre><hr>
 <strong>Request</strong>
-<strong>Uri:</strong>{$sProtocol}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']} @{$_SERVER['REQUEST_TIME']}
-<strong>Query:</strong>{$_SERVER['QUERY_STRING']}
+<strong>Uri:</strong>{$sRequestUri} @{$_SERVER['REQUEST_TIME']}
+<strong>Query:</strong>{$sGet}
 <strong>PostData:</strong><pre>{$sPost}</pre>
 EXP;
-				exit;
+					exit;
+				}
 			}
 		}
 	}
@@ -168,9 +184,11 @@ EXP;
 
 	protected abstract function _getRequest();
 
+	protected abstract function _run();
+
 	protected abstract function _finish();
 
-	protected final function __construct()
+	public final function __construct()
 	{
 		if (self::$_oInstance instanceof Application) {
 			throw new FatalErrorException('application_started');
@@ -214,40 +232,17 @@ EXP;
 		$this->_initializeIdentify();
 
 		//Get Bootstrap
-		try {
-			if (Loader::Import('bootstrap.class.php', AppDir)) {
-				$oBootstrap = AppName . '\Bootstrap';
-				$oBootstrap = new $oBootstrap();
-				if ($oBootstrap instanceof BootstrapAbstract) {
-					$this->_oBootstrap = $oBootstrap;
-				} else {
-					throw new FatalErrorException('bootstrap_not_match_defined');
-				}
+		if (Loader::Import('bootstrap.class.php', AppDir)) {
+			$oBootstrap = AppName . '\Bootstrap';
+			$oBootstrap = new $oBootstrap();
+			if ($oBootstrap instanceof BootstrapAbstract) {
+				$this->_oBootstrap = $oBootstrap;
+			} else {
+				throw new FatalErrorException('bootstrap_not_match_defined');
 			}
-		} catch (FileNotFoundException $ex) {
-			throw new FatalErrorException('Bootstrap Scripte Not Found');
 		}
 
-		//Prepare to Begin Route
-		$this->_oBootstrap->beforeRoute(self::$_oInstance, $this->_oDispatcher);
-		//Begin Route
-		Router::BeginRoute($this->_oRequest);
-		//After Route
-		$this->_oBootstrap->afterRoute(self::$_oInstance, $this->_oDispatcher);
-
-		//Dispatcher Initialize
-		$this->_oDispatcher = Dispatcher::GetInstance();
-
-
-		//Prepare to Begin Dispatch
-		$this->_oBootstrap->beforeDispatch(self::$_oInstance, $this->_oDispatcher);
-		//Dispatch
-		$this->_oDispatcher->dispatch();
-		//After Dispatch
-		$this->_oBootstrap->afterDispatch(self::$_oInstance, $this->_oDispatcher);
-
-		//Output Result
-		$this->_oDispatcher->outputResult();
+		$this->_run();
 	}
 
 	public final function __destruct()

@@ -19,6 +19,8 @@
 namespace Raindrop;
 
 
+use Raindrop\Exceptions\NotImplementedException;
+
 class ConsoleRequest extends Request
 {
 	public function getMethod()
@@ -39,6 +41,11 @@ class ConsoleRequest extends Request
 	public function getBaseUri()
 	{
 		return false;
+	}
+
+	public function getFile($sKey)
+	{
+		throw new NotImplementedException;
 	}
 
 	public function isAjax()

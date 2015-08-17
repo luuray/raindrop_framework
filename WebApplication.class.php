@@ -58,6 +58,30 @@ final class WebApplication extends Application
 		return new WebRequest();
 	}
 
+	protected function _run()
+	{
+		//Prepare to Begin Route
+		$this->_oBootstrap->beforeRoute(self::$_oInstance, $this->_oDispatcher);
+		//Begin Route
+		Router::BeginRoute($this->_oRequest);
+		//After Route
+		$this->_oBootstrap->afterRoute(self::$_oInstance, $this->_oDispatcher);
+
+		//Dispatcher Initialize
+		$this->_oDispatcher = Dispatcher::GetInstance();
+
+
+		//Prepare to Begin Dispatch
+		$this->_oBootstrap->beforeDispatch(self::$_oInstance, $this->_oDispatcher);
+		//Dispatch
+		$this->_oDispatcher->dispatch();
+		//After Dispatch
+		$this->_oBootstrap->afterDispatch(self::$_oInstance, $this->_oDispatcher);
+
+		//Output Result
+		$this->_oDispatcher->outputResult();
+	}
+
 	protected function _finish()
 	{
 		if (self::IsDebugging()) {
