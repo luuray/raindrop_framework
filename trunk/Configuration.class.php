@@ -18,12 +18,23 @@
 
 namespace Raindrop;
 
-
+/**
+ * Class Configuration
+ * @package Raindrop
+ * @method mixed Get() Get($sKey, $mDefaultValue)
+ */
 class Configuration implements \ArrayAccess
 {
 	protected static $_oInstance = null;
 
 	protected $_aConfig = array();
+
+	public static function __callStatic($sMethod, $aArgs)
+	{
+		if (strtolower($sMethod) == 'get') {
+			return call_user_func_array('self::GetRoot', $aArgs);
+		}
+	}
 
 	/**
 	 * Load Configuration File (Alias of Configuration::GetInstance)
@@ -42,26 +53,8 @@ class Configuration implements \ArrayAccess
 		return self::$_oInstance;
 	}
 
-	public static function Get($sKey = null, $mDefaultValue = null)
+	public static function GetRoot($sKey = null, $mDefaultValue = null)
 	{
-		/*
-		if ($sKey == null) {
-			return self::GetInstance()->_aConfig;
-		}
-
-		$aTree    = preg_split('#[/\\\]+#', trim($sKey));
-		$pPointer = self::GetInstance()->_aConfig;
-
-		foreach ($aTree AS $_k) {
-			if (array_key_exists($_k, $pPointer)) {
-				$pPointer = $pPointer[$_k];
-			} else {
-				return $mDefaultValue;
-			}
-		}
-
-		return $pPointer;
-		*/
 		if ($sKey == null) return self::GetInstance();
 
 		$aFetchTree = preg_split('#[/\\\]+#', trim($sKey));
@@ -105,6 +98,28 @@ class Configuration implements \ArrayAccess
 		} else {
 			return null;
 		}
+	}
+
+	public function __call($sMethod, $aArgs)
+	{
+		if (strtolower($sMethod) == 'get') {
+			return call_user_func_array([$this, 'getByKey'], $aArgs);
+		}
+	}
+
+	public function getByKey($sKey, $mDefaultValue = null)
+	{
+		if ($sKey == null) {
+			return $this;
+		}
+
+		$aFetchTree = preg_split('#[/\\\]+#', trim($sKey));
+		foreach ($aFetchTree AS $_k) {
+			$oResult = $this->$_k;
+			if ($oResult == null) return $mDefaultValue;
+		}
+
+		return $oResult;
 	}
 
 	#region ArrayAccess Interface Methods

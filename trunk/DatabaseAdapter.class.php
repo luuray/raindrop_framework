@@ -33,15 +33,15 @@ use Raindrop\ORM\BaseModel;
  *
  * @package Raindrop
  *
- * @method int GetLastId() GetLastId($sQuery, $aParam=null, $sDAtasource='default')
- * @method int GetAffectedRowNum() GetAffectedRowNum($sQuery, $aParam=null, $sDAtasource='default')
- * @method mixed GetVar() GetVar($sQuery, $aParam=null, $sDAtasource='default')
- * @method BaseModel GetLine() GetLine($sQuery, $aParam=null, $sDAtasource='default')
- * @method array GetData() GetData($sQuery, $aParam=null, $sDAtasource='default')
- * @method bool BeginTransaction() BeginTransaction($sDataSource)
- * @method bool CommitTransaction() CommitTransaction($sDataSource)
- * @method bool RollbackTransaction() RollbackTransaction($sDataSource)
- * @method \PDOStatement Query() Query($sQuery, $aParam=null, $sDatasource='defualt')
+ * @method static int GetLastId($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static int GetAffectedRowNum($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static mixed GetVar($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static BaseModel GetLine($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static array GetData($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static bool BeginTransaction($sDataSource)
+ * @method static bool CommitTransaction($sDataSource)
+ * @method static bool RollbackTransaction($sDataSource)
+ * @method static \PDOStatement Query($sQuery, $aParam = null, $sDataSource = 'defualt')
  */
 final class DatabaseAdapter
 {
@@ -150,7 +150,7 @@ final class DatabaseAdapter
 			throw new RuntimeException('Database Query:' + $ex->getMessage());
 		}
 		catch(DatabaseException $ex){
-			throw new FatalErrorException('Databaes:' + $ex->getMessage());
+			throw new FatalErrorException('Database:' + $ex->getMessage());
 		}
 		catch(NotImplementedException $ex){
 			throw $ex;
