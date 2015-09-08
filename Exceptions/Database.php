@@ -64,3 +64,7 @@ class DatabaseQueryException extends DatabaseException
 		}
 	}
 }
+
+class DataModelException extends DatabaseException
+{
+}

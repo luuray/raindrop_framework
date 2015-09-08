@@ -2,14 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * CronTab Worker Interface
+ * CronTab Provider Interface
  *
  * @author $Author$
  * @copyright Rainhan System
  * @date $Date$
  *
  * Copyright (c) 2010-2015, Rainhan System
- * Site:raindrop-php.rainhan.net
+ * Site: raindrop-php.rainhan.net
  *
  * $Id$
  *
@@ -19,7 +19,7 @@
 namespace Raindrop\Interfaces;
 
 
-interface ICronTab
+interface ICronTabProvider
 {
-	public function __construct($iInverval, $sMode);
+
 }

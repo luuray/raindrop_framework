@@ -317,7 +317,7 @@ abstract class BaseModel implements \Serializable, \JsonSerializable
 		return $iAffectedRow > 0;
 	}
 
-	public static final function Any($sCondition, $aParam = null)
+	public static final function Any($sCondition = null, $aParam = null)
 	{
 		$oModel = get_called_class();
 		$oModel = new $oModel();
