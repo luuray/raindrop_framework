@@ -18,9 +18,17 @@
 namespace Raindrop\ORM;
 
 use Raindrop\DatabaseAdapter;
+use Raindrop\Exceptions\Database\DatabaseException;
 use Raindrop\InvalidArgumentException;
 use Raindrop\Logger;
 
+/**
+ * Class BaseModel
+ *
+ * @package Raindrop\ORM
+ *
+ * @TODO Exception Progress
+ */
 abstract class BaseModel implements \Serializable, \JsonSerializable
 {
 	const ACTION_INSERT = 1;
@@ -141,21 +149,29 @@ abstract class BaseModel implements \Serializable, \JsonSerializable
 
 	public function save()
 	{
-		if ($this->_iAction == self::ACTION_INSERT) {
-			return $this->_insert();
-		} else if ($this->_iAction == self::ACTION_UPDATE) {
-			return $this->_update();
-		} else {
+		try {
+			if ($this->_iAction == self::ACTION_INSERT) {
+				return $this->_insert();
+			} else if ($this->_iAction == self::ACTION_UPDATE) {
+				return $this->_update();
+			} else {
+			}
+		} catch (DatabaseException $ex) {
+
 		}
 	}
 
 	public function del()
 	{
-		if ($this->_iAction == self::ACTION_INSERT) {
-			return false;
-		} else if ($this->_iAction == self::ACTION_UPDATE) {
-			return $this->_del();
-		} else {
+		try {
+			if ($this->_iAction == self::ACTION_INSERT) {
+				return false;
+			} else if ($this->_iAction == self::ACTION_UPDATE) {
+				return $this->_del();
+			} else {
+			}
+		} catch (DatabaseException $ex) {
+
 		}
 	}
 
