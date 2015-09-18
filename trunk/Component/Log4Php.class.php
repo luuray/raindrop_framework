@@ -33,7 +33,7 @@ class Log4Php implements ILogger
 		$this->_sLoggerName = md5(microtime(true) . '-' . mt_rand(100, 999));
 		require_once __DIR__ . '/log4php/Logger.php';
 		$aConfig['logger'] = array('name' => $this->_sLoggerName);
-		\Logger::configure($aConfig);
+		\Logger::configure((array)$aConfig);
 		$this->_oLogger = \Logger::getLogger($this->_sLoggerName);
 	}
 
