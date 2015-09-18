@@ -33,17 +33,19 @@ use Raindrop\Exceptions\InvalidArgumentException;
  * @method static null|array All(array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static null|array Find(string $sCondition = null, array $aParam = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static null|array FindSql(string $sQuery = null, array $aParams = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
- * @method static bool BeginTransaction()
- * @method static bool Commit()
- * @method static bool Rollback()
+ * @method static Transaction BeginTransaction()
  *
  * @method bool Save()
  * @method bool Del()
- * @method bool DelAny(string $sConditions = null, array $aParams = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0, int $bForceDel = false)
+ * @method bool DelAny(mixed $sConditions = null, array $aParams = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0, int $bForceDel = false)
  */
 abstract class Model implements \JsonSerializable, \Serializable
 {
 	#region Model Stats
+	/**
+	 * Deleted State
+	 */
+	const ModelState_Deleted = -1;
 	/**
 	 * Normal State
 	 */
@@ -65,7 +67,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * @var array
 	 */
-	protected $_aPrimaries = array();
+	protected $_aIdentify = array();
 
 	/**
 	 * @var int
@@ -108,12 +110,19 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	public final function __construct($aData = null)
 	{
+		$aScheme = ModelAction::GetModelDefalt(__CLASS__);
+		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
+
 		if ($aData === null) {
 			$this->_iState = self::ModelState_Create;
 			//get default data
-			$this->_aColumns = array_key_case(ModelAction::GetModelDefault(__CLASS__), CASE_LOWER);
+			$this->_aColumns = array_key_case($aScheme['Default'], CASE_LOWER);
 		} else if (is_array($aData)) {
 			$this->_aColumns = array_key_case($aData, CASE_LOWER);
+
+			foreach ($this->_aColumns AS $_col => $_val) {
+				if (array_key_exists($_col, $this->_aIdentify)) $this->_aIdentify[$_col] = $_val;
+			}
 		} else {
 			throw new InvalidArgumentException('initialize_data');
 		}
@@ -161,6 +170,10 @@ abstract class Model implements \JsonSerializable, \Serializable
 		} else {
 			$this->_aColumns[$sColumn] = $mValue;
 		}
+
+		if ($this->_iState == self::ModelState_Create AND array_key_exists($sColumn, $this->_aIdentify)) {
+			$this->_aIdentify[$sColumn] = $mValue;
+		}
 	}
 
 	/**
@@ -191,7 +204,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	public function getRAWData()
 	{
 		if (func_num_args() == 0) {
-			return $this->_aColumns;
+			return ['Columns' => $this->_aColumns, 'Identify' => $this->_aIdentify];
 		} else if (func_num_args() == 1 AND !is_array(func_get_arg(0))) {
 			$sKey = strtolower(func_get_arg(0));
 			return array_key_exists($sKey, $this->_aColumns) ? $this->_aColumns[$sKey] : null;
@@ -228,6 +241,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 			foreach ($aSource AS $_k => $_v) {
 				$_k = is_string($_k) ? strtolower($_k) : $_k;
 				if (array_key_exists($_k, $this->_aColumns)) $this->_aColumns[$_k] = $_v;
+				if (array_key_exists($_k, $this->_aIdentify)) $this->_aIdentify[$_k] = $_v;
 			}
 
 			return true;
@@ -236,6 +250,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 			for ($i = 0; $i < count($aSource); $i += 2) {
 				$aSource[$i] = is_string($aSource[$i]) ? strtolower($aSource[$i]) : $aSource[$i];
 				if (array_key_exists($aSource[$i], $this->_aColumns)) $this->_aColumns[$aSource[$i]] = $aSource[$i + 1];
+				if (array_key_exists($aSource[$i], $this->_aIdentify)) $this->_aIdentify[$aSource[$i]] = $aSource[$i + 1];
 			}
 
 			return true;
@@ -270,6 +285,9 @@ abstract class Model implements \JsonSerializable, \Serializable
 				break;
 			case self::ModelState_Updated:
 				$this->_iState = self::ModelState_Updated;
+				break;
+			case self::ModelState_Deleted:
+				$this->_iState = self::ModelState_Deleted;
 				break;
 			default:
 				throw new DataModelException('undefined_model_state');
