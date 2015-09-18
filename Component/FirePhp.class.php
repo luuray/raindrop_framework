@@ -39,7 +39,7 @@ class FirePhp implements IDebugger
 	{
 		require_once __DIR__ . '/firephp/FirePHP.class.php';
 		$this->_oFirePhp = \FirePHP::getInstance(true);
-		$this->_oFirePhp->setOptions($aConfig);
+		$this->_oFirePhp->setOptions((array)$aConfig);
 	}
 
 	/**
