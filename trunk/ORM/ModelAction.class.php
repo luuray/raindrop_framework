@@ -22,6 +22,7 @@ use Raindrop\Application;
 use Raindrop\Cache;
 use Raindrop\DatabaseAdapter;
 use Raindrop\Exceptions\Database\DataModelException;
+use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\Model\ModelNotFoundException;
 use Raindrop\Exceptions\NotImplementedException;
 
@@ -71,6 +72,9 @@ class ModelAction
 	 * @param null $aParams
 	 * @param null $sDistinct
 	 * @param null $sGroupBy
+	 *
+	 * @return int
+	 * @throws ModelNotFoundException
 	 */
 	public static function Count($sModel, $sCondition = null, $aParams = null, $sDistinct = null, $sGroupBy = null)
 	{
@@ -96,6 +100,9 @@ class ModelAction
 	 * @param null $sQuery
 	 * @param null $aParams
 	 * @param bool|false $bDistinct
+	 *
+	 * @return int
+	 * @throws ModelNotFoundException
 	 */
 	public static function CountSql($sModel, $sQuery = null, $aParams = null, $bDistinct = false)
 	{
@@ -103,7 +110,6 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$sTable = $sModel::GetTableName();
 		$sDbConnect = $sModel::GetDbConnect();
 
 		return (int)DatabaseAdapter::GetVar(
@@ -113,14 +119,16 @@ class ModelAction
 
 	/**
 	 * @param Model $oModel
+	 *
+	 * @return bool|Model
 	 * @throws DataModelException
 	 */
 	public static function Save(Model $oModel)
 	{
 		if ($oModel->getModelState() === Model::ModelState_Create) {
-			self::GetInstance()->modelInsert($oModel);
+			return self::GetInstance()->modelInsert($oModel);
 		} else if ($oModel->getModelState() === Model::ModelState_Updated) {
-			self::GetInstance()->modelUpdate($oModel);
+			return self::GetInstance()->modelUpdate($oModel);
 		} else if ($oModel->getModelState() === Model::ModelState_Normal) {
 			return $oModel;
 		} else {
@@ -130,9 +138,43 @@ class ModelAction
 
 	/**
 	 * @param Model $oModel
+	 *
+	 * @return bool
+	 * @throws DataModelException
 	 */
 	public static function Del(Model $oModel)
 	{
+		if ($oModel->getModelState() != Model::ModelState_Normal) {
+			throw new DataModelException('invalid_model_state');
+		}
+
+		$aScheme = self::getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aSnapshot = $oModel->getRAWData();
+		$aConditions = [];
+		$aParams = [];
+
+		if (empty($aSnapshot['Identify'])) $pIdentify = $aScheme['Columns'];
+		else $pIdentify = &$aScheme['Identify'];
+
+		foreach ($pIdentify AS $_col => $_val) {
+			if (array_key_exists($_col, $aScheme['Columns']) == false) {
+				throw new DataModelException('scheme_define_not_match');
+			}
+			$aConditions[] = sprintf('`%s`=:%s', $aScheme['Columns'][$_col], $_col);
+			$aParams[$_col] = $_val;
+		}
+
+		if (DatabaseAdapter::GetAffectedRowNum(
+				sprintf('DELETE FROM `%s` WHERE %s LIMIT 1',
+					$oModel::getTableName(), implode(' AND ', $aConditions)),
+				$aParams, $oModel::getDbConnect()) == false
+		) {
+			return false;
+		}
+
+		$oModel->setModelState(Model::ModelState_Deleted);
+
+		return true;
 	}
 
 	/**
@@ -143,9 +185,41 @@ class ModelAction
 	 * @param int $iLimit
 	 * @param int $iSkip
 	 * @param bool|false $bForceDel
+	 *
+	 * @return bool|int
+	 * @throws InvalidArgumentException
+	 * @throws ModelNotFoundException
 	 */
 	public static function DelAny($sModel, $sCondition = null, $aParams = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0, $bForceDel = false)
 	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$sQuery = sprintf('DELETE FROM `%s`', $sModel::GetTableName());
+
+		if (str_nullorwhitespace($sCondition) AND $bForceDel !== true) {
+			throw new InvalidArgumentException('condition');
+		} else {
+			$sQuery .= ' WHERE ' . $sCondition;
+		}
+
+		if (settype($iLimit) === false OR $iLimit < 0) {
+			throw new InvalidArgumentException('limit');
+		}
+		if (settype($iSkip) === false OR $iSkip < 0) {
+			throw new InvalidArgumentException('skip');
+		}
+
+		if (!empty($aOrderBy)) {
+			$sQuery .= ' ORDER BY ' . implode(',', $aOrderBy);
+		}
+
+		$sQuery .= $iLimit > 0 ? (' LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null;
+
+		$iResult = DatabaseAdapter::GetAffectedRowNum($sQuery, $aParams, $sModel::GetDbConnect());
+
+		return $iResult == 0 ? false : (int)$iResult;
 	}
 
 	/**
@@ -153,9 +227,24 @@ class ModelAction
 	 * @param null $sCondition
 	 * @param null $aParams
 	 * @param null $aOrderBy
+	 *
+	 * @return null
+	 * @throws ModelNotFoundException
 	 */
 	public static function SingleOrNull($sModel, $sCondition = null, $aParams = null, $aOrderBy = null)
 	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$aResult = DatabaseAdapter::GetLine(
+			sprintf('SELECT * FROM `%s` %s %s LIMIT 1',
+				$sModel::GetTableName(),
+				!empty($sCondition) ? 'WHERE ' . $sCondition : null,
+				!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null),
+			$aParams, $sModel::GetDbConnect());
+
+		return $aResult == false ? null : new $sModel($aResult);
 	}
 
 	/**
@@ -163,9 +252,33 @@ class ModelAction
 	 * @param null $aOrderBy
 	 * @param int $iLimit
 	 * @param int $iSkip
+	 *
+	 * @return array|null
+	 * @throws ModelNotFoundException
 	 */
 	public static function All($sModel, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$aResults = DatabaseAdapter::GetData(
+			sprintf('SELECT * FROM `%s` %s %s',
+				$sModel::GetTableName(),
+				!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null,
+				($iLimit > 0 ? ('LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null)),
+			null, $sModel::GetDbConnect());
+
+		if ($aResults !== false) {
+			$aModelArray = [];
+			foreach ($aResults AS $_item) {
+				$aModelArray[] = new $sModel($_item);
+			}
+
+			return $aModelArray;
+		}
+
+		return null;
 	}
 
 	/**
@@ -176,9 +289,35 @@ class ModelAction
 	 * @param null $aOrderBy
 	 * @param int $iLimit
 	 * @param int $iSkip
+	 *
+	 * @return array|null
+	 * @throws ModelNotFoundException
 	 */
 	public static function Find($sModel, $sCondition = null, $aParam = null, $sGroupBy = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$aResults = DatabaseAdapter::GetData(
+			sprintf('SELECT * FROM `%s` %s %s %s %s',
+				$sModel::GetTableName(),
+				(!empty($sCondition) ? 'WHERE ' . $sCondition : null),
+				(!empty($sGroupBy) ? 'GROUP BY ' . $sGroupBy : null),
+				(!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null),
+				($iLimit > 0 ? ('LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null)),
+			$aParam, $sModel::GetDbConnect());
+
+		if ($aResults !== false) {
+			$aModelArray = array();
+			foreach ($aResults AS $_item) {
+				$aModelArray[] = new $sModel($_item);
+			}
+
+			return $aModelArray;
+		}
+
+		return null;
 	}
 
 	/**
@@ -189,30 +328,50 @@ class ModelAction
 	 * @param null $aOrderBy
 	 * @param int $iLimit
 	 * @param int $iSkip
+	 *
+	 * @return array|null
+	 * @throws ModelNotFoundException
 	 */
 	public static function FindSql($sModel, $sQuery, $aParams = null, $sGroupBy = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$aResults = DatabaseAdapter::GetData(
+			sprintf(
+				'SELECT %s %s %s %s',
+				$sQuery,
+				(!empty($sGroupBy) ? 'GROUP BY ' . $sGroupBy : null),
+				(!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null),
+				($iLimit > 0 ? ('LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null)),
+			$aParams, $sModel::GetDbConnect());
+
+		if ($aResults !== false) {
+			$aModelArray = array();
+			foreach ($aResults AS $_item) {
+				$aModelArray[] = new $sModel($_item);
+			}
+
+			return $aModelArray;
+		}
+
+		return null;
 	}
 
 	/**
 	 * @param $sModel
+	 *
+	 * @return Transaction
+	 * @throws ModelNotFoundException
 	 */
 	public static function BeginTransaction($sModel)
 	{
-	}
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
 
-	/**
-	 * @param $sModel
-	 */
-	public static function Commit($sModel)
-	{
-	}
-
-	/**
-	 * @param $sModel
-	 */
-	public static function Rollback($sModel)
-	{
+		return Transaction::BeginTransaction($sModel::GetDbConnect());
 	}
 
 	/**
@@ -239,10 +398,10 @@ class ModelAction
 	}
 
 	/**
-	 *  Get Table's Scheme
-	 *
 	 * @param $sTable
 	 * @param $sDbConnect
+	 *
+	 * @return array|bool|mixed
 	 */
 	public function getTableScheme($sTable, $sDbConnect)
 	{
@@ -261,6 +420,9 @@ class ModelAction
 
 	/**
 	 * @param $sModel
+	 *
+	 * @return array
+	 * @throws ModelNotFoundException
 	 */
 	public function getModelDefault($sModel)
 	{
@@ -268,16 +430,23 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 		$aScheme = $this->getTableScheme($sModel::GetTableName(), $sModel::GetDbConnect());
-		$aResult = array();
+
+		$aResult = ['Default' => [], 'Identify' =>[]];
 		foreach ($aScheme['Columns'] AS $_col) {
-			$aResult[$_col['Name']] = $_col['Default'];
+			$aResult['Default'][$_col['Name']] = $_col['Default'];
+			if (in_array($_col['Name'], $aScheme['PrimaryKeys'])) $aResult['Identify'][$_col['Name']] = $_col['Default'];
 		}
+
 
 		return $aResult;
 	}
 
 	/**
+	 * Model Insert Operation
+	 *
 	 * @param Model $oModel
+	 *
+	 * @return bool
 	 * @throws DataModelException
 	 * @throws \Raindrop\Exceptions\InvalidArgumentException
 	 */
@@ -285,31 +454,36 @@ class ModelAction
 	{
 		$aScheme = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
 
-		$aModelData = $oModel->getRAWColumnsData();
+		$aSnapshot = $oModel->getRAWData();
 
 		$aColumns = [];
 		$aColValues = [];
+		$aColParams = [];
 		$sAutoId = null;
-		foreach ($aScheme AS $_name => $_col) {
-			if (array_key_exists($_name, $aModelData)) {
+		foreach ($aScheme['Columns'] AS $_name => $_col) {
+			if (array_key_exists($_name, $aSnapshot['Columns'])) {
 				$aColumns[] = "`{$_col['Field']}`";
 				$aColParams[] = ":{$_col['Field']}";
-				$aColValues[$_col['Field']] = $aModelData[$_name];
+				$aColValues[$_col['Field']] = $aSnapshot['Columns'][$_name];
 			}
 			if ($_col['IsAutoIncrement'] == true) $sAutoId = $_name;
 		}
 
 		if ($sAutoId != null) {
 			$iResult = DatabaseAdapter::GetLastId(
-				sprint('INSERT INTO `%s` (%s) VALUE (%s)',
+				sprintf('INSERT INTO `%s` (%s) VALUE (%s)',
 					$oModel::getTableName(), implode(',', $aColumns), implode(',', $aColParams)),
 				$aColValues,
 				$oModel::getDbConnect());
-			if (intval($iResult) != 0) $oModel->setRAWData($sAutoId, (int)$iResult);
-			else throw new DataModelException('save_fail');
+			//success
+			if (intval($iResult) != 0) {
+				$oModel->setRAWData($sAutoId, (int)$iResult);
+			} else {
+				throw new DataModelException('save_fail');
+			}
 		} else {
-			$iResult = DatabaseAdapter::GetAffectedRows(
-				sprint('INSERT INTO `%s` (%s) VALUE (%s)',
+			$iResult = DatabaseAdapter::GetAffectedRowNum(
+				sprintf('INSERT INTO `%s` (%s) VALUE (%s)',
 					$oModel::getTableName(), implode(',', $aColumns), implode(',', $aColParams)),
 				$aColValues,
 				$oModel::getDbConnect());
@@ -323,22 +497,49 @@ class ModelAction
 
 	/**
 	 * @param Model $oModel
+	 *
+	 * @return bool
+	 * @throws DataModelException
+	 * @throws \Raindrop\Exceptions\InvalidArgumentException
 	 */
 	public function modelUpdate(Model $oModel)
 	{
 		$aScheme = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
 		$aSnapshot = $oModel->getRAWData();
 
+		$aChangedIdentifies = array();
+		$aIdentify = array();
 		$aUpdatedField = array();
-		$aUpdatedValues = array();
+		$aQueryParams = array();
 		foreach ($aScheme['Columns'] AS $_col => $_def) {
-			if (array_key_exists($_col, $aSnapshot) AND $aSnapshot[$_col] != $_def['Default']) {
-				$aUpdatedField[] = sprintf('`%s`=:%s', $_col, $_col);
-				$aUpdatedValues[$_col] = $aSnapshot[$_col];
+			//changed columns
+			if (array_key_exists($_col, $aSnapshot['Columns']) AND $aSnapshot['Columns'][$_col] != $_def['Default']) {
+				$aUpdatedField[] = sprintf('`%s`=:%s', $_def['Name'], $_col);
+				$aQueryParams[$_col] = $aSnapshot[$_col];
+			}
+			//identify
+			if (array_key_exists($_col, $aSnapshot['Identify'])) {
+				$aIdentify[] = sprintf('`%s`=:IDY_%s', $_def['Name'], $_col);
+				$aQueryParams['IDY_' . $_col] = $aSnapshot['Identify'][$_col];
+
+				//identify changed
+				if ($aSnapshot['Identify'][$_col] != $aSnapshot['Columns'][$_col]) $aChangedIdentifies[$_col] = $aSnapshot['Columns'][$_col];
 			}
 		}
 
-		$iResult = DatabaseAdapter::GetAffectedRows();
+		$iResult = DatabaseAdapter::GetAffectedRowNum(
+			sprintf('UPDATE `%s` SET %s WHERE %s LIMIT 1',
+				$oModel::getTableName(), implode(',', $aUpdatedField), implode(' AND ', $aIdentify)),
+			$aQueryParams,
+			$oModel::getDbConnect());
+		if ($iResult <= 0) throw new DataModelException('save_fail');
+
+		//update identify if need
+		if (!empty($aChangedIdentifies)) $oModel->setRAWData($aChangedIdentifies);
+
+		$oModel->setModelState(Model::ModelState_Normal);
+
+		return true;
 	}
 
 	/**
@@ -353,7 +554,7 @@ class ModelAction
 			return false;
 		}
 
-		$aResult = array('SchemaDefinedPk' => array(), 'Columns' => array());
+		$aResult = array('PrimaryKeys' => array(), 'Columns' => array());
 		foreach ($aColumns AS $_item) {
 			$aResult['Columns'][strtolower($_item->Field)] = [
 				'Name'            => $_item->Field,
@@ -365,7 +566,7 @@ class ModelAction
 			];
 
 			if ($_item->Key == 'PRI') {
-				$aResult['SchemaDefinedPk'][] = $_item->Field;
+				$aResult['PrimaryKeys'][] = $_item->Field;
 			}
 		}
 
