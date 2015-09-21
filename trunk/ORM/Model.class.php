@@ -105,26 +105,25 @@ abstract class Model implements \JsonSerializable, \Serializable
 	}
 
 	/**
-	 * @param null $aData
-	 * @throws InvalidArgumentException
+	 * @param \stdClass|null $oData
+	 *
+	 * @throws \Raindrop\Exceptions\Model\ModelNotFoundException
 	 */
-	public final function __construct($aData = null)
+	public final function __construct(\stdClass $oData = null)
 	{
-		$aScheme = ModelAction::GetModelDefalt(__CLASS__);
+		$aScheme = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
-		if ($aData === null) {
+		if ($oData === null) {
 			$this->_iState = self::ModelState_Create;
 			//get default data
 			$this->_aColumns = array_key_case($aScheme['Default'], CASE_LOWER);
-		} else if (is_array($aData)) {
-			$this->_aColumns = array_key_case($aData, CASE_LOWER);
+		} else {
+			$this->_aColumns = array_key_case(get_object_vars($oData), CASE_LOWER);
 
 			foreach ($this->_aColumns AS $_col => $_val) {
 				if (array_key_exists($_col, $this->_aIdentify)) $this->_aIdentify[$_col] = $_val;
 			}
-		} else {
-			throw new InvalidArgumentException('initialize_data');
 		}
 	}
 
@@ -184,7 +183,8 @@ abstract class Model implements \JsonSerializable, \Serializable
 	public final static function __callStatic($sAction, $aArgs)
 	{
 		array_unshift($aArgs, get_called_class());
-		return call_user_func_array("ModelAction::{$sAction}", $aArgs);
+
+		return call_user_func_array("Raindrop\ORM\ModelAction::{$sAction}", $aArgs);
 	}
 
 	/**
@@ -195,7 +195,8 @@ abstract class Model implements \JsonSerializable, \Serializable
 	public final function __call($sAction, $aArgs)
 	{
 		array_unshift($aArgs, $this);
-		return call_user_func_array("ModelAction::{$sAction}", $aArgs);
+
+		return call_user_func_array("Raindrop\ORM\ModelAction::{$sAction}", $aArgs);
 	}
 
 	/**

@@ -53,7 +53,7 @@ class ModelAction
 	 */
 	public static function Any($sModel, $sCondition = null, $aParams = null)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -78,7 +78,7 @@ class ModelAction
 	 */
 	public static function Count($sModel, $sCondition = null, $aParams = null, $sDistinct = null, $sGroupBy = null)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -106,7 +106,7 @@ class ModelAction
 	 */
 	public static function CountSql($sModel, $sQuery = null, $aParams = null, $bDistinct = false)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -192,7 +192,7 @@ class ModelAction
 	 */
 	public static function DelAny($sModel, $sCondition = null, $aParams = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0, $bForceDel = false)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -233,18 +233,18 @@ class ModelAction
 	 */
 	public static function SingleOrNull($sModel, $sCondition = null, $aParams = null, $aOrderBy = null)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$aResult = DatabaseAdapter::GetLine(
+		$oResult = DatabaseAdapter::GetLine(
 			sprintf('SELECT * FROM `%s` %s %s LIMIT 1',
 				$sModel::GetTableName(),
 				!empty($sCondition) ? 'WHERE ' . $sCondition : null,
 				!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null),
 			$aParams, $sModel::GetDbConnect());
 
-		return $aResult == false ? null : new $sModel($aResult);
+		return $oResult == false ? null : new $sModel($oResult);
 	}
 
 	/**
@@ -258,7 +258,7 @@ class ModelAction
 	 */
 	public static function All($sModel, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -295,7 +295,7 @@ class ModelAction
 	 */
 	public static function Find($sModel, $sCondition = null, $aParam = null, $sGroupBy = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -334,7 +334,7 @@ class ModelAction
 	 */
 	public static function FindSql($sModel, $sQuery, $aParams = null, $sGroupBy = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -367,7 +367,7 @@ class ModelAction
 	 */
 	public static function BeginTransaction($sModel)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if ((is_string($sModel) AND !class_exists($sModel)) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
 
@@ -426,10 +426,11 @@ class ModelAction
 	 */
 	public function getModelDefault($sModel)
 	{
-		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Model')) {
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
 		}
-		$aScheme = $this->getTableScheme($sModel::GetTableName(), $sModel::GetDbConnect());
+
+		$aScheme = $this->getTableScheme((string)$sModel::GetTableName(), (string)$sModel::GetDbConnect());
 
 		$aResult = ['Default' => [], 'Identify' =>[]];
 		foreach ($aScheme['Columns'] AS $_col) {
@@ -462,9 +463,9 @@ class ModelAction
 		$sAutoId = null;
 		foreach ($aScheme['Columns'] AS $_name => $_col) {
 			if (array_key_exists($_name, $aSnapshot['Columns'])) {
-				$aColumns[] = "`{$_col['Field']}`";
-				$aColParams[] = ":{$_col['Field']}";
-				$aColValues[$_col['Field']] = $aSnapshot['Columns'][$_name];
+				$aColumns[] = "`{$_col['Name']}`";
+				$aColParams[] = ":{$_col['Name']}";
+				$aColValues[$_col['Name']] = $aSnapshot['Columns'][$_name];
 			}
 			if ($_col['IsAutoIncrement'] == true) $sAutoId = $_name;
 		}

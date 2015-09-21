@@ -19,6 +19,7 @@ namespace Raindrop\Exceptions;
 
 use Exception;
 use Raindrop\Application;
+use Raindrop\Logger;
 
 /**
  * Class ApplicationException(Base Exception)
@@ -35,6 +36,10 @@ abstract class ApplicationException extends Exception
 				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
 
 		parent::__construct($message, $code, $previous);
+
+		if (Application::IsDebugging()) {
+			Logger::Warning(parent::__toString());
+		}
 	}
 }
 

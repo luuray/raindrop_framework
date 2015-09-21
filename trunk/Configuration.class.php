@@ -23,11 +23,13 @@ namespace Raindrop;
  * @package Raindrop
  * @method mixed Get() Get($sKey, $mDefaultValue)
  */
-class Configuration implements \ArrayAccess
+class Configuration implements \ArrayAccess, \Iterator
 {
 	protected static $_oInstance = null;
 
 	protected $_aConfig = array();
+
+	protected $_pPosition = null;
 
 	public static function __callStatic($sMethod, $aArgs)
 	{
@@ -76,9 +78,14 @@ class Configuration implements \ArrayAccess
 				$this->_aConfig = Loader::Import('config.php', AppDir);
 			}
 
+			$this->_pPosition = key($this->_aConfig);
+
 			self::$_oInstance = $this;
 		} else {
 			$this->_aConfig = $aConfigSource;
+
+			$this->_pPosition = key($this->_aConfig);
+
 			return $this;
 		}
 	}
@@ -184,5 +191,67 @@ class Configuration implements \ArrayAccess
 	{
 		return false;
 	}
+	#endregion
+
+	#region Iterator Interface Methods
+	/**
+	 * Return the current element
+	 * @link http://php.net/manual/en/iterator.current.php
+	 * @return mixed Can return any type.
+	 * @since 5.0.0
+	 */
+	public function current()
+	{
+		return $this->_aConfig[$this->_pPosition];
+	}
+
+	/**
+	 * Move forward to next element
+	 * @link http://php.net/manual/en/iterator.next.php
+	 * @return void Any returned value is ignored.
+	 * @since 5.0.0
+	 */
+	public function next()
+	{
+		next($this->_aConfig);
+		$this->_pPosition = key($this->_aConfig);
+
+	}
+
+	/**
+	 * Return the key of the current element
+	 * @link http://php.net/manual/en/iterator.key.php
+	 * @return mixed scalar on success, or null on failure.
+	 * @since 5.0.0
+	 */
+	public function key()
+	{
+		return $this->_pPosition;
+	}
+
+	/**
+	 * Checks if current position is valid
+	 * @link http://php.net/manual/en/iterator.valid.php
+	 * @return boolean The return value will be casted to boolean and then evaluated.
+	 * Returns true on success or false on failure.
+	 * @since 5.0.0
+	 */
+	public function valid()
+	{
+		return array_key_exists($this->_pPosition, $this->_aConfig);
+	}
+
+	/**
+	 * Rewind the Iterator to the first element
+	 * @link http://php.net/manual/en/iterator.rewind.php
+	 * @return void Any returned value is ignored.
+	 * @since 5.0.0
+	 */
+	public function rewind()
+	{
+		reset($this->_aConfig);
+		$this->_pPosition = key($this->_aConfig);
+	}
+
 	#endregion
 }
