@@ -22,35 +22,35 @@
  * @package    PHPExcel_Reader
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 
 /**
  * PHPExcel_Reader_Abstract
  *
- * @category    PHPExcel
- * @package    PHPExcel_Reader
- * @copyright    Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @category	PHPExcel
+ * @package	PHPExcel_Reader
+ * @copyright	Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 {
 	/**
 	 * Read data only?
 	 * Identifies whether the Reader should only read data values for cells, and ignore any formatting information;
-	 *        or whether it should read both data and formatting
+	 *		or whether it should read both data and formatting
 	 *
-	 * @var    boolean
+	 * @var	boolean
 	 */
-	protected $_readDataOnly = false;
+	protected $_readDataOnly = FALSE;
 
 	/**
 	 * Read charts that are defined in the workbook?
 	 * Identifies whether the Reader should read the definitions for any charts that exist in the workbook;
 	 *
-	 * @var    boolean
+	 * @var	boolean
 	 */
-	protected $_includeCharts = false;
+	protected $_includeCharts = FALSE;
 
 	/**
 	 * Restrict which sheets should be loaded?
@@ -58,80 +58,74 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	 *
 	 * @var array of string
 	 */
-	protected $_loadSheetsOnly = null;
+	protected $_loadSheetsOnly = NULL;
 
 	/**
 	 * PHPExcel_Reader_IReadFilter instance
 	 *
 	 * @var PHPExcel_Reader_IReadFilter
 	 */
-	protected $_readFilter = null;
+	protected $_readFilter = NULL;
 
-	protected $_fileHandle = null;
+	protected $_fileHandle = NULL;
 
 
 	/**
 	 * Read data only?
-	 *        If this is true, then the Reader will only read data values for cells, it will not read any formatting information.
-	 *        If false (the default) it will read data and formatting.
+	 *		If this is true, then the Reader will only read data values for cells, it will not read any formatting information.
+	 *		If false (the default) it will read data and formatting.
 	 *
-	 * @return    boolean
+	 * @return	boolean
 	 */
-	public function getReadDataOnly()
-	{
+	public function getReadDataOnly() {
 		return $this->_readDataOnly;
 	}
 
 	/**
 	 * Set read data only
-	 *        Set to true, to advise the Reader only to read data values for cells, and to ignore any formatting information.
-	 *        Set to false (the default) to advise the Reader to read both data and formatting for cells.
+	 *		Set to true, to advise the Reader only to read data values for cells, and to ignore any formatting information.
+	 *		Set to false (the default) to advise the Reader to read both data and formatting for cells.
 	 *
-	 * @param    boolean $pValue
+	 * @param	boolean	$pValue
 	 *
-	 * @return    PHPExcel_Reader_IReader
+	 * @return	PHPExcel_Reader_IReader
 	 */
-	public function setReadDataOnly($pValue = false)
-	{
+	public function setReadDataOnly($pValue = FALSE) {
 		$this->_readDataOnly = $pValue;
-
 		return $this;
 	}
 
 	/**
 	 * Read charts in workbook?
-	 *        If this is true, then the Reader will include any charts that exist in the workbook.
+	 *		If this is true, then the Reader will include any charts that exist in the workbook.
 	 *      Note that a ReadDataOnly value of false overrides, and charts won't be read regardless of the IncludeCharts value.
-	 *        If false (the default) it will ignore any charts defined in the workbook file.
+	 *		If false (the default) it will ignore any charts defined in the workbook file.
 	 *
-	 * @return    boolean
+	 * @return	boolean
 	 */
-	public function getIncludeCharts()
-	{
+	public function getIncludeCharts() {
 		return $this->_includeCharts;
 	}
 
 	/**
 	 * Set read charts in workbook
-	 *        Set to true, to advise the Reader to include any charts that exist in the workbook.
+	 *		Set to true, to advise the Reader to include any charts that exist in the workbook.
 	 *      Note that a ReadDataOnly value of false overrides, and charts won't be read regardless of the IncludeCharts value.
-	 *        Set to false (the default) to discard charts.
+	 *		Set to false (the default) to discard charts.
 	 *
-	 * @param    boolean $pValue
+	 * @param	boolean	$pValue
 	 *
-	 * @return    PHPExcel_Reader_IReader
+	 * @return	PHPExcel_Reader_IReader
 	 */
-	public function setIncludeCharts($pValue = false)
-	{
-		$this->_includeCharts = (boolean)$pValue;
-
+	public function setIncludeCharts($pValue = FALSE) {
+		$this->_includeCharts = (boolean) $pValue;
 		return $this;
 	}
 
 	/**
 	 * Get which sheets to load
 	 * Returns either an array of worksheet names (the list of worksheets that should be loaded), or a null
-	 *        indicating that all worksheets in the workbook should be loaded.
+	 *		indicating that all worksheets in the workbook should be loaded.
 	 *
 	 * @return mixed
 	 */
@@ -144,29 +138,30 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	 * Set which sheets to load
 	 *
 	 * @param mixed $value
-	 *        This should be either an array of worksheet names to be loaded, or a string containing a single worksheet name.
-	 *        If NULL, then it tells the Reader to read all worksheets in the workbook
+	 *		This should be either an array of worksheet names to be loaded, or a string containing a single worksheet name.
+	 *		If NULL, then it tells the Reader to read all worksheets in the workbook
 	 *
 	 * @return PHPExcel_Reader_IReader
 	 */
-	public function setLoadSheetsOnly($value = null)
+	public function setLoadSheetsOnly($value = NULL)
 	{
-		$this->_loadSheetsOnly = is_array($value) ?
-			$value : array($value);
+        if ($value === NULL)
+            return $this->setLoadAllSheets();
 
+        $this->_loadSheetsOnly = is_array($value) ?
+			$value : array($value);
 		return $this;
 	}
 
 	/**
 	 * Set all sheets to load
-	 *        Tells the Reader to load all worksheets from the workbook.
+	 *		Tells the Reader to load all worksheets from the workbook.
 	 *
 	 * @return PHPExcel_Reader_IReader
 	 */
 	public function setLoadAllSheets()
 	{
-		$this->_loadSheetsOnly = null;
-
+		$this->_loadSheetsOnly = NULL;
 		return $this;
 	}
 
@@ -175,8 +170,7 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	 *
 	 * @return PHPExcel_Reader_IReadFilter
 	 */
-	public function getReadFilter()
-	{
+	public function getReadFilter() {
 		return $this->_readFilter;
 	}
 
@@ -186,10 +180,8 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	 * @param PHPExcel_Reader_IReadFilter $pValue
 	 * @return PHPExcel_Reader_IReader
 	 */
-	public function setReadFilter(PHPExcel_Reader_IReadFilter $pValue)
-	{
+	public function setReadFilter(PHPExcel_Reader_IReadFilter $pValue) {
 		$this->_readFilter = $pValue;
-
 		return $this;
 	}
 
@@ -197,7 +189,7 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	 * Open file for reading
 	 *
 	 * @param string $pFilename
-	 * @throws    PHPExcel_Reader_Exception
+	 * @throws	PHPExcel_Reader_Exception
 	 * @return resource
 	 */
 	protected function _openFile($pFilename)
@@ -209,7 +201,7 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 
 		// Open file
 		$this->_fileHandle = fopen($pFilename, 'r');
-		if ($this->_fileHandle === false) {
+		if ($this->_fileHandle === FALSE) {
 			throw new PHPExcel_Reader_Exception("Could not open file " . $pFilename . " for reading.");
 		}
 	}
@@ -217,7 +209,7 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 	/**
 	 * Can the current PHPExcel_Reader_IReader read the file?
 	 *
-	 * @param    string $pFilename
+	 * @param 	string 		$pFilename
 	 * @return boolean
 	 * @throws PHPExcel_Reader_Exception
 	 */
@@ -227,13 +219,37 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 		try {
 			$this->_openFile($pFilename);
 		} catch (Exception $e) {
-			return false;
+			return FALSE;
 		}
 
 		$readable = $this->_isValidFormat();
-		fclose($this->_fileHandle);
-
+		fclose ($this->_fileHandle);
 		return $readable;
 	}
 
+	/**
+	 * Scan theXML for use of <!ENTITY to prevent XXE/XEE attacks
+	 *
+	 * @param 	string 		$xml
+	 * @throws PHPExcel_Reader_Exception
+	 */
+	public function securityScan($xml)
+	{
+        $pattern = '/\\0?' . implode('\\0?', str_split('<!DOCTYPE')) . '\\0?/';
+        if (preg_match($pattern, $xml)) { 
+            throw new PHPExcel_Reader_Exception('Detected use of ENTITY in XML, spreadsheet file load() aborted to prevent XXE/XEE attacks');
+        }
+        return $xml;
+    }
+
+	/**
+	 * Scan theXML for use of <!ENTITY to prevent XXE/XEE attacks
+	 *
+	 * @param 	string 		$filestream
+	 * @throws PHPExcel_Reader_Exception
+	 */
+	public function securityScanFile($filestream)
+	{
+        return $this->securityScan(file_get_contents($filestream));
+    }
 }

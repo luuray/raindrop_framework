@@ -22,7 +22,7 @@
  * @package    PHPExcel_Writer_Excel2007
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version     1.8.0, 2014-03-02
+ * @version     ##VERSION##, ##DATE##
  */
 
 
@@ -38,12 +38,11 @@ class PHPExcel_Writer_Excel2007_RelsVBA extends PHPExcel_Writer_Excel2007_Writer
 	/**
 	 * Write relationships for a signed VBA Project
 	 *
-	 * @param    PHPExcel $pPHPExcel
-	 * @return    string        XML Output
-	 * @throws    PHPExcel_Writer_Exception
+	 * @param 	PHPExcel	$pPHPExcel
+	 * @return 	string 		XML Output
+	 * @throws 	PHPExcel_Writer_Exception
 	 */
-	public function writeVBARelationships(PHPExcel $pPHPExcel = null)
-	{
+	public function writeVBARelationships(PHPExcel $pPHPExcel = null){
 		// Create XML writer
 		$objWriter = null;
 		if ($this->getParentWriter()->getUseDiskCaching()) {
@@ -53,7 +52,7 @@ class PHPExcel_Writer_Excel2007_RelsVBA extends PHPExcel_Writer_Excel2007_Writer
 		}
 
 		// XML header
-		$objWriter->startDocument('1.0', 'UTF-8', 'yes');
+		$objWriter->startDocument('1.0','UTF-8','yes');
 
 		// Relationships
 		$objWriter->startElement('Relationships');

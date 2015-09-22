@@ -22,7 +22,7 @@
  * @package    PHPExcel_Cell
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt    LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 
@@ -35,100 +35,92 @@
  */
 class PHPExcel_Cell_Hyperlink
 {
-	/**
-	 * URL to link the cell to
-	 *
-	 * @var string
-	 */
-	private $_url;
+    /**
+     * URL to link the cell to
+     *
+     * @var string
+     */
+    private $_url;
 
-	/**
-	 * Tooltip to display on the hyperlink
-	 *
-	 * @var string
-	 */
-	private $_tooltip;
+    /**
+     * Tooltip to display on the hyperlink
+     *
+     * @var string
+     */
+    private $_tooltip;
 
-	/**
-	 * Create a new PHPExcel_Cell_Hyperlink
-	 *
-	 * @param  string $pUrl Url to link the cell to
-	 * @param  string $pTooltip Tooltip to display on the hyperlink
-	 */
-	public function __construct($pUrl = '', $pTooltip = '')
-	{
-		// Initialise member variables
-		$this->_url     = $pUrl;
-		$this->_tooltip = $pTooltip;
-	}
+    /**
+     * Create a new PHPExcel_Cell_Hyperlink
+     *
+     * @param  string  $pUrl      Url to link the cell to
+     * @param  string  $pTooltip  Tooltip to display on the hyperlink
+     */
+    public function __construct($pUrl = '', $pTooltip = '')
+    {
+        // Initialise member variables
+        $this->_url         = $pUrl;
+        $this->_tooltip     = $pTooltip;
+    }
 
-	/**
-	 * Get URL
-	 *
-	 * @return string
-	 */
-	public function getUrl()
-	{
-		return $this->_url;
-	}
+    /**
+     * Get URL
+     *
+     * @return string
+     */
+    public function getUrl() {
+        return $this->_url;
+    }
 
-	/**
-	 * Set URL
-	 *
-	 * @param  string $value
-	 * @return PHPExcel_Cell_Hyperlink
-	 */
-	public function setUrl($value = '')
-	{
-		$this->_url = $value;
+    /**
+     * Set URL
+     *
+     * @param  string    $value
+     * @return PHPExcel_Cell_Hyperlink
+     */
+    public function setUrl($value = '') {
+        $this->_url = $value;
+        return $this;
+    }
 
-		return $this;
-	}
+    /**
+     * Get tooltip
+     *
+     * @return string
+     */
+    public function getTooltip() {
+        return $this->_tooltip;
+    }
 
-	/**
-	 * Get tooltip
-	 *
-	 * @return string
-	 */
-	public function getTooltip()
-	{
-		return $this->_tooltip;
-	}
+    /**
+     * Set tooltip
+     *
+     * @param  string    $value
+     * @return PHPExcel_Cell_Hyperlink
+     */
+    public function setTooltip($value = '') {
+        $this->_tooltip = $value;
+        return $this;
+    }
 
-	/**
-	 * Set tooltip
-	 *
-	 * @param  string $value
-	 * @return PHPExcel_Cell_Hyperlink
-	 */
-	public function setTooltip($value = '')
-	{
-		$this->_tooltip = $value;
+    /**
+     * Is this hyperlink internal? (to another worksheet)
+     *
+     * @return boolean
+     */
+    public function isInternal() {
+        return strpos($this->_url, 'sheet://') !== false;
+    }
 
-		return $this;
-	}
-
-	/**
-	 * Is this hyperlink internal? (to another worksheet)
-	 *
-	 * @return boolean
-	 */
-	public function isInternal()
-	{
-		return strpos($this->_url, 'sheet://') !== false;
-	}
-
-	/**
-	 * Get hash code
-	 *
-	 * @return string    Hash code
-	 */
-	public function getHashCode()
-	{
-		return md5(
-			$this->_url
-			. $this->_tooltip
-			. __CLASS__
-		);
-	}
+    /**
+     * Get hash code
+     *
+     * @return string    Hash code
+     */
+    public function getHashCode() {
+        return md5(
+              $this->_url
+            . $this->_tooltip
+            . __CLASS__
+        );
+    }
 }

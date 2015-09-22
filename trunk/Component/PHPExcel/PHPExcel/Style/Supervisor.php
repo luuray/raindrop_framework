@@ -19,10 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category   PHPExcel
- * @package    PHPExcel_Style
+ * @package	PHPExcel_Style
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
- * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @license	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
+ * @version	##VERSION##, ##DATE##
  */
 
 
@@ -30,7 +30,7 @@
  * PHPExcel_Style_Supervisor
  *
  * @category   PHPExcel
- * @package    PHPExcel_Style
+ * @package	PHPExcel_Style
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
 abstract class PHPExcel_Style_Supervisor
@@ -52,11 +52,11 @@ abstract class PHPExcel_Style_Supervisor
 	/**
 	 * Create a new PHPExcel_Style_Alignment
 	 *
-	 * @param    boolean $isSupervisor Flag indicating if this is a supervisor or not
-	 *                                    Leave this value at default unless you understand exactly what
-	 *                                        its ramifications are
+	 * @param	boolean	$isSupervisor	Flag indicating if this is a supervisor or not
+	 *									Leave this value at default unless you understand exactly what
+	 *										its ramifications are
 	 */
-	public function __construct($isSupervisor = false)
+	public function __construct($isSupervisor = FALSE)
 	{
 		// Supervisor?
 		$this->_isSupervisor = $isSupervisor;
@@ -68,10 +68,9 @@ abstract class PHPExcel_Style_Supervisor
 	 * @param PHPExcel $parent
 	 * @return PHPExcel_Style_Supervisor
 	 */
-	public function bindParent($parent, $parentPropertyName = null)
+	public function bindParent($parent, $parentPropertyName=NULL)
 	{
 		$this->_parent = $parent;
-
 		return $this;
 	}
 
@@ -120,8 +119,7 @@ abstract class PHPExcel_Style_Supervisor
 	/**
 	 * Implement PHP __clone to create a deep clone, not just a shallow copy.
 	 */
-	public function __clone()
-	{
+	public function __clone() {
 		$vars = get_object_vars($this);
 		foreach ($vars as $key => $value) {
 			if ((is_object($value)) && ($key != '_parent')) {

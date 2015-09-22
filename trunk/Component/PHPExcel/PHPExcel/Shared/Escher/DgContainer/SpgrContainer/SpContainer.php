@@ -22,7 +22,7 @@
  * @package    PHPExcel_Shared_Escher
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 /**
@@ -240,7 +240,6 @@ class PHPExcel_Shared_Escher_DgContainer_SpgrContainer_SpContainer
 		if (isset($this->_OPT[$property])) {
 			return $this->_OPT[$property];
 		}
-
 		return null;
 	}
 
