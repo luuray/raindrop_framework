@@ -20,7 +20,7 @@
  * @package    PHPExcel_RichText
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 
@@ -36,14 +36,14 @@ interface PHPExcel_RichText_ITextElement
 	/**
 	 * Get text
 	 *
-	 * @return string    Text
+	 * @return string	Text
 	 */
 	public function getText();
 
 	/**
 	 * Set text
 	 *
-	 * @param    $pText string    Text
+	 * @param 	$pText string	Text
 	 * @return PHPExcel_RichText_ITextElement
 	 */
 	public function setText($pText = '');
@@ -58,7 +58,7 @@ interface PHPExcel_RichText_ITextElement
 	/**
 	 * Get hash code
 	 *
-	 * @return string    Hash code
+	 * @return string	Hash code
 	 */
 	public function getHashCode();
 }

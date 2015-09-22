@@ -21,25 +21,24 @@
  * @category   PHPExcel
  * @package    PHPExcel_Calculation
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
- * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @license	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
+ * @version	##VERSION##, ##DATE##
  */
 
 
 /**
  * PHPExcel_CalcEngine_CyclicReferenceStack
  *
- * @category    PHPExcel_CalcEngine_CyclicReferenceStack
- * @package        PHPExcel_Calculation
- * @copyright    Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @category	PHPExcel_CalcEngine_CyclicReferenceStack
+ * @package		PHPExcel_Calculation
+ * @copyright	Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  */
-class PHPExcel_CalcEngine_CyclicReferenceStack
-{
+class PHPExcel_CalcEngine_CyclicReferenceStack {
 
 	/**
 	 *  The call stack for calculated cells
 	 *
-	 * @var mixed[]
+	 *  @var mixed[]
 	 */
 	private $_stack = array();
 
@@ -49,57 +48,51 @@ class PHPExcel_CalcEngine_CyclicReferenceStack
 	 *
 	 * @return  integer
 	 */
-	public function count()
-	{
+	public function count() {
 		return count($this->_stack);
 	}
 
 	/**
 	 * Push a new entry onto the stack
 	 *
-	 * @param  mixed $value
+	 * @param  mixed  $value
 	 */
-	public function push($value)
-	{
-		$this->_stack[] = $value;
-	}    //	function push()
+	public function push($value) {
+		$this->_stack[$value] = $value;
+	}
 
 	/**
 	 * Pop the last entry from the stack
 	 *
 	 * @return  mixed
 	 */
-	public function pop()
-	{
+	public function pop() {
 		return array_pop($this->_stack);
-	}    //	function pop()
+	}
 
 	/**
 	 * Test to see if a specified entry exists on the stack
 	 *
-	 * @param  mixed $value The value to test
+	 * @param  mixed  $value  The value to test
 	 */
-	public function onStack($value)
-	{
-		return in_array($value, $this->_stack);
+	public function onStack($value) {
+		return isset($this->_stack[$value]);
 	}
 
 	/**
 	 * Clear the stack
 	 */
-	public function clear()
-	{
+	public function clear() {
 		$this->_stack = array();
-	}    //	function push()
+	}
 
 	/**
 	 * Return an array of all entries on the stack
 	 *
 	 * @return  mixed[]
 	 */
-	public function showStack()
-	{
+	public function showStack() {
 		return $this->_stack;
 	}
 
-}    //	class PHPExcel_CalcEngine_CyclicReferenceStack
+}

@@ -64,6 +64,8 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 * @var array
 	 */
 	protected $_aColumns = array();
+
+	protected $_aChangedColumns = array();
 	/**
 	 * @var array
 	 */
@@ -114,15 +116,22 @@ abstract class Model implements \JsonSerializable, \Serializable
 		$aScheme = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
+		//get default data
+		$this->_aColumns = array_key_case($aScheme['Default'], CASE_LOWER);
+
 		if ($oData === null) {
 			$this->_iState = self::ModelState_Create;
-			//get default data
-			$this->_aColumns = array_key_case($aScheme['Default'], CASE_LOWER);
 		} else {
-			$this->_aColumns = array_key_case(get_object_vars($oData), CASE_LOWER);
+			$aData = array_key_case(get_object_vars($oData), CASE_LOWER);
 
 			foreach ($this->_aColumns AS $_col => $_val) {
-				if (array_key_exists($_col, $this->_aIdentify)) $this->_aIdentify[$_col] = $_val;
+
+				$sSourceType = gettype($_val);
+				if ($sSourceType == 'NULL' OR gettype($aData[$_col]) == $sSourceType) $this->_aColumns[$_col] = $aData[$_col];
+				else if (settype($aData[$_col], $sSourceType)) $this->_aColumns[$_col] = $aData[$_col];
+				else throw new DataModelException('invalid_column_datetype:' . $_col);
+
+				if (array_key_exists($_col, $this->_aIdentify)) $this->_aIdentify[$_col] = $aData[$_col];
 			}
 		}
 	}
@@ -133,6 +142,12 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	public function __get($sColumn)
 	{
+		//direct getter, skip user-defined getter
+		if (str_beginwith($sColumn, '_') AND array_key_exists(strtolower(substr($sColumn, 1)), $this->_aColumns)) {
+			return $this->_aColumns[strtolower(substr($sColumn, 1))];
+		}
+
+		//user-defined getter first
 		if (method_exists($this, "get{$sColumn}")) {
 			$sColumn = "get{$sColumn}";
 			return $this->$sColumn();
@@ -146,32 +161,50 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * @param $sColumn
 	 * @param $mValue
+	 *
 	 * @throws DataModelException
 	 */
 	public function __set($sColumn, $mValue)
 	{
-		$this->_iState = $this->_iState == null ? self::ModelState_Updated : $this->_iState;
+		//direct setter, skip user-defined setter
+		if (str_beginwith($sColumn, '_') AND array_key_exists(strtolower(substr($sColumn, 1)), $this->_aColumns)) {
 
-		$sColumn = strtolower($sColumn);
+			$sColumn = strtolower(substr($sColumn, 1));
 
+			if ($this->_aColumns[$sColumn] == $mValue) return;
+
+			$sSourceType = gettype($this->_aColumns[$sColumn]);
+			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) $this->_aColumns[$sColumn] = $mValue;
+			else if (settype($mValue, $sSourceType)) $this->_aColumns[$sColumn] = $mValue;
+			else throw new DataModelException('invalid_column_datetype:' . $sColumn);
+		}
+
+		//user-defined first
 		if (method_exists($this, "set{$sColumn}")) {
 			$sColumn = "set{$sColumn}";
-			$this->$sColumn($mValue);
+
+			return $this->$sColumn($mValue);
 		}
 
 		$sColumn = strtolower($sColumn);
 
 		if (array_key_exists($sColumn, $this->_aColumns)) {
+
+			if ($this->_aColumns[$sColumn] == $mValue) return;
+
 			$sSourceType = gettype($this->_aColumns[$sColumn]);
 			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) $this->_aColumns[$sColumn] = $mValue;
 			else if (settype($mValue, $sSourceType)) $this->_aColumns[$sColumn] = $mValue;
 			else throw new DataModelException('invalid_column_datetype:' . $sColumn);
-		} else {
-			$this->_aColumns[$sColumn] = $mValue;
-		}
 
-		if ($this->_iState == self::ModelState_Create AND array_key_exists($sColumn, $this->_aIdentify)) {
-			$this->_aIdentify[$sColumn] = $mValue;
+			if ($this->_iState == self::ModelState_Create AND array_key_exists($sColumn, $this->_aIdentify)) {
+				$this->_aIdentify[$sColumn] = $mValue;
+			}
+
+			$this->_iState = $this->_iState == null ? self::ModelState_Updated : $this->_iState;
+			$this->_aChangedColumns[$sColumn] = $mValue;
+		} else {
+			$this->$sColumn = $mValue;
 		}
 	}
 
@@ -205,7 +238,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	public function getRAWData()
 	{
 		if (func_num_args() == 0) {
-			return ['Columns' => $this->_aColumns, 'Identify' => $this->_aIdentify];
+			return ['Columns' => $this->_aColumns, 'Identify' => $this->_aIdentify, 'Changed' => $this->_aChangedColumns];
 		} else if (func_num_args() == 1 AND !is_array(func_get_arg(0))) {
 			$sKey = strtolower(func_get_arg(0));
 			return array_key_exists($sKey, $this->_aColumns) ? $this->_aColumns[$sKey] : null;

@@ -144,23 +144,23 @@ class ModelAction
 	 */
 	public static function Del(Model $oModel)
 	{
-		if ($oModel->getModelState() != Model::ModelState_Normal) {
+		if (in_array($oModel->getModelState(), [Model::ModelState_Normal, Model::ModelState_Updated]) == false) {
 			throw new DataModelException('invalid_model_state');
 		}
 
-		$aScheme = self::getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aScheme = self::GetInstance()->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
 		$aSnapshot = $oModel->getRAWData();
 		$aConditions = [];
 		$aParams = [];
 
-		if (empty($aSnapshot['Identify'])) $pIdentify = $aScheme['Columns'];
-		else $pIdentify = &$aScheme['Identify'];
+		if (empty($aSnapshot['Identify'])) $pIdentify = &$aSnapshot['Columns'];
+		else $pIdentify = &$aSnapshot['Identify'];
 
 		foreach ($pIdentify AS $_col => $_val) {
 			if (array_key_exists($_col, $aScheme['Columns']) == false) {
 				throw new DataModelException('scheme_define_not_match');
 			}
-			$aConditions[] = sprintf('`%s`=:%s', $aScheme['Columns'][$_col], $_col);
+			$aConditions[] = sprintf('`%s`=:%s', $aScheme['Columns'][$_col]['Name'], $_col);
 			$aParams[$_col] = $_val;
 		}
 
@@ -514,9 +514,9 @@ class ModelAction
 		$aQueryParams = array();
 		foreach ($aScheme['Columns'] AS $_col => $_def) {
 			//changed columns
-			if (array_key_exists($_col, $aSnapshot['Columns']) AND $aSnapshot['Columns'][$_col] != $_def['Default']) {
+			if (array_key_exists($_col, $aSnapshot['Changed']) AND $aSnapshot['Changed'][$_col] != $_def['Default']) {
 				$aUpdatedField[] = sprintf('`%s`=:%s', $_def['Name'], $_col);
-				$aQueryParams[$_col] = $aSnapshot[$_col];
+				$aQueryParams[$_col] = $aSnapshot['Changed'][$_col];
 			}
 			//identify
 			if (array_key_exists($_col, $aSnapshot['Identify'])) {
@@ -559,10 +559,10 @@ class ModelAction
 		foreach ($aColumns AS $_item) {
 			$aResult['Columns'][strtolower($_item->Field)] = [
 				'Name'            => $_item->Field,
-				'Type'            => $_item->Type,
 				'IsPrimary'       => $_item->Key == 'PRI',
 				'Nullable'        => $_item->Null == 'YES',
 				'Default'         => $this->_colDefaultDecide($_item->Type, $_item->Null == 'YES', $_item->Default),
+				'Type' => $_item->Type,
 				'IsAutoIncrement' => strpos($_item->Extra, 'auto_increment') !== false
 			];
 
@@ -574,15 +574,27 @@ class ModelAction
 		return $aResult;
 	}
 
-	protected function _colDefaultDecide($sType, $bNullable, $sDefault)
+	/**
+	 * @param $sType
+	 * @param $bNullable
+	 * @param $sDefault
+	 *
+	 * @return bool|float|int|string
+	 */
+	protected function _colDefaultDecide(&$sType, $bNullable, $sDefault)
 	{
+		if (str_beginwith($sType, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) $sType = 'int';
+		else if (str_beginwith($sType, ['float', 'double', 'decimal', 'numeric'])) $sType = 'float';
+		else if (str_beginwith($sType, ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext'])) $sType = 'string';
+		else if ($sType == 'bit(1)') $sType = 'boolean';
+
 		if ($bNullable == true) {
 			return $sDefault;
 		} else {
 			if ($sDefault !== null) return $sDefault;
-			else if (str_beginwith($sType, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) return 0;
-			else if (str_beginwith($sType, ['float', 'double', 'decimal', 'numeric'])) return 0.0;
-			else if (str_beginwith($sType, ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext'])) return '';
+			else if ($sType == 'int') return 0;
+			else if ($sType == 'float') return 0.0;
+			else if ($sType == 'string') return '';
 			else if ($sType == 'bit(1)') return false;
 		}
 

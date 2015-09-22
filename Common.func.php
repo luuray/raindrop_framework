@@ -175,9 +175,9 @@ function str_beginwith($sTarget, $mFind, $bMatchCase = false)
 		foreach ($mFind AS $_item) {
 			if (settype($_item, 'string') AND strlen($_item) <= strlen($sTarget)) {
 				if ($bMatchCase) {
-					return substr($sTarget, 0, strlen($_item) == $_item);
+					if (substr($sTarget, 0, strlen($_item) == $_item)) return true;
 				} else {
-					return substr($sTarget, 0, strlen($_item)) == strtolower($_item);
+					if (substr($sTarget, 0, strlen($_item)) == strtolower($_item)) return true;
 				}
 			}
 		}

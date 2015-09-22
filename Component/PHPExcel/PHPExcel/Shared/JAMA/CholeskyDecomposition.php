@@ -1,61 +1,58 @@
 <?php
-
 /**
- * @package JAMA
+ *	@package JAMA
  *
- *    Cholesky decomposition class
+ *	Cholesky decomposition class
  *
- *    For a symmetric, positive definite matrix A, the Cholesky decomposition
- *    is an lower triangular matrix L so that A = L*L'.
+ *	For a symmetric, positive definite matrix A, the Cholesky decomposition
+ *	is an lower triangular matrix L so that A = L*L'.
  *
- *    If the matrix is not symmetric or positive definite, the constructor
- *    returns a partial decomposition and sets an internal flag that may
- *    be queried by the isSPD() method.
+ *	If the matrix is not symmetric or positive definite, the constructor
+ *	returns a partial decomposition and sets an internal flag that may
+ *	be queried by the isSPD() method.
  *
- * @author Paul Meagher
- * @author Michael Bommarito
- * @version 1.2
+ *	@author Paul Meagher
+ *	@author Michael Bommarito
+ *	@version 1.2
  */
-class CholeskyDecomposition
-{
+class CholeskyDecomposition {
 
 	/**
-	 *    Decomposition storage
-	 * @var array
-	 * @access private
+	 *	Decomposition storage
+	 *	@var array
+	 *	@access private
 	 */
 	private $L = array();
 
 	/**
-	 *    Matrix row and column dimension
-	 * @var int
-	 * @access private
+	 *	Matrix row and column dimension
+	 *	@var int
+	 *	@access private
 	 */
 	private $m;
 
 	/**
-	 *    Symmetric positive definite flag
-	 * @var boolean
-	 * @access private
+	 *	Symmetric positive definite flag
+	 *	@var boolean
+	 *	@access private
 	 */
 	private $isspd = true;
 
 
 	/**
-	 *    CholeskyDecomposition
+	 *	CholeskyDecomposition
 	 *
-	 *    Class constructor - decomposes symmetric positive definite matrix
-	 * @param mixed Matrix square symmetric positive definite matrix
+	 *	Class constructor - decomposes symmetric positive definite matrix
+	 *	@param mixed Matrix square symmetric positive definite matrix
 	 */
-	public function __construct($A = null)
-	{
+	public function __construct($A = null) {
 		if ($A instanceof Matrix) {
 			$this->L = $A->getArray();
 			$this->m = $A->getRowDimension();
 
-			for ($i = 0; $i < $this->m; ++$i) {
-				for ($j = $i; $j < $this->m; ++$j) {
-					for ($sum = $this->L[$i][$j], $k = $i - 1; $k >= 0; --$k) {
+			for($i = 0; $i < $this->m; ++$i) {
+				for($j = $i; $j < $this->m; ++$j) {
+					for($sum = $this->L[$i][$j], $k = $i - 1; $k >= 0; --$k) {
 						$sum -= $this->L[$i][$k] * $this->L[$j][$k];
 					}
 					if ($i == $j) {
@@ -71,47 +68,44 @@ class CholeskyDecomposition
 					}
 				}
 
-				for ($k = $i + 1; $k < $this->m; ++$k) {
+				for ($k = $i+1; $k < $this->m; ++$k) {
 					$this->L[$i][$k] = 0.0;
 				}
 			}
 		} else {
 			throw new PHPExcel_Calculation_Exception(JAMAError(ArgumentTypeException));
 		}
-	}    //	function __construct()
+	}	//	function __construct()
 
 
 	/**
-	 *    Is the matrix symmetric and positive definite?
+	 *	Is the matrix symmetric and positive definite?
 	 *
-	 * @return boolean
+	 *	@return boolean
 	 */
-	public function isSPD()
-	{
+	public function isSPD() {
 		return $this->isspd;
-	}    //	function isSPD()
+	}	//	function isSPD()
 
 
 	/**
-	 *    getL
+	 *	getL
 	 *
-	 *    Return triangular factor.
-	 * @return Matrix Lower triangular matrix
+	 *	Return triangular factor.
+	 *	@return Matrix Lower triangular matrix
 	 */
-	public function getL()
-	{
+	public function getL() {
 		return new Matrix($this->L);
-	}    //	function getL()
+	}	//	function getL()
 
 
 	/**
-	 *    Solve A*X = B
+	 *	Solve A*X = B
 	 *
-	 * @param $B Row-equal matrix
-	 * @return Matrix L * L' * X = B
+	 *	@param $B Row-equal matrix
+	 *	@return Matrix L * L' * X = B
 	 */
-	public function solve($B = null)
-	{
+	public function solve($B = null) {
 		if ($B instanceof Matrix) {
 			if ($B->getRowDimension() == $this->m) {
 				if ($this->isspd) {
@@ -150,6 +144,6 @@ class CholeskyDecomposition
 		} else {
 			throw new PHPExcel_Calculation_Exception(JAMAError(ArgumentTypeException));
 		}
-	}    //	function solve()
+	}	//	function solve()
 
-}    //	class CholeskyDecomposition
+}	//	class CholeskyDecomposition

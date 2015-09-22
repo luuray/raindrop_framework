@@ -22,7 +22,7 @@
  * @package    PHPExcel_Reader_Excel2007
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 
@@ -65,17 +65,17 @@ class PHPExcel_Reader_Excel2007_Theme
 	private $_colourMap;
 
 
-	/**
-	 * Create a new PHPExcel_Theme
+    /**
+     * Create a new PHPExcel_Theme
 	 *
-	 */
-	public function __construct($themeName, $colourSchemeName, $colourMap)
-	{
+     */
+    public function __construct($themeName,$colourSchemeName,$colourMap)
+    {
 		// Initialise values
-		$this->_themeName        = $themeName;
-		$this->_colourSchemeName = $colourSchemeName;
-		$this->_colourMap        = $colourMap;
-	}
+    	$this->_themeName			= $themeName;
+		$this->_colourSchemeName	= $colourSchemeName;
+		$this->_colourMap			= $colourMap;
+    }
 
 	/**
 	 * Get Theme Name
@@ -87,35 +87,31 @@ class PHPExcel_Reader_Excel2007_Theme
 		return $this->_themeName;
 	}
 
-	/**
-	 * Get colour Scheme Name
-	 *
-	 * @return string
-	 */
-	public function getColourSchemeName()
-	{
+    /**
+     * Get colour Scheme Name
+     *
+     * @return string
+     */
+    public function getColourSchemeName() {
 		return $this->_colourSchemeName;
-	}
+    }
 
-	/**
-	 * Get colour Map Value by Position
-	 *
-	 * @return string
-	 */
-	public function getColourByIndex($index = 0)
-	{
-		if (isset($this->_colourMap[$index])) {
+    /**
+     * Get colour Map Value by Position
+     *
+     * @return string
+     */
+    public function getColourByIndex($index=0) {
+    	if (isset($this->_colourMap[$index])) {
 			return $this->_colourMap[$index];
 		}
-
 		return null;
-	}
+    }
 
 	/**
 	 * Implement PHP __clone to create a deep clone, not just a shallow copy.
 	 */
-	public function __clone()
-	{
+	public function __clone() {
 		$vars = get_object_vars($this);
 		foreach ($vars as $key => $value) {
 			if ((is_object($value)) && ($key != '_parent')) {

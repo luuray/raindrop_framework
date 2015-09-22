@@ -109,7 +109,11 @@ class MySQL implements IDbConnector
 			$this->_oConn = new PDO(
 				$this->_aConfig['ConnectionString'],
 				$this->_aConfig['User'],
-				$this->_aConfig['Password']);
+				$this->_aConfig['Password'],
+				[
+					PDO::ATTR_EMULATE_PREPARES => false,
+					PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION
+				]);
 
 			return true;
 		} catch (PDOException $ex) {
@@ -316,13 +320,13 @@ class MySQL implements IDbConnector
 			}
 		}
 
-		if (Application::IsDebugging()) {
-			Logger::Message(sprintf('query: %s, param: %s', $sQuery, print_r($aParam, true)));
-		}
-
 		//execute!
 		if ($oStat->execute() === true) {
 			$this->_iQueryCount++;
+
+			if (Application::IsDebugging()) {
+				Logger::Message(sprintf('query: %s, param: %s, SUCCESS, %d', $sQuery, var_export($aParam, true), $oStat->rowCount()));
+			}
 
 			return $oStat;
 		} else {
