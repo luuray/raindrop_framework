@@ -97,6 +97,16 @@ abstract class Model implements \JsonSerializable, \Serializable
 	}
 
 	/**
+	 * Is Readonly
+	 *
+	 * @return bool
+	 */
+	public static function isReadonly()
+	{
+		return false;
+	}
+
+	/**
 	 * Get Primary Key
 	 *
 	 * @return null
