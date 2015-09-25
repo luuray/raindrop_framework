@@ -125,6 +125,10 @@ class ModelAction
 	 */
 	public static function Save(Model $oModel)
 	{
+		if ($oModel->isReadonly()) {
+			throw new DataModelException('model_readonly');
+		}
+
 		if ($oModel->getModelState() === Model::ModelState_Create) {
 			return self::GetInstance()->modelInsert($oModel);
 		} else if ($oModel->getModelState() === Model::ModelState_Updated) {
