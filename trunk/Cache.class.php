@@ -18,6 +18,7 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Interfaces\ICache;
 
 final class Cache
@@ -47,7 +48,9 @@ final class Cache
 	/**
 	 * @param string $sKey
 	 * @param string $sHandler
-	 * @return mixed
+	 *
+*@return mixed
+	 * @throws CacheFailException|CacheMissingException
 	 */
 	public static function Get($sKey, $sHandler = 'default')
 	{
@@ -106,7 +109,7 @@ final class Cache
 	protected function __construct()
 	{
 		$aHandlersConfig = Configuration::Get('Cache');
-		if (!empty($aHandlersConfig) AND is_array($aHandlersConfig)) {
+		if (!empty($aHandlersConfig)) {
 			foreach ($aHandlersConfig AS $_name => $_param) {
 				$_name = strtolower($_name);
 
@@ -136,7 +139,7 @@ final class Cache
 		if (array_key_exists($sName, $this->_aHandlerPool)) {
 			return $this->_aHandlerPool[$sName];
 		} else {
-			throw new CacheHandlerException($sName, 'handler_undefined', -1);
+			throw new CacheFailException('Undefined Handler:' . $sName);
 		}
 	}
 

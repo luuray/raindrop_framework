@@ -162,6 +162,9 @@ class Loader
 			array_shift($aNameTree);
 
 			switch (strtolower($aNameTree[0])) {
+				case 'cache':
+					$sTargetClass = 'Cache.php';
+					break;
 				case 'controller':
 					$sTargetClass = 'Controller.php';
 					break;
