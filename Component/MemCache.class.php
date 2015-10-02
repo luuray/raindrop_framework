@@ -18,7 +18,8 @@
 
 namespace Raindrop\Component;
 
-use Raindrop\Exceptions\CacheFailException;
+use Raindrop\Exceptions\Cache\CacheFailException;
+use Raindrop\Exceptions\Cache\CacheMissingException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
@@ -40,8 +41,10 @@ class MemCache implements ICache
 	/**
 	 * Construct Cache Adapter
 	 *
-	 * @param array $aConfig Adapter Params
-	 * @param string $sName Adapter Identify Name
+	 * @param array $aConfig
+	 * @param string $sName
+	 *
+	 * @throws CacheFailException
 	 * @throws CacheHandlerException
 	 * @throws InvalidArgumentException
 	 */
@@ -78,11 +81,12 @@ class MemCache implements ICache
 	/**
 	 * Set a Value to Cache
 	 *
-	 * @param string $sName Item Name
-	 * @param mixed $mValue Item
-	 * @param int $iLifetime Lifetime
-	 * @throws CacheHandlerException
-	 * @return mixed
+	 * @param string $sName
+	 * @param mixed $mValue
+	 * @param int $iLifetime
+	 *
+	 * @return bool
+	 * @throws CacheFailException
 	 */
 	public function set($sName, $mValue, $iLifetime = 0)
 	{
@@ -94,11 +98,11 @@ class MemCache implements ICache
 	}
 
 	/**
-	 * Get a Item
+	 * @param string $sName
 	 *
-	 * @param string $sName Item Name
-	 * @throws CacheHandlerException
-	 * @return mixed
+	 * @return string
+	 * @throws CacheFailException
+	 * @throws CacheMissingException
 	 */
 	public function get($sName)
 	{
@@ -106,15 +110,22 @@ class MemCache implements ICache
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		return $this->_oMemcache->get($this->_sPrefix . strtolower($sName));
+		$sResult = $this->_oMemcache->get($this->_sPrefix . strtolower($sName));
+
+		if ($sResult === false) {
+			throw new CacheMissingException($this->_sHandlerName, $sName);
+		}
+
+		return $sResult;
 	}
 
 	/**
 	 * Delete a Item
 	 *
-	 * @param string $sName Item Name
-	 * @throws CacheHandlerException
-	 * @return mixed
+	 * @param string $sName
+	 *
+	 * @return bool
+	 * @throws CacheFailException
 	 */
 	public function del($sName)
 	{
@@ -128,8 +139,8 @@ class MemCache implements ICache
 	/**
 	 * Delete All
 	 *
-	 * @throws CacheHandlerException
 	 * @return bool
+	 * @throws CacheFailException
 	 */
 	public function flush()
 	{

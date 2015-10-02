@@ -207,6 +207,8 @@ EXP;
 		if (self::$_bEnableDebug == true) {
 			//Flush FileCache
 			del_recursive(SysRoot.'/cache');
+			//Flush CacheHandlers
+			Cache::FlushAll();
 		}
 
 		//Load Config

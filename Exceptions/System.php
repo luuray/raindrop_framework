@@ -130,9 +130,3 @@ class ArgumentNullException extends InvalidArgumentException
 }
 
 #endregion
-
-#region Cache
-class CacheFailException extends ApplicationException
-{
-}
-#endregion

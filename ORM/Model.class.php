@@ -342,13 +342,18 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 	/**
 	 * String representation of object
+	 *
 	 * @link http://php.net/manual/en/serializable.serialize.php
 	 * @return string the string representation of the object or null
 	 * @since 5.1.0
 	 */
 	public function serialize()
 	{
-		return serialize($this->_aColumns);
+		return serialize([
+			'columns'         => $this->_aColumns,
+			'identify'        => $this->_aIdentify,
+			'changed_columns' => $this->_aChangedColumns,
+			'state'           => $this->_iState]);
 	}
 
 	/**
@@ -363,9 +368,14 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	public function unserialize($serialized)
 	{
-		$this->_aColumns = @unserialize($serialized);
+		$aResults = @unserialize($serialized);
 
-		if ($this->_aColumns == false) throw new DataModelException('unserialize_fail');
+		if ($aResults == false) throw new DataModelException('unserialize_fail');
+
+		$this->_iState = $aResults['state'];
+		$this->_aColumns = $aResults['columns'];
+		$this->_aIdentify = $aResults['identify'];
+		$this->_aChangedColumns = $aResults['changed_columns'];
 	}
 
 	/**
