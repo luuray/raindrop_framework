@@ -18,9 +18,14 @@
 
 namespace Raindrop;
 
+use Raindrop\Component\BlackHoleCache;
 use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Interfaces\ICache;
 
+/**
+ * Class Cache
+ * @package Raindrop
+ */
 final class Cache
 {
 	protected static $_oInstance = null;
@@ -49,7 +54,7 @@ final class Cache
 	 * @param string $sKey
 	 * @param string $sHandler
 	 *
-*@return mixed
+	 * @return mixed
 	 * @throws CacheFailException|CacheMissingException
 	 */
 	public static function Get($sKey, $sHandler = 'default')
@@ -108,13 +113,21 @@ final class Cache
 
 	protected function __construct()
 	{
-		$aHandlersConfig = Configuration::Get('Cache');
-		if (!empty($aHandlersConfig)) {
-			foreach ($aHandlersConfig AS $_name => $_param) {
-				$_name = strtolower($_name);
+		$oHandlersConfig    = Configuration::Get('Cache');
 
-				$oRefComp                    = new \ReflectionClass('Raindrop\Component\\' . $_param['Component']);
-				$this->_aHandlerPool[$_name] = $oRefComp->newInstance($_param['Params'], $_name);
+		if ($oHandlersConfig instanceof Configuration) {
+			foreach ($oHandlersConfig AS $_name => $_config) {
+				$_name = strtolower($_name);
+				$sComponent = $_config->Component;
+
+				//black hole
+				if ($sComponent == null) {
+					Logger::Warning(sprintf('[Cache]Handler "%s" not defined component, use "BlackHole"', $_name));
+					$sComponent = 'BlackHoleCache';
+				}
+
+				$oRefComp                    = new \ReflectionClass('Raindrop\Component\\' . $sComponent);
+				$this->_aHandlerPool[$_name] = $oRefComp->newInstance($_config->Params, $_name);
 			}
 		}
 	}
@@ -125,13 +138,15 @@ final class Cache
 	 */
 	public function isHandlerExists($sName)
 	{
-		return array_key_exists(strtolower($sName), $this->_aHandlerPool);
+		$sName = strtolower($sName);
+
+		return array_key_exists($sName, $this->_aHandlerPool);
 	}
 
 	/**
-	 * @param string $sName Handler Name
-	 * @return ICache
-	 * @throws CacheHandlerException
+	 * @param $sName
+	 *
+	 * @return ICache|null
 	 */
 	public function getHandler($sName)
 	{
@@ -139,7 +154,9 @@ final class Cache
 		if (array_key_exists($sName, $this->_aHandlerPool)) {
 			return $this->_aHandlerPool[$sName];
 		} else {
-			throw new CacheFailException('Undefined Handler:' . $sName);
+			Logger::Warning(sprintf('[Cache]Handler "%s" undefined, return "BlackHole"', $sName));
+
+			return new BlackHoleCache(null, $sName);
 		}
 	}
 
@@ -149,11 +166,11 @@ final class Cache
 	public function clean($sName = null)
 	{
 		if ($sName == null) {
-			foreach ($this->_aHandlerPool AS $_h) {
-				$_h->flush();
+			foreach ($this->_aHandlerPool AS $_handler) {
+				$_handler instanceof BlackHoleCache ? null : $_handler->flush();
 			}
 		} else {
-			$this->getHandler($sName)->flush();
+			$this->getHandler($sName) instanceof BlackHoleCache ? null : $this->getHandler($sName)->flush();
 		}
 	}
 }

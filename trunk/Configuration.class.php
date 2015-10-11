@@ -158,7 +158,7 @@ class Configuration implements \ArrayAccess, \Iterator
 	 */
 	public function offsetGet($offset)
 	{
-		return $this->$offset;
+		return $this->__get($offset);
 	}
 
 	/**
@@ -202,7 +202,8 @@ class Configuration implements \ArrayAccess, \Iterator
 	 */
 	public function current()
 	{
-		return $this->_aConfig[$this->_pPosition];
+		//return $this->_aConfig[$this->_pPosition];
+		return new self($this->_aConfig[$this->_pPosition]);
 	}
 
 	/**

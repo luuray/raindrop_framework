@@ -29,7 +29,7 @@ class CacheMissingException extends CacheFailException
 {
 	public function __construct($sHandler, $sName)
 	{
-		$sMessage = sprintf('CacheMissing:[%s]%s', $sHandler, $sName);
+		$sMessage = sprintf('CacheMissing:[%s]  %s', $sHandler, $sName);
 
 		Logger::Warning($sMessage);
 

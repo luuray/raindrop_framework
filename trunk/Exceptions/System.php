@@ -56,6 +56,13 @@ class RuntimeException extends ApplicationException
 {
 }
 
+class ConfigurationMissingException extends FatalErrorException
+{
+	public function __construct($sSection)
+	{
+		parent::__construct(sprintf('Configuration section "%s" is missing', $sSection));
+	}
+}
 #endregion
 
 #region File(Component, Module)
