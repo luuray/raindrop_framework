@@ -39,6 +39,8 @@ class TimeArea
 		$mBegin != null ? $mBegin = parse_timestamp($mBegin) : null;
 		$mEnd != null ? $mEnd = parse_timestamp($mEnd) : null;
 
+		if ($mBegin === null AND $mEnd === null) return null;
+
 		if ($mBegin != null AND $mEnd != null AND $mBegin > $mEnd) {
 			throw new InvalidArgumentException('BeginTime/EndTime');
 		}

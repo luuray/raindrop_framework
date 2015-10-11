@@ -25,6 +25,7 @@ use Raindrop\Exceptions\Database\DataModelException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\Model\ModelNotFoundException;
 use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Logger;
 
 /**
  * Class ModelAction
@@ -48,6 +49,7 @@ class ModelAction
 	 * @param $sModel
 	 * @param null $sCondition
 	 * @param null $aParams
+	 *
 	 * @return bool
 	 * @throws ModelNotFoundException
 	 */
@@ -381,6 +383,7 @@ class ModelAction
 	/**
 	 * @param $sMethod
 	 * @param $aArgs
+	 *
 	 * @return mixed
 	 * @throws NotImplementedException
 	 */
@@ -436,7 +439,7 @@ class ModelAction
 
 		$aScheme = $this->getTableScheme((string)$sModel::GetTableName(), (string)$sModel::GetDbConnect());
 
-		$aResult = ['Default' => [], 'Identify' =>[]];
+		$aResult = ['Default' => [], 'Identify' => []];
 		foreach ($aScheme['Columns'] AS $_col) {
 			$aResult['Default'][$_col['Name']] = $_col['Default'];
 			if (in_array($_col['Name'], $aScheme['PrimaryKeys'])) $aResult['Identify'][$_col['Name']] = $_col['Default'];
@@ -484,7 +487,9 @@ class ModelAction
 			if (intval($iResult) != 0) {
 				$oModel->setRAWData($sAutoId, (int)$iResult);
 			} else {
-				throw new DataModelException('save_fail');
+				Logger::Warning('save_fail: insert, model: ' . ((new \ReflectionClass($oModel))->getName()));
+
+				return false;
 			}
 		} else {
 			$iResult = DatabaseAdapter::GetAffectedRowNum(
@@ -492,7 +497,11 @@ class ModelAction
 					$oModel::getTableName(), implode(',', $aColumns), implode(',', $aColParams)),
 				$aColValues,
 				$oModel::getDbConnect());
-			if ($iResult <= 0) throw new DataModelException('save_fail');
+			if ($iResult <= 0) {
+				Logger::Warning('save_fail: insert, model: ' . ((new \ReflectionClass($oModel))->getName()));
+
+				return false;
+			}
 		}
 
 		$oModel->setModelState(Model::ModelState_Normal);
@@ -537,7 +546,11 @@ class ModelAction
 				$oModel::getTableName(), implode(',', $aUpdatedField), implode(' AND ', $aIdentify)),
 			$aQueryParams,
 			$oModel::getDbConnect());
-		if ($iResult <= 0) throw new DataModelException('save_fail');
+		if ($iResult <= 0) {
+			Logger::Warning('save_fail: update, model: ' . ((new \ReflectionClass($oModel))->getName()));
+
+			return false;
+		}
 
 		//update identify if need
 		if (!empty($aChangedIdentifies)) $oModel->setRAWData($aChangedIdentifies);
@@ -550,6 +563,7 @@ class ModelAction
 	/**
 	 * @param $sTable
 	 * @param $sDbConnect
+	 *
 	 * @return array|bool
 	 */
 	protected function _queryTableScheme($sTable, $sDbConnect)

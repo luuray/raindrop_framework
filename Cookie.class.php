@@ -34,31 +34,66 @@ final class Cookie implements \ArrayAccess
 		return self::$_oInstance;
 	}
 
+	/**
+	 * @param $sKey
+	 * @param $mValue
+	 * @param null $iLifetime
+	 *
+	 * @return bool
+	 */
 	public static function Set($sKey, $mValue, $iLifetime = null)
 	{
 		return self::GetInstance()->_setItem($sKey, $mValue, $iLifetime);
 	}
 
+	/**
+	 * @param $sKey
+	 *
+	 * @return bool
+	 */
 	public static function Has($sKey)
 	{
 		return self::GetInstance()->_hasItem($sKey);
 	}
 
+	/**
+	 * @param $sKey
+	 *
+	 * @return bool
+	 */
 	public static function Get($sKey)
 	{
 		return self::GetInstance()->_getItem($sKey);
 	}
 
+	/**
+	 * @param $sKey
+	 *
+	 * @return bool
+	 */
 	public static function Del($sKey)
 	{
 		return self::GetInstance()->_delItem($sKey);
 	}
 
+	/**
+	 * @param $sKey
+	 * @param null $iLifetime
+	 *
+	 * @return bool
+	 */
+	public static function Refresh($sKey, $iLifetime = null)
+	{
+		return self::GetInstance()->_refresh($sKey, $iLifetime);
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function CleanUp()
 	{
 		return self::GetInstance()->_cleanup();
 	}
-
 
 	protected $_sPrefix;
 	protected $_sDomain;
@@ -131,6 +166,25 @@ final class Cookie implements \ArrayAccess
 		}
 
 		return true;
+	}
+
+	protected function _refresh($sKey, $iLifetime)
+	{
+		if ($this->_hasItem($sKey)) {
+			$sKey = $this->_generateKey($sKey);
+
+			return setcookie(
+				$sKey,
+				$_COOKIE[$sKey],
+				$iLifetime === null ?
+					time() + $this->_iLifetime : time() + $iLifetime,
+				'/',
+				$this->_sDomain,
+				$this->_bIsHttps,
+				$this->_bHttpOnly);
+		}
+
+		return false;
 	}
 
 	#region Access Item as Properties(Getter, Setter, etc)

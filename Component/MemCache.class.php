@@ -18,8 +18,10 @@
 
 namespace Raindrop\Component;
 
+use Raindrop\Configuration;
 use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Exceptions\Cache\CacheMissingException;
+use Raindrop\Exceptions\ConfigurationMissingException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
@@ -29,10 +31,20 @@ class MemCache implements ICache
 	 * @var string
 	 */
 	protected $_sHandlerName;
+
+	/**
+	 * @var null|Configuration
+	 */
+	protected $_oConfig = null;
 	/**
 	 * @var string
 	 */
 	protected $_sPrefix = null;
+
+	/**
+	 * @var null|int
+	 */
+	protected $_iLifetime = null;
 	/**
 	 * @var \Memcache
 	 */
@@ -41,34 +53,37 @@ class MemCache implements ICache
 	/**
 	 * Construct Cache Adapter
 	 *
-	 * @param array $aConfig
+	 * @param Configuration $oConfig
 	 * @param string $sName
 	 *
 	 * @throws CacheFailException
-	 * @throws CacheHandlerException
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct($aConfig, $sName)
+	public function __construct(Configuration $oConfig, $sName)
 	{
-		if (empty($aConfig)) {
+		if ($oConfig == null) {
 			throw new InvalidArgumentException('config');
 		}
 		if (empty($sName)) {
 			throw new InvalidArgumentException('name');
 		}
 
+		$this->_oConfig   = $oConfig;
+
 		$this->_sHandlerName = $sName;
-		$this->_sPrefix      = !empty($aConfig['Prefix']) ? $aConfig['Prefix'] : '';
-		if (empty($aConfig['Server'])) {
-			throw new CacheHandlerException($sName, 'missing_param: server', -1);
+		$this->_sPrefix   = $oConfig->Prefix == null ? '' : $oConfig->Prefix;
+		$this->_iLifetime = $oConfig->Lifetime;
+
+		if ($oConfig->Server == null) {
+			throw new ConfigurationMissingException(sprintf('Cache\%s\Params\Server', $sName));
 		}
 		$this->_oMemcache = new \Memcache();
-		if (str_beginwith($aConfig['Server'], 'unix://')) {
-			$bConnected = $this->_oMemcache->connect($aConfig['Server'], 0);
+		if (str_beginwith($oConfig->Server, 'unix://')) {
+			$bConnected = $this->_oMemcache->connect($oConfig->Server, 0);
 		} else {
 			$bConnected = @$this->_oMemcache->connect(
-				$aConfig['Server'],
-				empty($aConfig['Port']) ? 11211 : intval($aConfig['Port']));
+				$oConfig->Server,
+				$oConfig->Port == null ? 11211 : intval($oConfig->Port));
 		}
 
 		if ($bConnected !== true) {
@@ -88,13 +103,17 @@ class MemCache implements ICache
 	 * @return bool
 	 * @throws CacheFailException
 	 */
-	public function set($sName, $mValue, $iLifetime = 0)
+	public function set($sName, $mValue, $iLifetime = -1)
 	{
 		if ($this->_oMemcache == null) {
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime < 0 ? 0 : $iLifetime);
+		if ($iLifetime == -1 OR settype($iLifetime, 'int') == false) {
+			$iLifetime = $this->_iLifetime;
+		}
+
+		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime);
 	}
 
 	/**
@@ -110,10 +129,12 @@ class MemCache implements ICache
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		$sResult = $this->_oMemcache->get($this->_sPrefix . strtolower($sName));
+		$sKey = $this->_sPrefix . strtolower($sName);
+
+		$sResult = $this->_oMemcache->get($sKey);
 
 		if ($sResult === false) {
-			throw new CacheMissingException($this->_sHandlerName, $sName);
+			throw new CacheMissingException($this->_sHandlerName, $sKey);
 		}
 
 		return $sResult;

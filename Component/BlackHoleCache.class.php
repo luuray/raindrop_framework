@@ -2,7 +2,7 @@
 /**
  * Raindrop Framework for PHP
  *
- * Cache Interface
+ * BlackHole Cache Adapter
  *
  * @author $Author$
  * @copyright Rainhan System
@@ -16,35 +16,54 @@
  * @version $Rev$
  */
 
-namespace Raindrop\Interfaces;
+namespace Raindrop\Component;
+
 
 use Raindrop\Configuration;
+use Raindrop\Interfaces\ICache;
 
-interface ICache
+/**
+ * Class BlackHoleCache
+ *
+ * @package Raindrop\Component
+ */
+class BlackHoleCache implements ICache
 {
+
 	/**
 	 * Construct Cache Adapter
 	 *
 	 * @param Configuration $oConfig Adapter Configuration
 	 * @param string $sName Adapter Identify Name
 	 */
-	public function __construct(Configuration $oConfig, $sName);
+	public function __construct(Configuration $oConfig = null, $sName)
+	{
+
+	}
 
 	/**
 	 * Get a Item
 	 *
 	 * @param string $sName Item Name
+	 *
 	 * @return mixed
 	 */
-	public function get($sName);
+	public function get($sName)
+	{
+		return null;
+	}
 
 	/**
 	 * Delete a Item
 	 *
 	 * @param string $sName Item Name
+	 *
 	 * @return mixed
 	 */
-	public function del($sName);
+	public function del($sName)
+	{
+		return true;
+	}
 
 	/**
 	 * Set a Value to Cache
@@ -52,14 +71,21 @@ interface ICache
 	 * @param string $sName Item Name
 	 * @param mixed $mValue Item
 	 * @param int $iLifetime Lifetime
+	 *
 	 * @return mixed
 	 */
-	public function set($sName, $mValue, $iLifetime = 0);
+	public function set($sName, $mValue, $iLifetime = 0)
+	{
+		return true;
+	}
 
 	/**
 	 * Delete All
 	 *
 	 * @return bool
 	 */
-	public function flush();
+	public function flush()
+	{
+		return true;
+	}
 }

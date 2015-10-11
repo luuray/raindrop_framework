@@ -18,8 +18,10 @@
 
 namespace Raindrop\ORM;
 
+use Raindrop\Debugger;
 use Raindrop\Exceptions\Database\DataModelException;
 use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Logger;
 
 
 /**
@@ -184,9 +186,13 @@ abstract class Model implements \JsonSerializable, \Serializable
 			if ($this->_aColumns[$sColumn] == $mValue) return;
 
 			$sSourceType = gettype($this->_aColumns[$sColumn]);
-			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) $this->_aColumns[$sColumn] = $mValue;
-			else if (settype($mValue, $sSourceType)) $this->_aColumns[$sColumn] = $mValue;
-			else throw new DataModelException('invalid_column_datetype:' . $sColumn);
+			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) {
+				$this->_aColumns[$sColumn] = $mValue;
+			} else if (settype($mValue, $sSourceType)) {
+				$this->_aColumns[$sColumn] = $mValue;
+			} else {
+				throw new DataModelException('invalid_column_datetype:' . $sColumn);
+			}
 		}
 
 		//user-defined first
@@ -200,18 +206,34 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 		if (array_key_exists($sColumn, $this->_aColumns)) {
 
-			if ($this->_aColumns[$sColumn] == $mValue) return;
-
 			$sSourceType = gettype($this->_aColumns[$sColumn]);
-			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) $this->_aColumns[$sColumn] = $mValue;
-			else if (settype($mValue, $sSourceType)) $this->_aColumns[$sColumn] = $mValue;
-			else throw new DataModelException('invalid_column_datetype:' . $sColumn);
+
+			if ($sSourceType == 'NULL'
+				OR gettype($mValue) == $sSourceType
+				OR settype($mValue, $sSourceType)
+			) {
+
+				if ($this->_aColumns[$sColumn] == $mValue) {
+					Logger::Trace('!!!SKIP!!! value_not_change: ' . $sColumn . ', value: ' . $mValue);
+
+					return null;
+				} else {
+					$this->_aColumns[$sColumn] = $mValue;
+				}
+			} else {
+				throw new DataModelException('invalid_column_datatype:' . $sColumn);
+			}
+
 
 			if ($this->_iState == self::ModelState_Create AND array_key_exists($sColumn, $this->_aIdentify)) {
 				$this->_aIdentify[$sColumn] = $mValue;
 			}
 
-			$this->_iState = $this->_iState == null ? self::ModelState_Updated : $this->_iState;
+			//update state
+			if ($this->_iState != self::ModelState_Create) {
+				$this->_iState = self::ModelState_Updated;
+			}
+
 			$this->_aChangedColumns[$sColumn] = $mValue;
 		} else {
 			$this->$sColumn = $mValue;

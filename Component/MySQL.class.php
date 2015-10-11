@@ -22,6 +22,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Raindrop\Application;
+use Raindrop\Configuration;
 use Raindrop\Exceptions\Database\DatabaseConnectionException;
 use Raindrop\Exceptions\Database\DatabaseQueryException;
 use Raindrop\Exceptions\FileNotFoundException;
@@ -46,7 +47,7 @@ class MySQL implements IDbConnector
 	/**
 	 * @var array
 	 */
-	protected $_aConfig = array();
+	protected $_oConfig = array();
 	/**
 	 * @var null|string
 	 */
@@ -57,16 +58,16 @@ class MySQL implements IDbConnector
 	 * @param string $sDSName
 	 * @throws InvalidArgumentException
 	 */
-	public function __construct($aConfig, $sDSName)
+	public function __construct(Configuration $oConfig, $sDSName)
 	{
-		if (!is_array($aConfig)) {
+		if ($oConfig == null) {
 			throw new InvalidArgumentException('config');
 		}
 		if (str_nullorwhitespace($sDSName)) {
 			throw new InvalidArgumentException('dsname');
 		}
 
-		$this->_aConfig = $aConfig;
+		$this->_oConfig = $oConfig;
 		$this->_sDSName = $sDSName;
 	}
 
@@ -107,9 +108,9 @@ class MySQL implements IDbConnector
 
 		try {
 			$this->_oConn = new PDO(
-				$this->_aConfig['ConnectionString'],
-				$this->_aConfig['User'],
-				$this->_aConfig['Password'],
+				$this->_oConfig->ConnectionString,
+				$this->_oConfig->User,
+				$this->_oConfig->Password,
 				[
 					PDO::ATTR_EMULATE_PREPARES => false,
 					PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION

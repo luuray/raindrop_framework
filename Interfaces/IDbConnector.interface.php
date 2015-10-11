@@ -16,6 +16,8 @@
  * @version $Rev$
  */
 namespace Raindrop\Interfaces;
+
+use Raindrop\Configuration;
 use Raindrop\ORM\BaseModel;
 
 interface IDbConnector
@@ -23,10 +25,10 @@ interface IDbConnector
 	/**
 	 * Constructor
 	 *
-	 * @param array $aConfig
+	 * @param Configuration $oConfig
 	 * @param string $sDataSourceName
 	 */
-	public function __construct($aConfig, $sDataSourceName);
+	public function __construct(Configuration $oConfig, $sDataSourceName);
 
 	#region Status
 	/**
