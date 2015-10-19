@@ -20,6 +20,7 @@ namespace Raindrop;
 
 use Raindrop\Component\BlackHoleCache;
 use Raindrop\Exceptions\Cache\CacheFailException;
+use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
 /**
@@ -45,9 +46,11 @@ final class Cache
 	}
 
 #region Operation Methods
-	public static function HasHandler($sHandler = 'default')
+	public static function HasHandler($sHandler)
 	{
-		return self::GetInstance()->isHandlerExists($sHandler);
+		return array_key_exists(
+			strtolower($sHandler),
+			self::GetInstance()->_aHandlerPool);
 	}
 
 	/**
@@ -65,17 +68,18 @@ final class Cache
 	}
 
 	/**
-	 * @param string $sKey
-	 * @param mixed $mValue
-	 * @param int $iLifetime
+	 * @param $sKey
+	 * @param $mValue
 	 * @param string $sHandler
+	 *
 	 * @return mixed
+	 * @throws InvalidArgumentException
 	 */
-	public static function Set($sKey, $mValue, $iLifetime = -1, $sHandler = 'default')
+	public static function Set($sKey, $mValue, $sHandler = 'default')
 	{
 		$oHandler = self::GetInstance()->getHandler($sHandler);
 
-		return $oHandler->set($sKey, $mValue, $iLifetime);
+		return $oHandler->set($sKey, $mValue);
 	}
 
 	/**
@@ -91,29 +95,29 @@ final class Cache
 	}
 
 	/**
-	 * @param string $sHandler
+	 * @param null|string $sHandler
+	 * @param null|int $iLevel
+	 *
 	 * @return bool
 	 */
-	public static function Flush($sHandler = 'default')
+	public static function Flush($sHandler = null, $iLevel = null)
 	{
-		$oHandler = self::GetInstance()->getHandler($sHandler);
+		//flush handler
+		if ($sHandler !== null) {
+			$oHandler = self::GetInstance()->getHandler($sHandler);
 
-		return $oHandler->flush();
+			return $oHandler->flush();
+		} else {
+			$iLevel = $iLevel === null ? Configuration::GetRoot('System/CacheLevel') : (int)$iLevel;
+
+			return self::GetInstance()->flushByLevel($iLevel);
+		}
 	}
-
-	/**
-	 * @return void
-	 */
-	public static function FlushAll()
-	{
-		self::GetInstance()->clean();
-	}
-
 #endregion
 
 	protected function __construct()
 	{
-		$oHandlersConfig    = Configuration::Get('Cache');
+		$oHandlersConfig                     = Configuration::Get('Cache');
 
 		if ($oHandlersConfig instanceof Configuration) {
 			foreach ($oHandlersConfig AS $_name => $_config) {
@@ -127,20 +131,11 @@ final class Cache
 				}
 
 				$oRefComp                    = new \ReflectionClass('Raindrop\Component\\' . $sComponent);
-				$this->_aHandlerPool[$_name] = $oRefComp->newInstance($_config->Params, $_name);
+				$this->_aHandlerPool[$_name] = [
+					'handler' => $oRefComp->newInstance($_config->Params, $_name),
+					'level'   => $_config->Level];
 			}
 		}
-	}
-
-	/**
-	 * @param string $sName
-	 * @return bool
-	 */
-	public function isHandlerExists($sName)
-	{
-		$sName = strtolower($sName);
-
-		return array_key_exists($sName, $this->_aHandlerPool);
 	}
 
 	/**
@@ -152,7 +147,7 @@ final class Cache
 	{
 		$sName = strtolower($sName);
 		if (array_key_exists($sName, $this->_aHandlerPool)) {
-			return $this->_aHandlerPool[$sName];
+			return $this->_aHandlerPool[$sName]['handler'];
 		} else {
 			Logger::Warning(sprintf('[Cache]Handler "%s" undefined, return "BlackHole"', $sName));
 
@@ -161,16 +156,31 @@ final class Cache
 	}
 
 	/**
-	 * @param null|string $sName
+	 * @param $sName
+	 *
+	 * @return null
 	 */
-	public function clean($sName = null)
+	public function getHandlerLevel($sName)
 	{
-		if ($sName == null) {
-			foreach ($this->_aHandlerPool AS $_handler) {
-				$_handler instanceof BlackHoleCache ? null : $_handler->flush();
-			}
+		$sName = strtolower($sName);
+		if (array_key_exists($sName, $this->_aHandlerPool)) {
+			return $this->_aHandlerPool[$sName]['level'];
 		} else {
-			$this->getHandler($sName) instanceof BlackHoleCache ? null : $this->getHandler($sName)->flush();
+			Logger::Warning(sprintf('[Cache]Handler "%s" undefined, return "BlackHole"', $sName));
+
+			return null;
 		}
+	}
+
+	/**
+	 * @param null|int $iLevel
+	 */
+	public function flushByLevel($iLevel = null)
+	{
+		foreach ($this->_aHandlerPool AS $_handler) {
+			if ($iLevel == null OR $_handler['level'] >= $iLevel) $_handler->flush();
+		}
+
+		return true;
 	}
 }

@@ -18,9 +18,10 @@
 
 namespace Raindrop\ORM;
 
-use Raindrop\Application;
 use Raindrop\Cache;
+use Raindrop\Configuration;
 use Raindrop\DatabaseAdapter;
+use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Exceptions\Database\DataModelException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\Model\ModelNotFoundException;
@@ -401,7 +402,7 @@ class ModelAction
 	 */
 	protected function __construct()
 	{
-		$this->_bCacheEnable = Cache::HasHandler('ModelCache');
+		$this->_bCacheEnable = Configuration::GetRoot('System/ModelCache', false);
 	}
 
 	/**
@@ -412,14 +413,22 @@ class ModelAction
 	 */
 	public function getTableScheme($sTable, $sDbConnect)
 	{
-		if (Application::IsDebugging() OR $this->_bCacheEnable == false) {
+		if ($this->_bCacheEnable == false) {
 			return $this->_queryTableScheme($sTable, $sDbConnect);
 		} else {
-			$aScheme = Cache::Get("{$sDbConnect}-{$sTable}", 'ModelCache');
-			if ($aScheme == false) {
-				$aScheme = $this->_queryTableScheme($sTable, $sDbConnect);
-				Cache::Set("{$sDbConnect}-{$sTable}", $aScheme, 'ModelCache');
+			try {
+				$aScheme = Cache::Get("{$sDbConnect}-{$sTable}", 'ModelCache');
+				$aScheme = @unserialize($aScheme);
+
+				if ($aScheme != false) {
+					return $aScheme;
+				}
+			} catch (CacheFailException $ex) {
+				//
 			}
+
+			$aScheme = $this->_queryTableScheme($sTable, $sDbConnect);
+			Cache::Set("{$sDbConnect}-{$sTable}", serialize($aScheme), 'ModelCache');
 
 			return $aScheme;
 		}
