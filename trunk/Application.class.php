@@ -203,19 +203,21 @@ EXP;
 
 		self::$_oInstance = $this;
 
-		//Debug Mode
-		if (self::$_bEnableDebug == true) {
-			//Flush FileCache
-			del_recursive(SysRoot.'/cache');
-			//Flush CacheHandlers
-			Cache::FlushAll();
-		}
-
 		//Load Config
 		Configuration::Load();
 
 		//Initialize Logger
 		Logger::Initialize();
+
+		//Debug Mode
+		if (self::$_bEnableDebug == true) {
+			Logger::Message('---------- Request Begin ----------');
+
+			//Flush FileCache
+			del_recursive(SysRoot.'/cache');
+			//Flush CacheHandlers
+			Cache::Flush();
+		}
 
 		//Initialize Session
 		Session::Start();
@@ -251,5 +253,7 @@ EXP;
 	{
 		//Call Application Defined Finisher
 		$this->_finish();
+
+		Logger::Message('---------- Request End ----------');
 	}
 }

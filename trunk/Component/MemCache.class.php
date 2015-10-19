@@ -72,7 +72,7 @@ class MemCache implements ICache
 
 		$this->_sHandlerName = $sName;
 		$this->_sPrefix   = $oConfig->Prefix == null ? '' : $oConfig->Prefix;
-		$this->_iLifetime = $oConfig->Lifetime;
+		$this->_iLifetime = $oConfig->Lifetime === null ? 0 : (int)$oConfig->Lifetime;
 
 		if ($oConfig->Server == null) {
 			throw new ConfigurationMissingException(sprintf('Cache\%s\Params\Server', $sName));
@@ -98,22 +98,17 @@ class MemCache implements ICache
 	 *
 	 * @param string $sName
 	 * @param mixed $mValue
-	 * @param int $iLifetime
 	 *
 	 * @return bool
 	 * @throws CacheFailException
 	 */
-	public function set($sName, $mValue, $iLifetime = -1)
+	public function set($sName, $mValue)
 	{
 		if ($this->_oMemcache == null) {
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		if ($iLifetime == -1 OR settype($iLifetime, 'int') == false) {
-			$iLifetime = $this->_iLifetime;
-		}
-
-		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime);
+		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $this->_iLifetime);
 	}
 
 	/**

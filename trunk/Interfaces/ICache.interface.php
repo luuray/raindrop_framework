@@ -51,10 +51,9 @@ interface ICache
 	 *
 	 * @param string $sName Item Name
 	 * @param mixed $mValue Item
-	 * @param int $iLifetime Lifetime
 	 * @return mixed
 	 */
-	public function set($sName, $mValue, $iLifetime = 0);
+	public function set($sName, $mValue);
 
 	/**
 	 * Delete All

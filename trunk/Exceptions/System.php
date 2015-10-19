@@ -126,6 +126,10 @@ class NotImplementedException extends ApplicationException
  */
 class InvalidArgumentException extends ApplicationException
 {
+	public function __construct($sArgument, $sType = null)
+	{
+		parent::__construct($sArgument . ($sType == null ? null : ', type: ' . $sType));
+	}
 }
 
 /**
@@ -134,6 +138,10 @@ class InvalidArgumentException extends ApplicationException
  */
 class ArgumentNullException extends InvalidArgumentException
 {
+	public function __construct($sArgument, $sType = null)
+	{
+		parent::__construct($sArgument, $sType);
+	}
 }
 
 #endregion
