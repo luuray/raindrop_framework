@@ -300,38 +300,37 @@ class MySQL implements IDbConnector
 		if ($this->isConnected() === false) {
 			$this->connect();
 		}
-
-		$oStat = $this->_oConn->prepare($sQuery);
-		//prepare fail
-		if ($oStat === false) {
-			throw new DatabaseQueryException($this->_sDSName, $sQuery, $aParam, $oStat->errorInfo()[2], $oStat->errorCode());
-		}
-		//bind values
-		if (!empty($aParam) && is_array($aParam)) {
-			foreach ($aParam AS $_k => $_v) {
-				if ($_v === null) {
-					$oStat->bindValue(':' . $_k, null, PDO::PARAM_NULL);
-				} else if (is_bool($_v)) {
-					$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_BOOL);
-				} else if (is_int($_v)) {
-					$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_INT);
-				} else {
-					$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_STR);
+		try {
+			$oStat = $this->_oConn->prepare($sQuery);
+			//bind values
+			if (!empty($aParam) && is_array($aParam)) {
+				foreach ($aParam AS $_k => $_v) {
+					if ($_v === null) {
+						$oStat->bindValue(':' . $_k, null, PDO::PARAM_NULL);
+					} else if (is_bool($_v)) {
+						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_BOOL);
+					} else if (is_int($_v)) {
+						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_INT);
+					} else {
+						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_STR);
+					}
 				}
 			}
-		}
 
-		//execute!
-		if ($oStat->execute() === true) {
-			$this->_iQueryCount++;
+			//execute!
+			if ($oStat->execute() === true) {
+				$this->_iQueryCount++;
 
-			if (Application::IsDebugging()) {
-				Logger::Message(sprintf('query: %s, param: %s, SUCCESS, %d', $sQuery, var_export($aParam, true), $oStat->rowCount()));
+				if (Application::IsDebugging()) {
+					Logger::Message(sprintf('query: %s, param: %s, SUCCESS, %d', $sQuery, var_export($aParam, true), $oStat->rowCount()));
+				}
+
+				return $oStat;
+			} else {
+				throw new DatabaseQueryException($this->_sDSName, $sQuery, $aParam, $oStat->errorInfo()[2], $oStat->errorCode());
 			}
-
-			return $oStat;
-		} else {
-			throw new DatabaseQueryException($this->_sDSName, $sQuery, $aParam, $oStat->errorInfo()[2], $oStat->errorCode());
+		} catch (PDOException $ex) {
+			throw new DatabaseQueryException($this->_sDSName, $sQuery, $aParam, $ex->errorInfo[2], $ex->getCode(), $ex);
 		}
 	}
 }
