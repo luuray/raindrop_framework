@@ -1012,11 +1012,12 @@ class PHPExcel_Calculation_MathTrig {
 	/**
 	 * SIGN
 	 *
-	 * Determines the sign of a number. Returns 1 if the number is positive, zero (0)
+	 * Determines the passport of a number. Returns 1 if the number is positive, zero (0)
 	 *		if the number is 0, and -1 if the number is negative.
 	 *
 	 * @param	float	$number			Number to round
-	 * @return	int		sign value
+	 *
+	 * @return    int        passport value
 	 */
 	public static function SIGN($number) {
 		$number	= PHPExcel_Calculation_Functions::flattenSingleValue($number);

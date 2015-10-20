@@ -165,6 +165,13 @@ abstract class Identify
 	 * Get User Model
 	 */
 	public abstract function GetUser();
+
+	/**
+	 * Get User Roles
+	 *
+	 * @return array|null
+	 */
+	public abstract function GetRoles();
 	#endregion
 
 	#region Session Operators

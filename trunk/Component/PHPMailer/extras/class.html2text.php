@@ -132,8 +132,8 @@ class Html2Text
 		'/&(mdash|#151|#8212);/i',               // mdash
 		'/&(ndash|minus|#8211|#8722);/i',        // ndash
 		'/&(bull|#149|#8226);/i',                // Bullet
-		'/&(pound|#163);/i',                     // Pound sign
-		'/&(euro|#8364);/i',                     // Euro sign
+		'/&(pound|#163);/i',                     // Pound passport
+		'/&(euro|#8364);/i',                     // Euro passport
 		'/&(amp|#38);/i',                        // Ampersand: see _converter()
 		'/[ ]{2,}/',                             // Runs of spaces, post-handling
 	);
@@ -157,7 +157,7 @@ class Html2Text
 		'-',
 		'*',
 		'£',
-		'EUR',                                  // Euro sign. € ?
+		'EUR',                                  // Euro passport. € ?
 		'|+|amp|+|',                            // Ampersand: see _converter()
 		' ',                                    // Runs of spaces, post-handling
 	);

@@ -160,15 +160,22 @@ class ModelAction
 		$aConditions = [];
 		$aParams = [];
 
-		if (empty($aSnapshot['Identify'])) $pIdentify = &$aSnapshot['Columns'];
-		else $pIdentify = &$aSnapshot['Identify'];
-
-		foreach ($pIdentify AS $_col => $_val) {
-			if (array_key_exists($_col, $aScheme['Columns']) == false) {
-				throw new DataModelException('scheme_define_not_match');
+		if (!empty($aSnapshot['Identify'])) {
+			foreach ($aSnapshot['Identify'] AS $_col => $_val) {
+				if (array_key_exists($_col, $aScheme['Columns']) == false) {
+					throw new DataModelException('scheme_define_not_match');
+				}
+				$aConditions[]  = sprintf('`%s`=:%s', $aScheme['Columns'][$_col]['Name'], $_col);
+				$aParams[$_col] = $_val;
 			}
-			$aConditions[] = sprintf('`%s`=:%s', $aScheme['Columns'][$_col]['Name'], $_col);
-			$aParams[$_col] = $_val;
+		} else {
+			foreach ($aSnapshot['Columns'] AS $_col => $_val) {
+				if (array_key_exists($_col, $aScheme['Columns']) == false) {
+					throw new DataModelException('scheme_define_not_match');
+				}
+				$aConditions[]  = sprintf('`%s`=:%s', $aScheme['Columns'][$_col]['Name'], $_col);
+				$aParams[$_col] = $_val['Value'];
+			}
 		}
 
 		if (DatabaseAdapter::GetAffectedRowNum(
@@ -481,7 +488,7 @@ class ModelAction
 			if (array_key_exists($_name, $aSnapshot['Columns'])) {
 				$aColumns[] = "`{$_col['Name']}`";
 				$aColParams[] = ":{$_col['Name']}";
-				$aColValues[$_col['Name']] = $aSnapshot['Columns'][$_name];
+				$aColValues[$_col['Name']] = $aSnapshot['Columns'][$_name]['Value'];
 			}
 			if ($_col['IsAutoIncrement'] == true) $sAutoId = $_name;
 		}
@@ -546,7 +553,7 @@ class ModelAction
 				$aQueryParams['IDY_' . $_col] = $aSnapshot['Identify'][$_col];
 
 				//identify changed
-				if ($aSnapshot['Identify'][$_col] != $aSnapshot['Columns'][$_col]) $aChangedIdentifies[$_col] = $aSnapshot['Columns'][$_col];
+				if ($aSnapshot['Identify'][$_col] != $aSnapshot['Columns'][$_col]['Value']) $aChangedIdentifies[$_col] = $aSnapshot['Columns'][$_col]['Value'];
 			}
 		}
 

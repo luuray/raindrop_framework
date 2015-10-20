@@ -18,10 +18,8 @@
 
 namespace Raindrop\ORM;
 
-use Raindrop\Debugger;
 use Raindrop\Exceptions\Database\DataModelException;
 use Raindrop\Exceptions\InvalidArgumentException;
-use Raindrop\Logger;
 
 
 /**
@@ -61,13 +59,14 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	const ModelState_Create = 2;
 	#endregion
-
 	/**
 	 * @var array
 	 */
 	protected $_aColumns = array();
 
 	protected $_aChangedColumns = array();
+
+	protected $_aExtraColumns = array();
 	/**
 	 * @var array
 	 */
@@ -129,114 +128,103 @@ abstract class Model implements \JsonSerializable, \Serializable
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
 		//get default data
-		$this->_aColumns = array_key_case($aScheme['Default'], CASE_LOWER);
-
 		if ($oData === null) {
 			$this->_iState = self::ModelState_Create;
+			//assign columns with default
+			foreach ($aScheme['Default'] AS $_col => $_val) {
+				$this->_aColumns[strtolower($_col)] = ['Name' => $_col, 'Value' => $_val];
+			}
 		} else {
-			$aData = array_key_case(get_object_vars($oData), CASE_LOWER);
+			$aData = get_object_vars($oData);
 
-			foreach ($this->_aColumns AS $_col => $_val) {
+			foreach ($aScheme['Default'] AS $_col => $_val) {
+				$_lowCaseCol = strtolower($_col);
+				if (!array_key_exists($_col, $aData)) continue;
 
 				$sSourceType = gettype($_val);
-				if ($sSourceType == 'NULL' OR gettype($aData[$_col]) == $sSourceType) $this->_aColumns[$_col] = $aData[$_col];
-				else if (settype($aData[$_col], $sSourceType)) $this->_aColumns[$_col] = $aData[$_col];
+
+				if ($sSourceType == 'NULL' OR gettype($aData[$_col]) == $sSourceType OR settype($aData[$_col], $sSourceType)) {
+					$this->_aColumns[$_lowCaseCol] = ['Name' => $_col, 'Value' => $aData[$_col]];
+				}
 				else throw new DataModelException('invalid_column_datetype:' . $_col);
 
-				if (array_key_exists($_col, $this->_aIdentify)) $this->_aIdentify[$_col] = $aData[$_col];
+				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_col];
 			}
 		}
 	}
 
 	/**
-	 * @param $sColumn
-	 * @return null
+	 * Property Getter
+	 *
+	 * @param string $sColumn Column's Name, if column name begin with '_' means direct access without check user-defined getter
+	 *
+	 * @return mixed|null
 	 */
 	public function __get($sColumn)
 	{
-		//direct getter, skip user-defined getter
-		if (str_beginwith($sColumn, '_') AND array_key_exists(strtolower(substr($sColumn, 1)), $this->_aColumns)) {
-			return $this->_aColumns[strtolower(substr($sColumn, 1))];
+		//user-defined
+		if (!str_beginwith($sColumn, '_') AND method_exists($this, "get{$sColumn}")) {
+			return $this->{'get' . $sColumn}();
 		}
 
-		//user-defined getter first
-		if (method_exists($this, "get{$sColumn}")) {
-			$sColumn = "get{$sColumn}";
-			return $this->$sColumn();
+		$sColumn        = str_beginwith($sColumn, '_') ? substr($sColumn, 1) : $sColumn;
+		$sLowCaseColumn = strtolower($sColumn);
+
+		if (array_key_exists($sLowCaseColumn, $this->_aColumns)) { //scheme columns
+			return $this->_aColumns[$sLowCaseColumn]['Value'];
+		} else if (array_key_exists($sLowCaseColumn, $this->_aExtraColumns)) { //earlier-append property
+			return $this->_aExtraColumns[$sLowCaseColumn]['Value'];
 		}
 
-		$sColumn = strtolower($sColumn);
-
-		return array_key_exists($sColumn, $this->_aColumns) ? $this->_aColumns[$sColumn] : (property_exists($this, $sColumn) ? $this->{$sColumn} : null);
+		return null;
 	}
 
 	/**
-	 * @param $sColumn
-	 * @param $mValue
+	 * Property Setter
+	 *
+	 * @param string $sColumn Column's Name, if column name begin with '_' means direct access without check user-defined getter
+	 * @param mixed $mValue
+	 *
+	 * @return mixed
 	 *
 	 * @throws DataModelException
 	 */
 	public function __set($sColumn, $mValue)
 	{
-		//direct setter, skip user-defined setter
-		if (str_beginwith($sColumn, '_') AND array_key_exists(strtolower(substr($sColumn, 1)), $this->_aColumns)) {
-
-			$sColumn = strtolower(substr($sColumn, 1));
-
-			if ($this->_aColumns[$sColumn] == $mValue) return;
-
-			$sSourceType = gettype($this->_aColumns[$sColumn]);
-			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType) {
-				$this->_aColumns[$sColumn] = $mValue;
-			} else if (settype($mValue, $sSourceType)) {
-				$this->_aColumns[$sColumn] = $mValue;
-			} else {
-				throw new DataModelException('invalid_column_datetype:' . $sColumn);
-			}
+		//direct access
+		if (!str_beginwith($sColumn, '_') AND method_exists($this, "set{$sColumn}")) {
+			return $this->{'set' . $sColumn}($mValue);
 		}
 
-		//user-defined first
-		if (method_exists($this, "set{$sColumn}")) {
-			$sColumn = "set{$sColumn}";
+		$sColumn        = str_beginwith($sColumn, '_') ? substr($sColumn, 1) : $sColumn;
+		$sLowCaseColumn = strtolower($sColumn);
 
-			return $this->$sColumn($mValue);
-		}
+		if (array_key_exists($sLowCaseColumn, $this->_aColumns)) {
+			$sSourceType = gettype($this->_aColumns[$sLowCaseColumn]['Value']);
+			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType OR settype($mValue, $sSourceType)) {
+				$this->_aColumns[$sLowCaseColumn]['Value'] = $mValue;
 
-		$sColumn = strtolower($sColumn);
-
-		if (array_key_exists($sColumn, $this->_aColumns)) {
-
-			$sSourceType = gettype($this->_aColumns[$sColumn]);
-
-			if ($sSourceType == 'NULL'
-				OR gettype($mValue) == $sSourceType
-				OR settype($mValue, $sSourceType)
-			) {
-
-				if ($this->_aColumns[$sColumn] == $mValue) {
-					Logger::Trace('!!!SKIP!!! value_not_change: ' . $sColumn . ', value: ' . $mValue);
-
-					return null;
-				} else {
-					$this->_aColumns[$sColumn] = $mValue;
+				//set identification
+				if ($this->_iState == self::ModelState_Create AND array_key_exists($sLowCaseColumn, $this->_aIdentify)) {
+					$this->_aIdentify[$sLowCaseColumn] = $mValue;
 				}
-			} else {
-				throw new DataModelException('invalid_column_datatype:' . $sColumn);
+				//update state
+				if ($this->_iState != self::ModelState_Create) {
+					$this->_iState = self::ModelState_Updated;
+				}
+
+				$this->_aChangedColumns[$sLowCaseColumn] = $mValue;
+
+				return;
 			}
 
+			throw new DataModelException('invalid_column_type:' . $sLowCaseColumn . ', require:' . $sSourceType . ', provide:' . gettype($mValue));
+		} else if (array_key_exists($sLowCaseColumn, $this->_aExtraColumns)) {
+			$this->_aExtraColumns[$sLowCaseColumn]['Value'] = $mValue;
 
-			if ($this->_iState == self::ModelState_Create AND array_key_exists($sColumn, $this->_aIdentify)) {
-				$this->_aIdentify[$sColumn] = $mValue;
-			}
-
-			//update state
-			if ($this->_iState != self::ModelState_Create) {
-				$this->_iState = self::ModelState_Updated;
-			}
-
-			$this->_aChangedColumns[$sColumn] = $mValue;
+			return;
 		} else {
-			$this->$sColumn = $mValue;
+			$this->_aExtraColumns[$sLowCaseColumn] = ['Name' => $sColumn, 'Value' => $mValue];
 		}
 	}
 
@@ -306,7 +294,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 			$aSource = func_get_arg(0);
 			foreach ($aSource AS $_k => $_v) {
 				$_k = is_string($_k) ? strtolower($_k) : $_k;
-				if (array_key_exists($_k, $this->_aColumns)) $this->_aColumns[$_k] = $_v;
+				if (array_key_exists($_k, $this->_aColumns)) $this->_aColumns[$_k]['Value'] = $_v;
 				if (array_key_exists($_k, $this->_aIdentify)) $this->_aIdentify[$_k] = $_v;
 			}
 
@@ -315,7 +303,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 			$aSource = func_get_args();
 			for ($i = 0; $i < count($aSource); $i += 2) {
 				$aSource[$i] = is_string($aSource[$i]) ? strtolower($aSource[$i]) : $aSource[$i];
-				if (array_key_exists($aSource[$i], $this->_aColumns)) $this->_aColumns[$aSource[$i]] = $aSource[$i + 1];
+				if (array_key_exists($aSource[$i], $this->_aColumns)) $this->_aColumns[$aSource[$i]]['Value'] = $aSource[$i + 1];
 				if (array_key_exists($aSource[$i], $this->_aIdentify)) $this->_aIdentify[$aSource[$i]] = $aSource[$i + 1];
 			}
 
@@ -373,6 +361,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	{
 		return serialize([
 			'columns'         => $this->_aColumns,
+			'extra_columns' => $this->_aExtraColumns,
 			'identify'        => $this->_aIdentify,
 			'changed_columns' => $this->_aChangedColumns,
 			'state'           => $this->_iState]);
@@ -394,9 +383,10 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 		if ($aResults == false) throw new DataModelException('unserialize_fail');
 
-		$this->_iState = $aResults['state'];
-		$this->_aColumns = $aResults['columns'];
-		$this->_aIdentify = $aResults['identify'];
+		$this->_iState        = $aResults['state'];
+		$this->_aColumns      = $aResults['columns'];
+		$this->_aExtraColumns = $aResults['extra_columns'];
+		$this->_aIdentify     = $aResults['identify'];
 		$this->_aChangedColumns = $aResults['changed_columns'];
 	}
 
@@ -410,5 +400,26 @@ abstract class Model implements \JsonSerializable, \Serializable
 	public function jsonSerialize()
 	{
 		return $this->_aColumns;
+	}
+
+	/**
+	 * Dump Scheme's Defined Data to Array, Extra Columns will override the value with same key to Columns
+	 *
+	 * @return array
+	 * @throws InvalidArgumentException
+	 */
+	public function toArray()
+	{
+		$aResult = array();
+
+		foreach ($this->_aColumns AS $_item) {
+			$aResult[$_item['Name']] = $_item['Value'];
+		}
+
+		foreach ($this->_aExtraColumns AS $_item) {
+			$aResult[$_item['Name']] = $_item['Value'];
+		}
+
+		return $aResult;
 	}
 }

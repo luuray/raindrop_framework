@@ -126,9 +126,9 @@ class NotImplementedException extends ApplicationException
  */
 class InvalidArgumentException extends ApplicationException
 {
-	public function __construct($sArgument, $sType = null)
+	public function __construct($sArgument, $sRequire = null, $sProvide = null)
 	{
-		parent::__construct($sArgument . ($sType == null ? null : ', type: ' . $sType));
+		parent::__construct($sArgument . ($sRequire == null ? null : ', require type: ' . $sRequire) . ($sProvide == null ? null : ', provide type: ' . $sProvide));
 	}
 }
 
