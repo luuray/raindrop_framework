@@ -58,7 +58,7 @@ class TableSchema
 			throw new InvalidArgumentException('table_name');
 		}
 		if (empty($sConn)) {
-			throw new InvalidArgumentException('connection_name');;
+			throw new InvalidArgumentException('connection_name');
 		}
 
 		return new self($sTable, $sConn);

@@ -69,7 +69,7 @@ final class Dispatcher
 	protected function __construct()
 	{
 		$this->_oRouter  = Router::GetInstance();
-		$this->_oRequest = $this->_oRouter->GetRequest();;
+		$this->_oRequest = $this->_oRouter->GetRequest();
 
 		self::$_oInstance = $this;
 	}

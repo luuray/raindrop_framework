@@ -1,9 +1,9 @@
 <?php
 /**
- * PHPMailer language file: refer to English translation for definitive list
- * Italian version
+ * Italian PHPMailer language file: refer to English translation for definitive list
  * @package PHPMailer
- * @author Ilias Bartolini <brain79@inwind.it>, Stefano Sabatini <sabas88@gmail.com>
+ * @author Ilias Bartolini <brain79@inwind.it>
+ * @author Stefano Sabatini <sabas88@gmail.com>
  */
 
 $PHPMAILER_LANG['authenticate']         = 'SMTP Error: Impossibile autenticarsi.';
@@ -24,3 +24,4 @@ $PHPMAILER_LANG['signing']              = 'Errore nella firma: ';
 $PHPMAILER_LANG['smtp_connect_failed']  = 'SMTP Connect() fallita.';
 $PHPMAILER_LANG['smtp_error']           = 'Errore del server SMTP: ';
 $PHPMAILER_LANG['variable_set']         = 'Impossibile impostare o resettare la variabile: ';
+//$PHPMAILER_LANG['extension_missing']    = 'Extension missing: ';

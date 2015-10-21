@@ -1,9 +1,8 @@
 <?php
 /**
- * PHPMailer language file: refer to English translation for definitive list
- * Galician version
- * Versión en galego
- * Edited by Donato Rouco - donatorouco@gmail.com
+ * Galician PHPMailer language file: refer to English translation for definitive list
+ * @package PHPMailer
+ * @author by Donato Rouco <donatorouco@gmail.com>
  */
 
 $PHPMAILER_LANG['authenticate']         = 'Erro SMTP: Non puido ser autentificado.';
@@ -24,3 +23,5 @@ $PHPMAILER_LANG['signing']              = 'Erro ó firmar: ';
 $PHPMAILER_LANG['smtp_connect_failed']  = 'SMTP Connect() fallou.';
 $PHPMAILER_LANG['smtp_error']           = 'Erro do servidor SMTP: ';
 $PHPMAILER_LANG['variable_set']         = 'Non puidemos axustar ou reaxustar a variábel: ';
+//$PHPMAILER_LANG['extension_missing']    = 'Extension missing: ';
+//$PHPMAILER_LANG['extension_missing']    = 'Extension missing: ';

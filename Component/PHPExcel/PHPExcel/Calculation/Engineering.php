@@ -1053,15 +1053,13 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The binary number (as a string) that you want to convert. The number
+	 * @param	string		$x		The binary number (as a string) that you want to convert. The number
 	 *								cannot contain more than 10 characters (10 bits). The most significant
-	 *                                bit of number is the passport bit. The remaining 9 bits are magnitude bits.
+	 *								bit of number is the sign bit. The remaining 9 bits are magnitude bits.
 	 *								Negative numbers are represented using two's-complement notation.
 	 *								If number is not a valid binary number, or if number contains more than
 	 *								10 characters (10 bits), BIN2DEC returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function BINTODEC($x) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1101,10 +1099,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The binary number (as a string) that you want to convert. The number
+	 * @param	string		$x		The binary number (as a string) that you want to convert. The number
 	 *								cannot contain more than 10 characters (10 bits). The most significant
-	 *                                bit of number is the passport bit. The remaining 9 bits are magnitude bits.
+	 *								bit of number is the sign bit. The remaining 9 bits are magnitude bits.
 	 *								Negative numbers are represented using two's-complement notation.
 	 *								If number is not a valid binary number, or if number contains more than
 	 *								10 characters (10 bits), BIN2HEX returns the #NUM! error value.
@@ -1114,8 +1111,7 @@ class PHPExcel_Calculation_Engineering {
 	 *								If places is not an integer, it is truncated.
 	 *								If places is nonnumeric, BIN2HEX returns the #VALUE! error value.
 	 *								If places is negative, BIN2HEX returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function BINTOHEX($x, $places=NULL) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1157,10 +1153,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The binary number (as a string) that you want to convert. The number
+	 * @param	string		$x		The binary number (as a string) that you want to convert. The number
 	 *								cannot contain more than 10 characters (10 bits). The most significant
-	 *                                bit of number is the passport bit. The remaining 9 bits are magnitude bits.
+	 *								bit of number is the sign bit. The remaining 9 bits are magnitude bits.
 	 *								Negative numbers are represented using two's-complement notation.
 	 *								If number is not a valid binary number, or if number contains more than
 	 *								10 characters (10 bits), BIN2OCT returns the #NUM! error value.
@@ -1170,8 +1165,7 @@ class PHPExcel_Calculation_Engineering {
 	 *								If places is not an integer, it is truncated.
 	 *								If places is nonnumeric, BIN2OCT returns the #VALUE! error value.
 	 *								If places is negative, BIN2OCT returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function BINTOOCT($x, $places=NULL) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1213,10 +1207,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The decimal integer you want to convert. If number is negative,
+	 * @param	string		$x		The decimal integer you want to convert. If number is negative,
 	 *								valid place values are ignored and DEC2BIN returns a 10-character
-	 *                                (10-bit) binary number in which the most significant bit is the passport
+	 *								(10-bit) binary number in which the most significant bit is the sign
 	 *								bit. The remaining 9 bits are magnitude bits. Negative numbers are
 	 *								represented using two's-complement notation.
 	 *								If number < -512 or if number > 511, DEC2BIN returns the #NUM! error
@@ -1230,8 +1223,7 @@ class PHPExcel_Calculation_Engineering {
 	 *								If places is not an integer, it is truncated.
 	 *								If places is nonnumeric, DEC2BIN returns the #VALUE! error value.
 	 *								If places is zero or negative, DEC2BIN returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function DECTOBIN($x, $places=NULL) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1271,10 +1263,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The decimal integer you want to convert. If number is negative,
+	 * @param	string		$x		The decimal integer you want to convert. If number is negative,
 	 *								places is ignored and DEC2HEX returns a 10-character (40-bit)
-	 *                                hexadecimal number in which the most significant bit is the passport
+	 *								hexadecimal number in which the most significant bit is the sign
 	 *								bit. The remaining 39 bits are magnitude bits. Negative numbers
 	 *								are represented using two's-complement notation.
 	 *								If number < -549,755,813,888 or if number > 549,755,813,887,
@@ -1288,8 +1279,7 @@ class PHPExcel_Calculation_Engineering {
 	 *								If places is not an integer, it is truncated.
 	 *								If places is nonnumeric, DEC2HEX returns the #VALUE! error value.
 	 *								If places is zero or negative, DEC2HEX returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function DECTOHEX($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1327,10 +1317,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The decimal integer you want to convert. If number is negative,
+	 * @param	string		$x		The decimal integer you want to convert. If number is negative,
 	 *								places is ignored and DEC2OCT returns a 10-character (30-bit)
-	 *                                octal number in which the most significant bit is the passport bit.
+	 *								octal number in which the most significant bit is the sign bit.
 	 *								The remaining 29 bits are magnitude bits. Negative numbers are
 	 *								represented using two's-complement notation.
 	 *								If number < -536,870,912 or if number > 536,870,911, DEC2OCT
@@ -1344,8 +1333,7 @@ class PHPExcel_Calculation_Engineering {
 	 *								If places is not an integer, it is truncated.
 	 *								If places is nonnumeric, DEC2OCT returns the #VALUE! error value.
 	 *								If places is zero or negative, DEC2OCT returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function DECTOOCT($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1383,10 +1371,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x the hexadecimal number you want to convert. Number cannot
+	 * @param	string		$x			the hexadecimal number you want to convert. Number cannot
 	 *									contain more than 10 characters. The most significant bit of
-	 *                                    number is the passport bit (40th bit from the right). The remaining
+	 *									number is the sign bit (40th bit from the right). The remaining
 	 *									9 bits are magnitude bits. Negative numbers are represented
 	 *									using two's-complement notation.
 	 *									If number is negative, HEX2BIN ignores places and returns a
@@ -1403,8 +1390,7 @@ class PHPExcel_Calculation_Engineering {
 	 *									If places is not an integer, it is truncated.
 	 *									If places is nonnumeric, HEX2BIN returns the #VALUE! error value.
 	 *									If places is negative, HEX2BIN returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function HEXTOBIN($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1433,16 +1419,14 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The hexadecimal number you want to convert. This number cannot
+	 * @param	string		$x		The hexadecimal number you want to convert. This number cannot
 	 *								contain more than 10 characters (40 bits). The most significant
-	 *                                bit of number is the passport bit. The remaining 39 bits are magnitude
+	 *								bit of number is the sign bit. The remaining 39 bits are magnitude
 	 *								bits. Negative numbers are represented using two's-complement
 	 *								notation.
 	 *								If number is not a valid hexadecimal number, HEX2DEC returns the
 	 *								#NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function HEXTODEC($x) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1468,10 +1452,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The hexadecimal number you want to convert. Number cannot
+	 * @param	string		$x			The hexadecimal number you want to convert. Number cannot
 	 *									contain more than 10 characters. The most significant bit of
-	 *                                    number is the passport bit. The remaining 39 bits are magnitude
+	 *									number is the sign bit. The remaining 39 bits are magnitude
 	 *									bits. Negative numbers are represented using two's-complement
 	 *									notation.
 	 *									If number is negative, HEX2OCT ignores places and returns a
@@ -1489,8 +1472,7 @@ class PHPExcel_Calculation_Engineering {
 	 *									If places is nonnumeric, HEX2OCT returns the #VALUE! error
 	 *									value.
 	 *									If places is negative, HEX2OCT returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function HEXTOOCT($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1519,10 +1501,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The octal number you want to convert. Number may not
+	 * @param	string		$x			The octal number you want to convert. Number may not
 	 *									contain more than 10 characters. The most significant
-	 *                                    bit of number is the passport bit. The remaining 29 bits
+	 *									bit of number is the sign bit. The remaining 29 bits
 	 *									are magnitude bits. Negative numbers are represented
 	 *									using two's-complement notation.
 	 *									If number is negative, OCT2BIN ignores places and returns
@@ -1542,8 +1523,7 @@ class PHPExcel_Calculation_Engineering {
 	 *									error value.
 	 *									If places is negative, OCT2BIN returns the #NUM! error
 	 *									value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function OCTTOBIN($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1572,16 +1552,14 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The octal number you want to convert. Number may not contain
+	 * @param	string		$x		The octal number you want to convert. Number may not contain
 	 *								more than 10 octal characters (30 bits). The most significant
-	 *                                bit of number is the passport bit. The remaining 29 bits are
+	 *								bit of number is the sign bit. The remaining 29 bits are
 	 *								magnitude bits. Negative numbers are represented using
 	 *								two's-complement notation.
 	 *								If number is not a valid octal number, OCT2DEC returns the
 	 *								#NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function OCTTODEC($x) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);
@@ -1607,10 +1585,9 @@ class PHPExcel_Calculation_Engineering {
 	 *
 	 * @access	public
 	 * @category Engineering Functions
-	 *
-	 * @param    string $x The octal number you want to convert. Number may not contain
+	 * @param	string		$x			The octal number you want to convert. Number may not contain
 	 *									more than 10 octal characters (30 bits). The most significant
-	 *                                    bit of number is the passport bit. The remaining 29 bits are
+	 *									bit of number is the sign bit. The remaining 29 bits are
 	 *									magnitude bits. Negative numbers are represented using
 	 *									two's-complement notation.
 	 *									If number is negative, OCT2HEX ignores places and returns a
@@ -1625,8 +1602,7 @@ class PHPExcel_Calculation_Engineering {
 	 *									If places is not an integer, it is truncated.
 	 *									If places is nonnumeric, OCT2HEX returns the #VALUE! error value.
 	 *									If places is negative, OCT2HEX returns the #NUM! error value.
-	 *
-	 * @return    string
+	 * @return	string
 	 */
 	public static function OCTTOHEX($x, $places=null) {
 		$x	= PHPExcel_Calculation_Functions::flattenSingleValue($x);

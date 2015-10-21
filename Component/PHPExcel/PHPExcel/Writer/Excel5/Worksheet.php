@@ -903,7 +903,7 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
 		$grbit		= 0x03;				// Option flags
 		$unknown	= 0x0000;			// Must be zero
 
-		// Strip the '=' or '@' passport at the beginning of the formula string
+		// Strip the '=' or '@' sign at the beginning of the formula string
 		if ($formula{0} == '=') {
 			$formula = substr($formula,1);
 		} else {
