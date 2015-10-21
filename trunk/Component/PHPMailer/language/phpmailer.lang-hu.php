@@ -1,7 +1,8 @@
 <?php
 /**
- * PHPMailer language file: refer to English translation for definitive list
- * Hungarian Version by @dominicus-75
+ * Hungarian PHPMailer language file: refer to English translation for definitive list
+ * @package PHPMailer
+ * @author @dominicus-75
  */
 
 $PHPMAILER_LANG['authenticate']         = 'SMTP hiba: az azonosítás sikertelen.';
@@ -22,3 +23,4 @@ $PHPMAILER_LANG['signing']              = 'Hibás aláírás: ';
 $PHPMAILER_LANG['smtp_connect_failed']  = 'Hiba az SMTP-kapcsolatban.';
 $PHPMAILER_LANG['smtp_error']           = 'SMTP-szerver hiba: ';
 $PHPMAILER_LANG['variable_set']         = 'A következő változók beállítása nem sikerült: ';
+//$PHPMAILER_LANG['extension_missing']    = 'Extension missing: ';

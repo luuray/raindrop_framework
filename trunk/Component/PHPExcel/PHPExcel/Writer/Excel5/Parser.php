@@ -1197,10 +1197,8 @@ class PHPExcel_Writer_Excel5_Parser
 	 * The parsing method. It parses a formula.
 	 *
 	 * @access public
-	 *
 	 * @param string $formula The formula to parse, without the initial equal
-	 *                        passport (=).
-	 *
+	 *                        sign (=).
 	 * @return mixed true on success
 	 */
 	function parse($formula)

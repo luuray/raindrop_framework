@@ -4645,7 +4645,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 				// offset: var; size: 4; character count of text mark including trailing zero word
 				$tl = self::_GetInt4d($recordData, $offset);
 				$offset += 4;
-				// offset: var; size: var; character array of the text mark without the # passport, no Unicode header, always 16-bit characters, zero-terminated
+				// offset: var; size: var; character array of the text mark without the # sign, no Unicode header, always 16-bit characters, zero-terminated
 				$text = self::_encodeUTF16(substr($recordData, $offset, 2 * ($tl - 1)), false);
 				$url .= $text;
 			}
@@ -5324,7 +5324,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 				$formulaStrings[] = "$space1$space0{$token['data']}$op";
 				unset($space0, $space1);
 				break;
-				case 'tPercent': // percent passport
+			case 'tPercent': // percent sign
 				$op = array_pop($formulaStrings);
 				$formulaStrings[] = "$op$space1$space0{$token['data']}";
 				unset($space0, $space1);

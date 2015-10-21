@@ -1,9 +1,9 @@
 <?php
 /**
- * PHPMailer language file: refer to English translation for definitive list
- * Estonian Version
- * By Indrek Päri
- * Revised By Elan Ruusamäe <glen@delfi.ee>
+ * Estonian PHPMailer language file: refer to English translation for definitive list
+ * @package PHPMailer
+ * @author Indrek Päri
+ * @author Elan Ruusamäe <glen@delfi.ee>
  */
 
 $PHPMAILER_LANG['authenticate']         = 'SMTP Viga: Autoriseerimise viga.';
@@ -24,3 +24,4 @@ $PHPMAILER_LANG["signing"]              = 'Viga allkirjastamisel: ';
 $PHPMAILER_LANG['smtp_connect_failed']  = 'SMTP Connect() ebaõnnestus.';
 $PHPMAILER_LANG['smtp_error']           = 'SMTP serveri viga: ';
 $PHPMAILER_LANG['variable_set']         = 'Ei õnnestunud määrata või lähtestada muutujat: ';
+$PHPMAILER_LANG['extension_missing']    = 'Nõutud laiendus on puudu: ';

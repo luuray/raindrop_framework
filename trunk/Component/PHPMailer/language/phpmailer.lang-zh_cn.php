@@ -1,9 +1,9 @@
 <?php
 /**
- * PHPMailer language file: refer to English translation for definitive list
- * Simplified Chinese Version
+ * Simplified Chinese PHPMailer language file: refer to English translation for definitive list
+ * @package PHPMailer
  * @author liqwei <liqwei@liqwei.com>
- * @author young  <masxy@foxmail.com> blog：binaryoung.com
+ * @author young <masxy@foxmail.com>
  */
 
 $PHPMAILER_LANG['authenticate']         = 'SMTP 错误：登录失败。';
@@ -24,3 +24,4 @@ $PHPMAILER_LANG['signing']              = '登录失败：';
 $PHPMAILER_LANG['smtp_connect_failed']  = 'SMTP服务器连接失败。';
 $PHPMAILER_LANG['smtp_error']           = 'SMTP服务器出错: ';
 $PHPMAILER_LANG['variable_set']         = '无法设置或重置变量：';
+//$PHPMAILER_LANG['extension_missing']    = 'Extension missing: ';

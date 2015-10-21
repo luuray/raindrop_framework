@@ -42,7 +42,7 @@ class PHPExcel_Shared_JAMA_LUDecomposition {
 	private $n;
 
 	/**
-	 *    Pivot passport.
+	 *	Pivot sign.
 	 *	@var int
 	 */
 	private $pivsign;
