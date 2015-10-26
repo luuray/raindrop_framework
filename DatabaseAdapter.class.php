@@ -147,6 +147,7 @@ final class DatabaseAdapter
 			throw new FatalErrorException('Database Connection:' + $ex->getMessage());
 		}
 		catch(DatabaseQueryException $ex){
+			//todo load real message
 			throw new RuntimeException('Database Query:' + $ex->getMessage());
 		}
 		catch(DatabaseException $ex){
