@@ -57,6 +57,14 @@ abstract class Identify
 	 */
 	public abstract function IsIdentified();
 
+	/**
+	 * Has Role
+	 *
+	 * @param sting|array $mRolesRequire
+	 * @return bool
+	 */
+	public abstract function hasRole($mRolesRequire);
+
 	public final function __construct()
 	{
 		if (self::$_bInitialized instanceof Identify) {
