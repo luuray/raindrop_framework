@@ -178,7 +178,7 @@ final class Cache
 	public function flushByLevel($iLevel = null)
 	{
 		foreach ($this->_aHandlerPool AS $_handler) {
-			if ($iLevel == null OR $_handler['level'] >= $iLevel) $_handler->flush();
+			if ($iLevel == null OR $_handler['level'] >= $iLevel) $_handler['handler']->flush();
 		}
 
 		return true;
