@@ -410,6 +410,8 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	public function toArray()
 	{
+		$this->_prepareToArray();
+
 		$aResult = array();
 
 		foreach ($this->_aColumns AS $_item) {
@@ -417,9 +419,20 @@ abstract class Model implements \JsonSerializable, \Serializable
 		}
 
 		foreach ($this->_aExtraColumns AS $_item) {
-			$aResult[$_item['Name']] = $_item['Value'];
+			//$aResult[$_item['Name']] = $_item['Value'];
+			if($_item['Value'] instanceof Model){
+				$aResult[$_item['Name']] = $_item['Value']->toArray();
+			}
+			else{
+				$aResult[$_item['Name']] = $_item['Value'];
+			}
 		}
 
 		return $aResult;
 	}
+
+	/**
+	 * Prepare to Array
+	 */
+	protected function _prepareToArray() {}
 }

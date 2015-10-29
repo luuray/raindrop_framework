@@ -253,7 +253,6 @@ function number_to_half($sSubject)
 
 	return str_replace(array_values($aFullWidth), array_keys($aFullWidth), $sSubject);
 }
-
 #endregion
 
 #region Numeric Functions
@@ -285,6 +284,31 @@ function parse_int($mSubject)
 	}
 }
 
+/**
+ * Convert String or Mixed-Array-String to Int Array with pattern split
+ *
+ * @param string|array $mSubject
+ * @param string $sPattern
+ * @param bool|false $bUnique
+ *
+ * @return array
+ */
+function to_int_array($mSubject, $sPattern=',|', $bUnique=false)
+{
+	if(is_array($mSubject)){
+		$mSubject = implode(str_first($sPattern), $mSubject);
+	}
+
+	$aResult = preg_split('/['.preg_quote($sPattern, '/').']/', $mSubject);
+	foreach($aResult AS $_k => &$_v){
+		if(str_nullorwhitespace($_v) OR !settype($_v, 'int'))
+		{
+			unset($aResult[$_k]);
+		}
+	}
+
+	return $bUnique ? array_values($aResult) : $aResult;
+}
 #endregion
 
 #region Array Functions

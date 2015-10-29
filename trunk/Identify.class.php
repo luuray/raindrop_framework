@@ -60,7 +60,7 @@ abstract class Identify
 	/**
 	 * Has Role
 	 *
-	 * @param sting|array $mRolesRequire
+	 * @param string|array $mRolesRequire
 	 * @return bool
 	 */
 	public abstract function hasRole($mRolesRequire);
