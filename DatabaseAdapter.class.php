@@ -41,7 +41,7 @@ use Raindrop\ORM\BaseModel;
  * @method static bool BeginTransaction($sDataSource)
  * @method static bool CommitTransaction($sDataSource)
  * @method static bool RollbackTransaction($sDataSource)
- * @method static \PDOStatement Query($sQuery, $aParam = null, $sDataSource = 'defualt')
+ * @method static int Query($sQuery, $aParam = null, $sDataSource = 'defualt')
  */
 final class DatabaseAdapter
 {

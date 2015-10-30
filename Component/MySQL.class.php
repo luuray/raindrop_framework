@@ -139,9 +139,18 @@ class MySQL implements IDbConnector
 	#endregion
 
 	#region Query Interfaces
+	/**
+	 * @param string $sQuery
+	 * @param null $aParam
+	 *
+	 * @return int
+	 * @throws DatabaseQueryException
+	 */
 	public function query($sQuery, $aParam = null)
 	{
-		return $this->_query($sQuery, $aParam);
+		$oResult = $this->_query($sQuery, $aParam);
+
+		return $oResult->rowCount();
 	}
 
 	/**
