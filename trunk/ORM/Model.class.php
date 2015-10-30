@@ -34,6 +34,7 @@ use Raindrop\Exceptions\InvalidArgumentException;
  * @method static null|array Find(string $sCondition = null, array $aParam = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static null|array FindSql(string $sQuery = null, array $aParams = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static Transaction BeginTransaction()
+ * @method static RawQuery(string $sQuery, array $aParams = null)
  *
  * @method bool Save()
  * @method bool Del()

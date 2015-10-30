@@ -389,6 +389,23 @@ class ModelAction
 	}
 
 	/**
+	 * @param $sModel
+	 * @param $sQuery
+	 * @param null $aParams
+	 *
+	 * @return int
+	 * @throws ModelNotFoundException
+	 */
+	public static function RawQuery($sModel, $sQuery, $aParams=null)
+	{
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		return DatabaseAdapter::Query($sQuery, $aParams, $sModel::GetDbConnect());
+	}
+
+	/**
 	 * @param $sMethod
 	 * @param $aArgs
 	 *
