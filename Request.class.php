@@ -157,6 +157,13 @@ abstract class Request implements \ArrayAccess
 		}
 	}
 
+	public function __isset($sKey)
+	{
+		$sKey = strtolower($sKey);
+
+		return array_key_exists($sKey, $this->_aQuery) OR array_key_exists($sKey, $this->_aData);
+	}
+
 	public function getRequestTime()
 	{
 		return $this->_iRequestTime;
