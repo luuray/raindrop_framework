@@ -155,7 +155,7 @@ final class Session implements \Iterator, \ArrayAccess
 	{
 		$sKey = $this->_generateKey($sKey);
 
-		return array_key_exists($sKey, $this->_pSession) ? $this->_pSession[$sKey] : false;
+		return array_key_exists($sKey, $this->_pSession) ? $this->_pSession[$sKey] : null;
 	}
 
 	/**

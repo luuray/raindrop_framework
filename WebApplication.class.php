@@ -30,6 +30,7 @@ final class WebApplication extends Application
 			//Initialize Debugger
 			Debugger::Initialize();
 			Debugger::Output(Configuration::Get(), 'Configuration');
+			Debugger::Output($_SESSION, 'Session');
 		}
 	}
 
