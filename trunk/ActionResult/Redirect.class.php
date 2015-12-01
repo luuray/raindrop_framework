@@ -23,6 +23,7 @@ use Raindrop\Application;
 use Raindrop\Exceptions\ArgumentNullException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Session;
 
 class Redirect extends ActionResult
 {
@@ -134,6 +135,7 @@ class Redirect extends ActionResult
 			$oResult->Target = $this->_sTarget;
 			$oResult->output();
 		} else {
+			Session::Set('Referrer', (array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : null));
 			header('Location: ' . $this->_sTarget);
 		}
 	}
