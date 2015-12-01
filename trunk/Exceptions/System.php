@@ -50,6 +50,14 @@ abstract class ApplicationException extends Exception
  */
 class FatalErrorException extends ApplicationException
 {
+	public function __construct($message = '', $code = 0, Exception $previous = null)
+	{
+		Application::SetLastException($this);
+
+		parent::__construct($message, $code, $previous);
+
+		Logger::Fatal(parent::__toString());
+	}
 }
 
 class RuntimeException extends ApplicationException
