@@ -21,23 +21,20 @@ namespace Raindrop\ORM;
 use Raindrop\Application;
 use Raindrop\DatabaseAdapter;
 use Raindrop\Debugger;
-use Raindrop\Logger;
 
 final class Transaction
 {
 	protected static $_aTransPool = array();
 
-	protected $_sDataSource;
-	protected $_bIsActive = false;
+	protected $_iTransDeep = 0;
+	protected $_sDataSource = '';
 
-	/**
-	 * @param string $sDataSource
-	 * @return Transaction
-	 */
 	public static function BeginTransaction($sDataSource)
 	{
 		$sDataSource = strtolower($sDataSource);
-		if (array_key_exists($sDataSource, self::$_aTransPool) == false) {
+		if (array_key_exists($sDataSource, self::$_aTransPool)) {
+			self::$_aTransPool[$sDataSource]->newTrans();
+		} else {
 			self::$_aTransPool[$sDataSource] = new self($sDataSource);
 		}
 
@@ -46,48 +43,50 @@ final class Transaction
 
 	protected function __construct($sDataSource)
 	{
-		$bResult            = DatabaseAdapter::BeginTransaction($sDataSource);
 		$this->_sDataSource = $sDataSource;
-		$this->_bIsActive   = true;
-
-		return $bResult;
+		$this->_iTransDeep  = 1;
+		DatabaseAdapter::BeginTransaction($sDataSource);
 	}
 
 	public function __destruct()
 	{
-		foreach (self::$_aTransPool AS $_sDSN => $_item) {
-			if ($_item->isActive() == true) {
-				$_item->rollback();
-				Logger::Warning('database: transaction_active(' . $_sDSN . '), rollback!');
-				if (Application::IsDebugging()) {
-					Debugger::Output('transaction_active(' . $_sDSN . ')', 'Transaction');
-				}
+		if ($this->_iTransDeep > 0) {
+			DatabaseAdapter::RollbackTransaction($this->_sDataSource);
+
+			if (Application::IsDebugging()) {
+				Debugger::Output('transaction_active(' . $this->_sDataSource . ')', 'Transaction');
 			}
 		}
 	}
 
-	public function isActive()
+	public function newTrans()
 	{
-		return $this->_bIsActive;
+		$this->_iTransDeep++;
 	}
 
-	public function rollback()
+	public function commit()
 	{
-		if ($this->_bIsActive == true) {
-			$this->_bIsActive = false;
+		if ($this->_iTransDeep > 0) {
+			$this->_iTransDeep--;
+			if ($this->_iTransDeep == 0) {
+				return DatabaseAdapter::CommitTransaction($this->_sDataSource);
+			}
 
-			return DatabaseAdapter::RollbackTransaction($this->_sDataSource);
+			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public function commit()
+	public function rollback()
 	{
-		if ($this->_bIsActive == true) {
-			$this->_bIsActive = false;
+		if ($this->_iTransDeep > 0) {
+			$this->_iTransDeep--;
+			if ($this->_iTransDeep == 0) {
+				return DatabaseAdapter::RollbackTransaction($this->_sDataSource);
+			}
 
-			return DatabaseAdapter::CommitTransaction($this->_sDataSource);
+			return true;
 		} else {
 			return false;
 		}
