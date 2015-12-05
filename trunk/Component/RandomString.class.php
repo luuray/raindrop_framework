@@ -26,6 +26,7 @@ class RandomString
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
 	protected static $_aUnconfusedChars = array('2', '3', '4', '5', '6', '7', '8', '9',
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+	protected static $_aNumeric = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
 
 	protected function __construct()
 	{
@@ -57,6 +58,20 @@ class RandomString
 
 		for ($i = 0; $i < $iLength; $i++) {
 			$sReturn .= self::$_aUnconfusedChars[mt_rand(0, $iCount)];
+		}
+
+		return $sReturn;
+	}
+
+	public static function GetNumeric($iLength=8)
+	{
+		if ($iLength <= 0) return null;
+
+		$sReturn = '';
+		$iCount  = count(self::$_aNumeric) - 1;
+
+		for ($i = 0; $i < $iLength; $i++) {
+			$sReturn .= self::$_aNumeric[mt_rand(0, $iCount)];
 		}
 
 		return $sReturn;
