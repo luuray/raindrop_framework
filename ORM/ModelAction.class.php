@@ -143,6 +143,11 @@ class ModelAction
 		}
 	}
 
+	public static function Update($sModel, $aColumns, $sConditions=null, $aParams=null, $sOrderBy=null, $iLimit=0, $iSkip=0)
+	{
+		throw new NotImplementedException;
+	}
+
 	/**
 	 * @param Model $oModel
 	 *
