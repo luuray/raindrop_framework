@@ -56,6 +56,7 @@ class MySQL implements IDbConnector
 	/**
 	 * @param array $aConfig
 	 * @param string $sDSName
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function __construct(Configuration $oConfig, $sDSName)
@@ -158,6 +159,7 @@ class MySQL implements IDbConnector
 	 *
 	 * @param string $sQuery
 	 * @param null|array $aParam
+	 *
 	 * @return int|false
 	 */
 	public function getLastId($sQuery, $aParam = null)
@@ -174,6 +176,7 @@ class MySQL implements IDbConnector
 	 *
 	 * @param string $sQuery
 	 * @param null|array $aParam
+	 *
 	 * @return int
 	 */
 	public function getAffectedRowNum($sQuery, $aParam = null)
@@ -188,6 +191,7 @@ class MySQL implements IDbConnector
 	 *
 	 * @param string $sQuery
 	 * @param null|array $aParam
+	 *
 	 * @return mixed
 	 */
 	public function getVar($sQuery, $aParam = null)
@@ -206,6 +210,7 @@ class MySQL implements IDbConnector
 	 * @param string $sQuery
 	 * @param null|array $aParam
 	 * @param null|string $sModelName Model FullName with Namespace
+	 *
 	 * @throws ModelNotFoundException
 	 * @return null|ModelAbstract
 	 */
@@ -231,9 +236,11 @@ class MySQL implements IDbConnector
 
 	/**
 	 * Query Database and Get All Result
+	 *
 	 * @param string $sQuery
 	 * @param null|array $aParam
 	 * @param null|string $sModelName
+	 *
 	 * @throws ModelNotFoundException
 	 * @return array
 	 */
@@ -261,6 +268,7 @@ class MySQL implements IDbConnector
 	 * Begin Transaction
 	 *
 	 * @param null $sFlag
+	 *
 	 * @return bool
 	 */
 	public function beginTransaction($sFlag = null)
@@ -274,12 +282,14 @@ class MySQL implements IDbConnector
 
 	/**
 	 * Commit Transaction
+	 *
 	 * @param null $sFlag
+	 *
 	 * @return bool
 	 */
 	public function commitTransaction($sFlag = null)
 	{
-		if($this->isConnected() == false) return false;//not connect, no transaction exists.
+		if ($this->isConnected() == false) return false;//not connect, no transaction exists.
 		return $this->_oConn->commit();
 	}
 
@@ -287,11 +297,12 @@ class MySQL implements IDbConnector
 	 * Rollback Transaction
 	 *
 	 * @param null $sFlag
+	 *
 	 * @return bool
 	 */
 	public function rollbackTransaction($sFlag = null)
 	{
-		if($this->isConnected() == false) return false;//not connect, no transaction exists.
+		if ($this->isConnected() == false) return false;//not connect, no transaction exists.
 		return $this->_oConn->rollBack();
 	}
 	#endregion
@@ -301,6 +312,7 @@ class MySQL implements IDbConnector
 	 *
 	 * @param string $sQuery
 	 * @param null|array $aParam
+	 *
 	 * @throws DatabaseQueryException
 	 * @return bool|PDOStatement
 	 */
@@ -314,14 +326,15 @@ class MySQL implements IDbConnector
 			//bind values
 			if (!empty($aParam) && is_array($aParam)) {
 				foreach ($aParam AS $_k => $_v) {
+					$sKey = is_int($_k) ? $_k+1 : ':' . $_k;
 					if ($_v === null) {
-						$oStat->bindValue(':' . $_k, null, PDO::PARAM_NULL);
+						$oStat->bindValue($sKey, null, PDO::PARAM_NULL);
 					} else if (is_bool($_v)) {
-						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_BOOL);
+						$oStat->bindValue($sKey, $_v, PDO::PARAM_BOOL);
 					} else if (is_int($_v)) {
-						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_INT);
+						$oStat->bindValue($sKey, $_v, PDO::PARAM_INT);
 					} else {
-						$oStat->bindValue(':' . $_k, $_v, PDO::PARAM_STR);
+						$oStat->bindValue($sKey, $_v, PDO::PARAM_STR);
 					}
 				}
 			}
