@@ -30,6 +30,8 @@ class Router
 	 */
 	protected static $_oInstance = null;
 
+	protected static $_oStaticRoute = [];
+
 	/**
 	 * @var null|Request
 	 */
@@ -65,12 +67,15 @@ class Router
 	}
 
 	/**
-	 * @throws NotImplementedException
+	 * @param string $sRule
+	 * @param null|string $sModule
+	 * @param string $sController
+	 * @param string $sAction
 	 */
-	public static function RegisterRule()
+	public static function RegisterRule($sRule, $sTarget)
 	{
-		///TODO Register Special Rule
-		throw new NotImplementedException();
+		$sRule = trim($sRule);
+		self::$_oStaticRoute[$sRule] = $sTarget;
 	}
 
 	/**
@@ -87,7 +92,9 @@ class Router
 	}
 
 	/**
+	 * Router constructor.
 	 *
+	 * @param Request $oRequest
 	 */
 	protected function __construct(Request $oRequest)
 	{
@@ -96,9 +103,29 @@ class Router
 
 		$this->_oRequest = $oRequest;
 
+		$this->_matchStaticRoute();
+
 		$this->_defaultRoute();
 
 		self::$_oInstance = $this;
+	}
+
+	protected function _matchStaticRoute()
+	{
+		if(!isset($_SERVER['PATH_INFO'])) return false;
+
+		$sRequest = strtolower($_SERVER['PATH_INFO']);
+		foreach(self::$_oStaticRoute AS $_rule => $_target)
+		{
+			if(preg_match('#'.$_rule.'#i', $sRequest)){
+				$_SERVER['PATH_INFO'] = $_target;
+			}
+			/**
+			$aResults = [];
+			if(preg_match($_rule, $sRequest, $aResults)){
+			}
+			 **/
+		}
 	}
 
 	protected function _defaultRoute()
