@@ -8,7 +8,7 @@
  * @copyright Rainhan System
  * @date $Date$
  *
- * Copyright (c) 2010-2015,
+ * Copyright (c) 2014-2015, Rainhan System
  * Site: raindrop-php.rainhan.net
  *
  * $Id$
