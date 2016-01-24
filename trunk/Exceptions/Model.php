@@ -42,3 +42,21 @@ class ModelActionException extends ApplicationException
 		parent::__construct('action:' . $aTrace[0]['function'] . ', message:' . $sMessage, 0);
 	}
 }
+
+class ModelStateException extends ApplicationException
+{
+	protected static $_ModelStates = [
+		-1 => 'deleted',
+		0  => 'normal',
+		1  => 'updated',
+		2  => 'create'
+	];
+
+	public function __construct($sRequire, $sNow)
+	{
+		$sRequire = self::$_ModelStates[$sRequire];
+		$sNow = self::$_ModelStates[$sNow];
+
+		parent::__construct(sprintf('state: %s require, %s recent', $sRequire, $sNow), 0);
+	}
+}

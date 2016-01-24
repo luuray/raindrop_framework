@@ -23,6 +23,7 @@ use Raindrop\Application;
 use Raindrop\Configuration;
 use Raindrop\Debugger;
 use Raindrop\Exceptions\FatalErrorException;
+use Raindrop\Exceptions\FileNotFoundException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\View\ViewNotFoundException;
 use Raindrop\Loader;
@@ -160,7 +161,7 @@ class View extends ActionResult
 		if (empty($sLayout)) {
 			$this->_sLayout = null;
 		} else {
-			$this->_sLayout = $sLayout;
+			$this->_sLayout = $this->_decidePath($sLayout);
 		}
 	}
 
@@ -241,8 +242,11 @@ class View extends ActionResult
 				$View     = $this;
 				$ViewData = $this->_oViewData;
 				$Identify = Application::GetIdentify();
-
-				require Loader::Import($sViewName, null, false);
+				try {
+					require Loader::Import($sViewName, null, false);
+				}catch(FileNotFoundException $ex){
+					throw new ViewNotFoundException($sViewName);
+				}
 			};
 
 			ob_start();
