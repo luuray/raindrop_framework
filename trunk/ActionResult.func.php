@@ -26,6 +26,11 @@ function Json($bAllowGet = false, $mData = null)
 	return new \Raindrop\ActionResult\Json($bAllowGet, $mData);
 }
 
+function JsonP($bAllowGet=false, $sCallback, $mData=null)
+{
+	return new \Raindrop\ActionResult\JsonP($bAllowGet, $sCallback, $mData);
+}
+
 function FileStream($sFileName)
 {
 	return new \Raindrop\ActionResult\FileStream($sFileName);
