@@ -647,7 +647,7 @@ class ModelAction
 		if ($bNullable == true) {
 			return $sDefault;
 		} else {
-			if ($sDefault !== null) return $sDefault;
+			if ($sDefault !== null) return settype($sDefault, $sType)? $sDefault: null;
 			else if ($sType == 'int') return 0;
 			else if ($sType == 'float') return 0.0;
 			else if ($sType == 'string') return '';
