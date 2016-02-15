@@ -212,6 +212,7 @@ EXP;
 		//Debug Mode
 		if (self::$_bEnableDebug == true) {
 			Logger::Message('---------- Request Begin ----------');
+			Logger::Message(sprintf('Request: [%s] %s', $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']));
 
 			//Flush FileCache
 			del_recursive(SysRoot.'/cache');

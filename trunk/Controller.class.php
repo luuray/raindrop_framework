@@ -31,6 +31,9 @@ use Raindrop\ActionResult\ViewData;
  */
 abstract class Controller
 {
+	const Perm_Any = '*';
+	const Perm_Guest = null;
+
 	protected $_aDependency = array();
 
 	/**
@@ -93,7 +96,7 @@ abstract class Controller
 			return $this->$sPropName;
 		} else if (array_key_exists($sDepName, $this->_aDependency)) {
 			$pDep = &$this->_aDependency[$sDepName];
-			if(is_callable($pDep)){
+			if (is_callable($pDep)) {
 				$this->_aDependency[$sDepName] = $pDep();
 			}
 
