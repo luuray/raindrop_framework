@@ -326,11 +326,11 @@ class MySQL implements IDbConnector
 			//bind values
 			if (!empty($aParam) && is_array($aParam)) {
 				foreach ($aParam AS $_k => $_v) {
-					$sKey = is_int($_k) ? $_k+1 : ':' . $_k;
+					$sKey = is_int($_k) ? $_k + 1 : ':' . $_k;
 					if ($_v === null) {
 						$oStat->bindValue($sKey, null, PDO::PARAM_NULL);
 					} else if (is_bool($_v)) {
-						$oStat->bindValue($sKey, $_v, PDO::PARAM_BOOL);
+						$oStat->bindValue($sKey, $_v == true ? 1 : 0, PDO::PARAM_INT);
 					} else if (is_int($_v)) {
 						$oStat->bindValue($sKey, $_v, PDO::PARAM_INT);
 					} else {
