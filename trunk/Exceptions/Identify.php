@@ -18,10 +18,17 @@
 namespace Raindrop\Exceptions\Identify;
 
 use Raindrop\Exceptions\ApplicationException;
+use Raindrop\Logger;
 
 
 class IdentifyException extends ApplicationException
 {
+	public function __construct($message)
+	{
+		parent::__construct($message);
+
+		Logger::Message(parent::__toString());
+	}
 }
 
 class UnidentifiedException extends IdentifyException

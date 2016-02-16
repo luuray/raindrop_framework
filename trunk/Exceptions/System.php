@@ -36,10 +36,11 @@ abstract class ApplicationException extends Exception
 				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
 
 		parent::__construct($message, $code, $previous);
-
+/*
 		if (Application::IsDebugging()) {
-			Logger::Warning(parent::__toString());
+			Logger::Message(parent::__toString());
 		}
+*/
 	}
 }
 
@@ -52,8 +53,6 @@ class FatalErrorException extends ApplicationException
 {
 	public function __construct($message = '', $code = 0, Exception $previous = null)
 	{
-		Application::SetLastException($this);
-
 		parent::__construct($message, $code, $previous);
 
 		Logger::Fatal(parent::__toString());
@@ -62,6 +61,12 @@ class FatalErrorException extends ApplicationException
 
 class RuntimeException extends ApplicationException
 {
+	public function __construct($message, $code, Exception $previous)
+	{
+		parent::__construct($message, $code, $previous);
+
+		Logger::Warning(parent::__toString());
+	}
 }
 
 class ConfigurationMissingException extends FatalErrorException

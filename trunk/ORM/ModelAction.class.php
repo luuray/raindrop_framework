@@ -651,7 +651,7 @@ class ModelAction
 			else if ($sType == 'int') return 0;
 			else if ($sType == 'float') return 0.0;
 			else if ($sType == 'string') return '';
-			else if ($sType == 'bit(1)') return false;
+			else if ($sType == 'boolean') return false;
 		}
 
 		return $sDefault;

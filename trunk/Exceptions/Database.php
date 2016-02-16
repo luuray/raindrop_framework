@@ -55,7 +55,7 @@ class DatabaseQueryException extends DatabaseException
 		if (Application::IsDebugging()) {
 			parent::__construct(
 				sprintf('datasource: %s, query: %s, param: %s, message: %s',
-					$sDataSource, $sQuery, print_r($aParam, true), $sMessage),
+					$sDataSource, $sQuery, var_export($aParam, true), $sMessage),
 				intval($iErrorCode), $ePrevious);
 		} else {
 			parent::__construct(
