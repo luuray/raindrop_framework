@@ -144,14 +144,14 @@ final class DatabaseAdapter
 			throw new NotImplementedException($sName);
 		}
 		catch(DatabaseConnectionException $ex){
-			throw new FatalErrorException('Database Connection:' + $ex->getMessage(), -1, $ex);
+			throw new FatalErrorException('Database Connection:' . $ex->getMessage(), -1, $ex);
 		}
 		catch(DatabaseQueryException $ex){
 			//todo load real message
-			throw new RuntimeException('Database Query:' + $ex->getMessage(), -1, $ex);
+			throw new RuntimeException('Database Query:' . $ex->getMessage(), -1, $ex);
 		}
 		catch(DatabaseException $ex){
-			throw new FatalErrorException('Database:' + $ex->getMessage(), -1, $ex);
+			throw new FatalErrorException('Database:' . $ex->getMessage(), -1, $ex);
 		}
 		catch(NotImplementedException $ex){
 			throw $ex;
