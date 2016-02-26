@@ -2,7 +2,7 @@
 /**
  * Raindrop Framework for PHP
  *
- * TaskQueue Interface
+ * Message Queue Component Interface
  *
  * @author $Author$
  * @copyright Rainhan System
@@ -20,8 +20,11 @@ namespace Raindrop\Interfaces;
 
 
 use Raindrop\Configuration;
+use Raindrop\Model\QueuedMessage;
 
-interface ITaskQueue
+interface IMessageQueue
 {
-	public function __construct($sName, Configuration $oConfig);
+	public function __construct($sQueue, Configuration $oConfig);
+
+	public function publish($sKey, QueuedMessage $oMessage);
 }

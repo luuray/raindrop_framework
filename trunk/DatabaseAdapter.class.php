@@ -18,6 +18,7 @@
 
 namespace Raindrop;
 
+use Raindrop\Exceptions\ComponentUndefinedException;
 use Raindrop\Exceptions\Database\DatabaseConnectionException;
 use Raindrop\Exceptions\Database\DatabaseException;
 use Raindrop\Exceptions\Database\DatabaseQueryException;
@@ -107,9 +108,10 @@ final class DatabaseAdapter
 	/**
 	 * Get Datasource Connector
 	 *
-	 * @param string $sDatasource
-	 * @return \Raindrop\Interfaces\IDbConnector
-	 * @throws DatabaseConnectionException
+	 * @param $sDatasource
+	 *
+	 * @return mixed
+	 * @throws ComponentUndefinedException
 	 */
 	protected function _getDatasource($sDatasource)
 	{
@@ -118,7 +120,7 @@ final class DatabaseAdapter
 		if (array_key_exists($sDatasource, $this->_aAdapterPool)) {
 			return $this->_aAdapterPool[$sDatasource];
 		} else {
-			throw new DatabaseConnectionException($sDatasource, 'datasource_undefined', -1, null);
+			throw new ComponentUndefinedException('DatabaseAdapter', $sDatasource);
 		}
 	}
 
