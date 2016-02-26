@@ -17,7 +17,6 @@
  */
 namespace Raindrop;
 
-use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\FileNotFoundException;
 
 class Loader
@@ -161,28 +160,8 @@ class Loader
 			//Controller, Database, Identify, Model, System, View;
 			array_shift($aNameTree);
 
-			switch (strtolower($aNameTree[0])) {
-				case 'cache':
-					$sTargetClass = 'Cache.php';
-					break;
-				case 'controller':
-					$sTargetClass = 'Controller.php';
-					break;
-				case 'database' :
-					$sTargetClass = 'Database.php';
-					break;
-				case 'identify':
-					$sTargetClass = 'Identify.php';
-					break;
-				case 'model':
-					$sTargetClass = 'Model.php';
-					break;
-				case 'view':
-					$sTargetClass = 'View.php';
-					break;
-				default:
-					throw new FatalErrorException('undefined_exception_type:' . $aNameTree[0]);
-			}
+			$sTargetClass = $aNameTree[0].'.php';
+
 			$aNameTree = ['Exceptions'];
 		} else {
 			$sTargetClass = array_pop($aNameTree) . '.class.php';

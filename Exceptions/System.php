@@ -130,6 +130,26 @@ class NotImplementedException extends ApplicationException
 {
 }
 
+/**
+ * Class ComponentUndefinedException
+ * @package Raindrop\Exceptions
+ */
+class ComponentUndefinedException extends ApplicationException
+{
+	/**
+	 * ComponentUndefinedException constructor.
+	 *
+	 * @param string $sComponent
+	 * @param int $sDefine
+	 */
+	public function __construct($sComponent, $sDefine)
+	{
+		$sMsg = sprintf('[ComponentUndefined]component: %s, define: %s', $sComponent, $sDefine);
+		Logger::Warning($sMsg);
+
+		parent::__construct($sMsg, -1, null);
+	}
+}
 #endregion
 
 #region Argument Exceptions
