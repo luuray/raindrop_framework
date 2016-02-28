@@ -72,23 +72,22 @@ class Loader
 		}
 	}
 
-	public static function Import($sFileName, $sDir = null, $bAutoLoad = true, $bLowerCase = true)
+	public static function Import($sFileName, $sDir = null, $bAutoLoad = true)
 	{
-		$sPath = str_nullorwhitespace($sDir) ? null : $sDir . DIRECTORY_SEPARATOR;
-		$sPath .= $bLowerCase == true ? strtolower($sFileName) : $sFileName;
+		$sPath = (str_nullorwhitespace($sDir) ? null : $sDir . DIRECTORY_SEPARATOR) . $sFileName;
+		$sPath = preg_replace(['/[^0-9a-z_\-\.\/\\\]/i', '/[\/\\\]+/', '/^(\/\.+)+\\//'], ['_', '/', ''], $sPath);
 
 		$aSearchPath = array();
+		//if only filename then search in app root or framework root
 		if (pathinfo($sPath, PATHINFO_DIRNAME) == null) {
-			$aSearchPath[] = AppDir . DIRECTORY_SEPARATOR . $sFileName;
-			$aSearchPath[] = CorePath . DIRECTORY_SEPARATOR . $sFileName;
+			$aSearchPath[] = AppDir . DIRECTORY_SEPARATOR . $sPath;
+			$aSearchPath[] = CorePath . DIRECTORY_SEPARATOR . $sPath;
 		} else {
 			$aSearchPath[] = $sPath;
 		}
 
 		$sLoadPath = null;
-		foreach ($aSearchPath AS &$_path) {
-			$_path = preg_replace(['/\.+/', '/[\/\\\]+/'], ['.', '/'], $_path);
-
+		foreach ($aSearchPath AS $_path) {
 			if (self::SecurityCheck($_path) AND is_readable($_path)) {
 				$sLoadPath = $_path;
 				continue;
@@ -121,8 +120,7 @@ class Loader
 	 */
 	public static function SecurityCheck($sPath)
 	{
-		//return !(bool)preg_match('/[^a-z0-9\\/\\\\_.:-]/i', $sPath);
-		return (bool)preg_match('/^(|[\/\\\]+).*(|\.\w+)$/i', $sPath);
+		return str_beginwith(strtolower($sPath), strtolower(SysRoot));
 	}
 
 	public function __construct()
@@ -137,12 +135,11 @@ class Loader
 
 		//load framework
 		if (str_beginwith($sTargetClass, 'Raindrop')) {
-			$sPath = $this->_loadFramework($sTargetClass);
+			$this->_loadFramework($sTargetClass);
 		} //load application
 		else if (str_beginwith($sTargetClass, AppName)) {
-			$sPath = $this->_loadApplication($sTargetClass);
+			$this->_loadApplication($sTargetClass);
 		} else {
-			//throw new FatalErrorException('loader_invalid_target: ' . $sTargetClass);
 			//jump to other spl registered loader
 			return;
 		}
@@ -167,7 +164,7 @@ class Loader
 			$sTargetClass = array_pop($aNameTree) . '.class.php';
 		}
 
-		return self::Import($sTargetClass, CorePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $aNameTree), true, false);
+		return self::Import($sTargetClass, CorePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $aNameTree), true);
 	}
 
 	protected function _loadApplication(&$sTargetClass)
@@ -185,6 +182,6 @@ class Loader
 			substr($sClassName, 0, -10) . '.controller.php' :
 			$sClassName . '.class.php';
 
-		self::Import($sTargetClass, $sPath, true, false);
+		self::Import($sTargetClass, $sPath, true);
 	}
 }

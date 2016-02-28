@@ -32,6 +32,8 @@ class Router
 
 	protected static $_oStaticRoute = [];
 
+	protected $_sRequest = '';
+
 	/**
 	 * @var null|Request
 	 */
@@ -74,7 +76,7 @@ class Router
 	 */
 	public static function RegisterRule($sRule, $sTarget)
 	{
-		$sRule = trim($sRule);
+		$sRule                       = trim($sRule);
 		self::$_oStaticRoute[$sRule] = $sTarget;
 	}
 
@@ -103,44 +105,48 @@ class Router
 
 		$this->_oRequest = $oRequest;
 
-		$this->_matchStaticRoute();
+		if ($this->_matchStaticRoute() == false) {
+			$this->_sRequest =
+				strtolower((!isset($_SERVER['PATH_INFO']) OR $_SERVER['PATH_INFO'] == '/') ? '/Default/' : $_SERVER['PATH_INFO']);
+		}
 
-		$this->_defaultRoute();
+		$this->_decodeRoute();
 
 		self::$_oInstance = $this;
 	}
 
 	protected function _matchStaticRoute()
 	{
-		if(!isset($_SERVER['PATH_INFO'])) return false;
+		$sRequest = empty($_SERVER['PATH_INFO']) ? '/' : $_SERVER['PATH_INFO'];
 
-		$sRequest = strtolower($_SERVER['PATH_INFO']);
-		foreach(self::$_oStaticRoute AS $_rule => $_target)
-		{
-			if(preg_match('#'.$_rule.'#i', $sRequest)){
-				$_SERVER['PATH_INFO'] = $_target;
+		foreach (self::$_oStaticRoute AS $_rule => $_target) {
+			if (preg_match('#' . $_rule . '#i', $sRequest)) {
+				$this->_sRequest = @preg_replace('#' . $_rule . '#i', $_target, $sRequest);
+
+				//parse query params
+				if(($aQuery = parse_url($this->_sRequest, PHP_URL_QUERY))!==null){
+					$this->_sRequest = parse_url($this->_sRequest, PHP_URL_PATH);
+					parse_str($aQuery, $aQuery);
+					$this->_oRequest->setQuery($aQuery);
+				}
+
+				if (Application::IsDebugging()) {
+					Debugger::Output('RouteMatch:' . $_rule);
+				}
+
+				return true;
 			}
-			/**
-			$aResults = [];
-			if(preg_match($_rule, $sRequest, $aResults)){
-			}
-			 **/
 		}
 	}
 
-	protected function _defaultRoute()
+	protected function _decodeRoute()
 	{
-		$sPath =
-			strtolower((!isset($_SERVER['PATH_INFO']) OR $_SERVER['PATH_INFO'] == '/') ?
-				'/Default/' :
-				$_SERVER['PATH_INFO']);
-
 		$aMatch = array();
-		$sType  = null;
+		$sType = null;
 
 		if ($iMatch = preg_match(
 			'#^/(?<Match1>[a-z]+[a-z0-9\-_]*)(|\.(?<Match1Ext>[a-z0-9]+)|/(|(?<Match2>[a-z]+[a-z0-9\-_]*)(|\.(?<Match2Ext>[a-z0-9]+)|/(|(?<Match3>[a-z]+[a-z0-9\-_]*)(|\.(?<Match3Ext>[a-z0-9]+))))))$#i',
-			$sPath, $aMatch)
+			$this->_sRequest, $aMatch)
 		) {
 			#/Module/Controller/
 			#/Module/Controller/Action
@@ -192,14 +198,14 @@ class Router
 				}
 			}
 		} else {
-			Logger::Warning('route_default_unmatched:' . $sPath);
+			Logger::Warning('route_default_unmatched:' . $this->_sRequest);
 		}
 
 		//Debugger
 		if (Application::IsDebugging()) {
 			Debugger::Output(sprintf(
-				'Mode: Default, Path: %s, MatchResult: %s, Module: %s, Controller: %s, Action: %s, Type: %s, Method: %s',
-				$sPath, $iMatch, $this->_oRequest->getModule(), $this->_oRequest->getController(),
+				'Path: %s, MatchResult: %s, Module: %s, Controller: %s, Action: %s, Type: %s, Method: %s',
+				$this->_sRequest, $iMatch, $this->_oRequest->getModule(), $this->_oRequest->getController(),
 				$this->_oRequest->getAction(), $this->_oRequest->getType(), $this->_oRequest->getMethod()), 'Route');
 		}
 	}

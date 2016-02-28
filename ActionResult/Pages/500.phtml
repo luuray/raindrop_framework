@@ -17,8 +17,8 @@
  */
 use Raindrop\Application;
 
-$View->setLayout(null);
-?><!doctype html>
+?>
+<!doctype html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -28,6 +28,21 @@ $View->setLayout(null);
 	<title>Internal server error</title>
 </head>
 <body>
-Server Error
+<i>RequestUri:</i> <?= Application::GetRequest()->getRequestUri() ?><br>
+<i>Module:</i> <?= Application::GetRequest()->getModule() == null ? 'default' : Application::GetRequest()->getModule() ?>
+<br>
+<i>Controller:</i> <?= Application::GetRequest()->getController() ?><br>
+<i>Action:</i> <?= Application::GetRequest()->getAction() ?><br>
+<?php
+if (Application::IsDebugging()) {
+	?>
+	<i>CallStack:</i> <?= $ViewData->CallStack ?><br>
+	<p><i>Backtrace:</i></p>
+	<pre>
+	<?= debug_print_backtrace() ?>
+	</pre>
+	<?php
+}
+?>
 </body>
 </html>

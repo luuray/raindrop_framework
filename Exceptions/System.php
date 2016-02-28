@@ -36,11 +36,11 @@ abstract class ApplicationException extends Exception
 				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
 
 		parent::__construct($message, $code, $previous);
-/*
-		if (Application::IsDebugging()) {
-			Logger::Message(parent::__toString());
-		}
-*/
+		/*
+				if (Application::IsDebugging()) {
+					Logger::Message(parent::__toString());
+				}
+		*/
 	}
 }
 
@@ -61,7 +61,7 @@ class FatalErrorException extends ApplicationException
 
 class RuntimeException extends ApplicationException
 {
-	public function __construct($message, $code, Exception $previous)
+	public function __construct($message = '', $code = 0, Exception $previous = null)
 	{
 		parent::__construct($message, $code, $previous);
 
@@ -76,6 +76,7 @@ class ConfigurationMissingException extends FatalErrorException
 		parent::__construct(sprintf('Configuration section "%s" is missing', $sSection));
 	}
 }
+
 #endregion
 
 #region File(Component, Module)
@@ -150,6 +151,7 @@ class ComponentUndefinedException extends ApplicationException
 		parent::__construct($sMsg, -1, null);
 	}
 }
+
 #endregion
 
 #region Argument Exceptions

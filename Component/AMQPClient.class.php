@@ -46,33 +46,32 @@ class AMQPClient implements IMessageQueue
 
 	public function __construct($sQueue, Configuration $oConfig)
 	{
-		$this->_sName = $sQueue;
+		$this->_sName   = $sQueue;
 		$this->_oConfig = $oConfig;
 
-		if($this->_oConfig->Get('LazyConnect', false) != true){
+		if ($this->_oConfig->Get('LazyConnect', false) != true) {
 			$this->_connect();
 		}
 	}
 
 	public function publish($sKey, QueuedMessage $oMessage)
 	{
-		if($this->_oConnection == null || $this->_oConnection->isConnected() == false){
+		if ($this->_oConnection == null || $this->_oConnection->isConnected() == false) {
 			$this->_connect();
 		}
 
 		try {
-			return $this->_oExchange->publish($oMessage, $sKey);
-		}catch(\AMQPExchangeException $ex){
-			throw new PublishException($this->sName, $sKey, $oMessage, $ex);;
-		}
-		catch(\AMQPConnectionException $ex){
+			return $this->_oExchange->publish($oMessage, $sKey, ['delivery_mode' => 2]);
+		} catch (\AMQPExchangeException $ex) {
+			throw new PublishException($this->_sName, $sKey, $oMessage, $ex);
+		} catch (\AMQPConnectionException $ex) {
 			throw new ConnectionException($this->_sName, $this->_oConfig, $ex);
 		}
 	}
 
 	protected function _connect()
 	{
-		if($this->_oConnection != null AND $this->_oConnection->isConnected()) return true;
+		if ($this->_oConnection != null AND $this->_oConnection->isConnected()) return true;
 
 		$this->_oConnection = new \AMQPConnection([
 			'host'            => $this->_oConfig->Get('Server', 'localhost'),
