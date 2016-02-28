@@ -203,9 +203,9 @@ final class Dispatcher
 			$this->_oActionResult = 404;
 		} catch (IdentifyException $ex) {
 			if ($ex instanceof NoPermissionException) {
-				$this->_oActionResult = 401;
-			} else {
 				$this->_oActionResult = 403;
+			} else {
+				$this->_oActionResult = 401;
 			}
 		} catch (ApplicationException $ex) {
 			$this->_oActionResult   = 500;
@@ -247,7 +247,7 @@ final class Dispatcher
 					}
 				} else if ($this->_oActionResult == 204) {
 					if ($this->_oRequest->getType() == 'View') {
-						$oResult = new ErrorPage(204, array('CallStack' => $this->_sCallStack));
+						$oResult = new ErrorPage(500, array('CallStack' => $this->_sCallStack));
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult), 204);
 					} else {
@@ -257,8 +257,8 @@ final class Dispatcher
 					//Unauthorized
 					if ($this->_oRequest->getType() == 'View') {
 						//redirect to login
-						//$oResult = new Redirect('Default', 'Passport', 'SignIn', array('return' => $this->_oRequest->getRequestUri()));
-						$oResult = new ErrorPage(401);
+						$sRedirect = Configuration::Get('System/Identify', null);
+						$oResult = new Redirect(str_replace('%CURRENT_URL%', urlencode($this->_oRequest->getRequestUri()), $sRedirect));
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'unauthorized'), 401);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -270,7 +270,7 @@ final class Dispatcher
 					//Forbidden
 					if ($this->_oRequest->getType() == 'View') {
 						//show no permission page
-						$oResult = new Redirect(Configuration::Get('System/Identify', '/'));
+						$oResult = new ErrorPage(403);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'forbidden'), 403);
 					} else if ($this->_oRequest->getType() == 'Xml') {

@@ -23,7 +23,7 @@ use Raindrop\Logger;
 
 class IdentifyException extends ApplicationException
 {
-	public function __construct($message)
+	public function __construct($message=null)
 	{
 		parent::__construct($message);
 

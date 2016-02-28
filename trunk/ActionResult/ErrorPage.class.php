@@ -19,23 +19,31 @@
 namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
-use Raindrop\Application;
+use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Loader;
 
 ///TODO Output Error Page
 class ErrorPage extends View
 {
-	public function __construct($mCode = 404, $mData = null)
+	public function __construct($iStatusCode = 404, $mData = null)
 	{
-		header($mCode, true, $mCode);
-
-		if(Application::IsDebugging()){
-			var_dump($mCode, $mData);
-			echo '<pre>';
-			debug_print_backtrace();
-			echo '</pre>';
+		if (settype($iCode, 'int') === false OR !in_array($iStatusCode, [301, 400, 403, 404, 500])) {
+			throw new FatalErrorException;
 		}
-		die($mCode);
+
+		http_response_code($iStatusCode);
+		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
+
+		$sPage = AppDir . "/view/shared/{$iStatusCode}.phtml";
+
+		if (Loader::CheckLoadable($sPage)) {
+			$this->_sBodyView = $sPage;
+			$this->_sLayout   = AppDir . '/view/shared/layout.phtml';
+		} else {
+			$this->_sBodyView = CorePath . "/ActionResult/Pages/{$iStatusCode}.phtml";
+			$this->_sLayout   = null;
+		}
 	}
 
 	public function toString()
