@@ -254,9 +254,5 @@ EXP;
 	{
 		//Call Application Defined Finisher
 		$this->_finish();
-
-		if(self::$_bEnableDebug == true) {
-			Logger::Message('---------- Request End ----------');
-		}
 	}
 }

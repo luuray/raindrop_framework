@@ -133,7 +133,7 @@ final class Dispatcher
 		try {
 			try {
 				$oRefCtrl = new \ReflectionClass($sCtrlName);
-			}catch(FileNotFoundException $ex){
+			} catch (FileNotFoundException $ex) {
 				throw new ControllerNotFoundException($sCtrlName);
 			}
 			if ($oRefCtrl->isSubclassOf('Raindrop\Controller') == false) {
@@ -237,7 +237,7 @@ final class Dispatcher
 				$oResult = null;
 				if ($this->_oActionResult == 404) {
 					if ($this->_oRequest->getType() == 'View') {
-						$oResult = new ErrorPage(404);
+						$oResult = new ErrorPage(404, null, $this->_sCallStack);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult), 404);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -247,7 +247,7 @@ final class Dispatcher
 					}
 				} else if ($this->_oActionResult == 204) {
 					if ($this->_oRequest->getType() == 'View') {
-						$oResult = new ErrorPage(500, array('CallStack' => $this->_sCallStack));
+						$oResult = new ErrorPage(500, 'No Content Returned', $this->_sCallStack);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_oActionResult), 204);
 					} else {
@@ -258,7 +258,7 @@ final class Dispatcher
 					if ($this->_oRequest->getType() == 'View') {
 						//redirect to login
 						$sRedirect = Configuration::Get('System/Identify', null);
-						$oResult = new Redirect(str_replace('%CURRENT_URL%', urlencode($this->_oRequest->getRequestUri()), $sRedirect));
+						$oResult   = new Redirect(str_replace('%CURRENT_URL%', urlencode($this->_oRequest->getRequestUri()), $sRedirect));
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'unauthorized'), 401);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -270,7 +270,7 @@ final class Dispatcher
 					//Forbidden
 					if ($this->_oRequest->getType() == 'View') {
 						//show no permission page
-						$oResult = new ErrorPage(403);
+						$oResult = new ErrorPage(403, null, $this->_sCallStack);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'forbidden'), 403);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -281,7 +281,7 @@ final class Dispatcher
 				} else if ($this->_oActionResult == 500) {
 					if ($this->_oRequest->getType() == 'View') {
 						//show no permission page
-						$oResult = new ErrorPage(500, $this->_exLastException);
+						$oResult = new ErrorPage(500, null, $this->_sCallStack);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()), 500);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -292,7 +292,7 @@ final class Dispatcher
 				} else {
 					//bad request
 					if ($this->_oRequest->getType() == 'View') {
-						$oResult = new ErrorPage(400);
+						$oResult = new ErrorPage(400, null, $this->_sCallStack);
 					} else if ($this->_oRequest->getType() == 'Json') {
 						$oResult = new Json(true, array('status' => false, 'message' => 'bad_request'), 400);
 					} else if ($this->_oRequest->getType() == 'Xml') {
@@ -306,7 +306,7 @@ final class Dispatcher
 		} catch (ApplicationException $ex) {
 			if ($this->_oRequest->getType() == 'View') {
 				//show no permission page
-				$oResult = new ErrorPage(500, $ex);//$this->_exLastException);
+				$oResult = new ErrorPage(500, $ex->getMessage(), $this->_sCallStack);//$this->_exLastException);
 			} else if ($this->_oRequest->getType() == 'Json') {
 				$oResult = new Json(true, array('status' => false, 'message' => $this->_exLastException->getMessage()));
 			} else if ($this->_oRequest->getType() == 'Xml') {
@@ -334,10 +334,9 @@ final class Dispatcher
 		//same permission for all actions
 		if (is_string($mPermRequired)) {
 			if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
-			if($mPermRequired == '*') {
+			if ($mPermRequired == '*') {
 				return true;
-			}
-			else{
+			} else {
 				return Application::GetIdentify()->hasRole($mPermRequired);
 			}
 		}
@@ -360,11 +359,10 @@ final class Dispatcher
 			$mActionPerm = '*';
 		}
 
-		if($mActionPerm == null){
+		if ($mActionPerm == null) {
 			return true;
-		}
-		else if (is_string($mActionPerm) AND $mActionPerm == '*') {
-			if(Application::GetIdentify()->IsIdentified()) return true;
+		} else if (is_string($mActionPerm) AND $mActionPerm == '*') {
+			if (Application::GetIdentify()->IsIdentified()) return true;
 			throw new UnidentifiedException;
 		} else {
 			$mActionPerm = is_string($mActionPerm) ? preg_split('/\|,/', $mActionPerm) : (is_array($mActionPerm) ? $mActionPerm : false);

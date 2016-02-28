@@ -26,14 +26,16 @@ use Raindrop\Loader;
 ///TODO Output Error Page
 class ErrorPage extends View
 {
-	public function __construct($iStatusCode = 404, $mData = null)
+	public function __construct($iStatusCode = 404, $sMessage = null, $sCallStack=null)
 	{
 		if (settype($iCode, 'int') === false OR !in_array($iStatusCode, [301, 400, 403, 404, 500])) {
 			throw new FatalErrorException;
 		}
 
 		http_response_code($iStatusCode);
-		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
+		$this->_oViewData = ViewData::GetInstance();
+		$this->_oViewData->Message = $sMessage;
+		$this->_oViewData->CallStack = $sCallStack;
 
 		$sPage = AppDir . "/view/shared/{$iStatusCode}.phtml";
 
