@@ -28,6 +28,7 @@ use Raindrop\Application;
 	<title>Internal server error</title>
 </head>
 <body>
+<i>Message:</i> <?=$ViewData->Message?><br>
 <i>RequestUri:</i> <?= Application::GetRequest()->getRequestUri() ?><br>
 <i>Module:</i> <?= Application::GetRequest()->getModule() == null ? 'default' : Application::GetRequest()->getModule() ?>
 <br>
@@ -38,9 +39,7 @@ if (Application::IsDebugging()) {
 	?>
 	<i>CallStack:</i> <?= $ViewData->CallStack ?><br>
 	<p><i>Backtrace:</i></p>
-	<pre>
-	<?= debug_print_backtrace() ?>
-	</pre>
+	<pre><?= debug_print_backtrace() ?></pre>
 	<?php
 }
 ?>
