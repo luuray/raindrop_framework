@@ -424,6 +424,11 @@ abstract class Model implements \JsonSerializable, \Serializable
 			if($_item['Value'] instanceof Model){
 				$aResult[$_item['Name']] = $_item['Value']->toArray();
 			}
+			else if(is_array($_item['Value']) && !empty($_item['Value'])){
+				$aResult[$_item['Name']] = array_map(function($arr){
+					return $arr->toArray();
+				}, $_item['Value']);
+			}
 			else{
 				$aResult[$_item['Name']] = $_item['Value'];
 			}
