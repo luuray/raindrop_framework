@@ -29,6 +29,7 @@ class HttpCode extends ActionResult
 
 	const CODE_Unauthorized = 401;
 	const CODE_Forbidden = 403;
+	const CODE_NotFound = 404;
 	const CODE_TokenInvalid = 498;
 	const CODE_TokenRequired = 499;
 
