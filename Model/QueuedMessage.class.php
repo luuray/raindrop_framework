@@ -71,7 +71,7 @@ class QueuedMessage implements \JsonSerializable
 
 	public function __toString()
 	{
-		return json_encode($this);
+		return (string)json_encode($this);
 	}
 
 	public function jsonSerialize()

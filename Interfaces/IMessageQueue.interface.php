@@ -26,5 +26,22 @@ interface IMessageQueue
 {
 	public function __construct($sQueue, Configuration $oConfig);
 
+	/**
+	 * Publish Message
+	 *
+	 * @param $sKey
+	 * @param QueuedMessage $oMessage
+	 *
+	 * @return bool
+	 * @throws ConnectionException
+	 * @throws PublishException
+	 */
 	public function publish($sKey, QueuedMessage $oMessage);
+
+	/**
+	 * Close Connection
+	 * 
+	 * @return null
+	 */
+	public function disconnect();
 }

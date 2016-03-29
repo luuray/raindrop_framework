@@ -54,6 +54,23 @@ class AMQPClient implements IMessageQueue
 		}
 	}
 
+	public function disconnect()
+	{
+		if($this->_oConnection!=null && $this->_oConnection->isConnected()){
+			$this->_oConnection->disconnect();
+		}
+	}
+
+	/**
+	 * Publish Message
+	 * 
+	 * @param $sKey
+	 * @param QueuedMessage $oMessage
+	 *
+	 * @return bool
+	 * @throws ConnectionException
+	 * @throws PublishException
+	 */
 	public function publish($sKey, QueuedMessage $oMessage)
 	{
 		if ($this->_oConnection == null || $this->_oConnection->isConnected() == false) {
@@ -61,7 +78,7 @@ class AMQPClient implements IMessageQueue
 		}
 
 		try {
-			return $this->_oExchange->publish($oMessage, $sKey, ['delivery_mode' => 2]);
+			return $this->_oExchange->publish((string)$oMessage, $sKey);
 		} catch (\AMQPExchangeException $ex) {
 			throw new PublishException($this->_sName, $sKey, $oMessage, $ex);
 		} catch (\AMQPConnectionException $ex) {
@@ -101,4 +118,5 @@ class AMQPClient implements IMessageQueue
 			throw new ConnectionException($this->_sName, $this->_oConfig, $ex);
 		}
 	}
+
 }
