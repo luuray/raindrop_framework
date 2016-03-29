@@ -60,7 +60,16 @@ class MessageQueue
 	 */
 	public static function Publish($sKey, QueuedMessage $oMessage, $sQueue = 'default')
 	{
-		return self::_GetInstance()->getQueue($sQueue)->publish($sKey, $oMessage);
+		if (Application::IsDebugging()) {
+			Logger::Message(
+				'MessagePublish: Queue:' . $sQueue
+				. ', Key:' . $sKey
+				. ', Message:'
+				. (string)$oMessage
+				. ', Result:' . (self::_GetInstance()->getQueue($sQueue)->publish($sKey, $oMessage) ? 'True' : 'False'));
+		} else {
+			return self::_GetInstance()->getQueue($sQueue)->publish($sKey, $oMessage);
+		}
 	}
 
 	/**
