@@ -56,14 +56,14 @@ class AMQPClient implements IMessageQueue
 
 	public function disconnect()
 	{
-		if($this->_oConnection!=null && $this->_oConnection->isConnected()){
+		if ($this->_oConnection != null && $this->_oConnection->isConnected()) {
 			$this->_oConnection->disconnect();
 		}
 	}
 
 	/**
 	 * Publish Message
-	 * 
+	 *
 	 * @param $sKey
 	 * @param QueuedMessage $oMessage
 	 *
@@ -78,7 +78,7 @@ class AMQPClient implements IMessageQueue
 		}
 
 		try {
-			return $this->_oExchange->publish((string)$oMessage, $sKey);
+			return $this->_oExchange->publish((string)$oMessage, $sKey, AMQP_NOPARAM, ['delivery_mode' => 2]);
 		} catch (\AMQPExchangeException $ex) {
 			throw new PublishException($this->_sName, $sKey, $oMessage, $ex);
 		} catch (\AMQPConnectionException $ex) {
@@ -97,8 +97,8 @@ class AMQPClient implements IMessageQueue
 			'login'           => $this->_oConfig->Get('Username', 'guest'),
 			'password'        => $this->_oConfig->Get('Password', 'guest'),
 			'read_timeout'    => $this->_oConfig->Get('Timeout', 5),
-			'write_timeout'   => $this->_oConfig->get('Timeout', 5),
-			'connect_timeout' => $this->_oConfig->get('Timeout', 5)
+			'write_timeout'   => $this->_oConfig->Get('Timeout', 5),
+			'connect_timeout' => $this->_oConfig->Get('Timeout', 5)
 		]);
 
 		try {
