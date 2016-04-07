@@ -197,7 +197,7 @@ class MySQL implements IDbConnector
 	public function getVar($sQuery, $aParam = null)
 	{
 		$oResult = $this->_query($sQuery, $aParam);
-		if ($oResult->columnCount() > 0) {
+		if ($oResult->rowCount() > 0) {
 			return $oResult->fetchColumn();
 		} else {
 			return null;
@@ -217,7 +217,7 @@ class MySQL implements IDbConnector
 	public function getLine($sQuery, $aParam = null, $sModelName = null)
 	{
 		$oResult = $this->_query($sQuery, $aParam);
-		if ($oResult->columnCount() > 0) {
+		if ($oResult->rowCount() > 0) {
 			try {
 				if ($sModelName !== null && class_exists($sModelName)) {
 					$oResult->setFetchMode(PDO::FETCH_CLASS, $sModelName, null);
