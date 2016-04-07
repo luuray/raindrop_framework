@@ -18,6 +18,7 @@
 namespace Raindrop\ActionResult;
 
 use Raindrop\ActionResult;
+use Raindrop\Exceptions\FileNotFoundException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\NotImplementedException;
 
@@ -33,8 +34,11 @@ class FileStream extends ActionResult
 	 */
 	public function __construct($sFileName = null)
 	{
-		if (empty($sFileName) or !is_readable(SysRoot . '/' . $sFileName) OR !is_file(SysRoot.'/'.$sFileName)) {
+		if (empty($sFileName)) {
 			throw new InvalidArgumentException('filename');
+		}
+		if(!is_readable(SysRoot . '/' . $sFileName) AND !is_file(SysRoot.'/'.$sFileName)){
+			throw new FileNotFoundException($sFileName);
 		}
 
 		$this->_sFileName = SysRoot . '/' . $sFileName;
