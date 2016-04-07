@@ -36,6 +36,11 @@ class ModelAction
 {
 	protected $_bCacheEnable = false;
 
+	/**
+	 * Get Instance
+	 *
+	 * @return ModelAction
+	 */
 	public static function GetInstance()
 	{
 		static $oInstance = null;
@@ -47,6 +52,8 @@ class ModelAction
 	}
 
 	/**
+	 * Has any record matched the condition
+	 *
 	 * @param $sModel
 	 * @param null $sCondition
 	 * @param null $aParams
@@ -60,7 +67,7 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$sTable = $sModel::GetTableName();
+		$sTable     = $sModel::GetTableName();
 		$sDbConnect = $sModel::GetDbConnect();
 
 		return DatabaseAdapter::GetVar(
@@ -70,6 +77,8 @@ class ModelAction
 	}
 
 	/**
+	 * Count record matched condition
+	 *
 	 * @param $sModel
 	 * @param null $sCondition
 	 * @param null $aParams
@@ -85,7 +94,7 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$sTable = $sModel::GetTableName();
+		$sTable     = $sModel::GetTableName();
 		$sDbConnect = $sModel::GetDbConnect();
 
 		return (int)DatabaseAdapter::GetVar(
@@ -99,6 +108,8 @@ class ModelAction
 	}
 
 	/**
+	 * Count record by SQL
+	 *
 	 * @param $sModel
 	 * @param null $sQuery
 	 * @param null $aParams
@@ -121,6 +132,8 @@ class ModelAction
 	}
 
 	/**
+	 * Save modal changes
+	 *
 	 * @param Model $oModel
 	 *
 	 * @return bool|Model
@@ -143,9 +156,50 @@ class ModelAction
 		}
 	}
 
-	public static function Update($sModel, $aColumns, $sConditions=null, $aParams=null, $sOrderBy=null, $iLimit=0, $iSkip=0)
+	/**
+	 * Update record without load out
+	 *
+	 * @param $sModel
+	 * @param $aColumns
+	 * @param null|string $sConditions
+	 * @param null|array $aParams
+	 * @param null|array $aOrderBy
+	 * @param int $iLimit
+	 * @param int $iSkip
+	 *
+	 * @return bool|int
+	 *
+	 * @throws ModelNotFoundException
+	 */
+	public static function Update($sModel, $aColumns, $sConditions = null, $aParams = null, $aOrderBy = null, $iLimit = 0, $iSkip = 0)
 	{
-		throw new NotImplementedException;
+		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
+			throw new ModelNotFoundException($sModel);
+		}
+
+		$aScheme = self::GetInstance()->getTableScheme($sModel::getTableName(), $sModel::getDbConnect());
+
+		$aUpdated = array();
+
+		foreach ($aColumns AS $_col => $_val) {
+			if (array_key_exists(strtolower($_col), $aScheme['Columns']) == false) {
+				Logger::Warning("update_fail: undefined column '{$_col}', model: " . ((new \ReflectionClass($sModel))->getName()));
+
+				return false;
+			} else {
+				$aUpdated[] = $aScheme['Columns'][strtolower($_col)]['Name'] . '=' . $_val;
+			}
+		}
+
+		return DatabaseAdapter::GetAffectedRowNum(
+			sprintf('UPDATE %s SET %s %s %s %s',
+				$sModel::getTableName(),
+				implode(',', $aUpdated),
+				(!empty($sConditions) ? 'WHERE' . $sConditions : null),
+				(!empty($aOrderBy) ? 'ORDER BY' . implode(',', $aOrderBy) : null),
+				($iLimit > 0 ? ('LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null)),
+			$aParams, $sModel::getDbConnect()
+		);
 	}
 
 	/**
@@ -160,10 +214,10 @@ class ModelAction
 			throw new DataModelException('invalid_model_state');
 		}
 
-		$aScheme = self::GetInstance()->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
-		$aSnapshot = $oModel->getRAWData();
+		$aScheme     = self::GetInstance()->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aSnapshot   = $oModel->getRAWData();
 		$aConditions = [];
-		$aParams = [];
+		$aParams     = [];
 
 		if (!empty($aSnapshot['Identify'])) {
 			foreach ($aSnapshot['Identify'] AS $_col => $_val) {
@@ -401,7 +455,7 @@ class ModelAction
 	 * @return int
 	 * @throws ModelNotFoundException
 	 */
-	public static function RawQuery($sModel, $sQuery, $aParams=null)
+	public static function RawQuery($sModel, $sQuery, $aParams = null)
 	{
 		if (!class_exists($sModel) OR !is_subclass_of($sModel, 'Raindrop\ORM\Model')) {
 			throw new ModelNotFoundException($sModel);
@@ -435,6 +489,8 @@ class ModelAction
 	}
 
 	/**
+	 * Get Tables Scheme
+	 *
 	 * @param $sTable
 	 * @param $sDbConnect
 	 *
@@ -502,14 +558,14 @@ class ModelAction
 
 		$aSnapshot = $oModel->getRAWData();
 
-		$aColumns = [];
+		$aColumns   = [];
 		$aColValues = [];
 		$aColParams = [];
-		$sAutoId = null;
+		$sAutoId    = null;
 		foreach ($aScheme['Columns'] AS $_name => $_col) {
 			if (array_key_exists($_name, $aSnapshot['Columns'])) {
-				$aColumns[] = "`{$_col['Name']}`";
-				$aColParams[] = ":{$_col['Name']}";
+				$aColumns[]                = "`{$_col['Name']}`";
+				$aColParams[]              = ":{$_col['Name']}";
 				$aColValues[$_col['Name']] = $aSnapshot['Columns'][$_name]['Value'];
 			}
 			if ($_col['IsAutoIncrement'] == true) $sAutoId = $_name;
@@ -556,22 +612,22 @@ class ModelAction
 	 */
 	public function modelUpdate(Model $oModel)
 	{
-		$aScheme = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aScheme   = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
 		$aSnapshot = $oModel->getRAWData();
 
 		$aChangedIdentifies = array();
-		$aIdentify = array();
-		$aUpdatedField = array();
-		$aQueryParams = array();
+		$aIdentify          = array();
+		$aUpdatedField      = array();
+		$aQueryParams       = array();
 		foreach ($aScheme['Columns'] AS $_col => $_def) {
 			//changed columns
 			if (array_key_exists($_col, $aSnapshot['Changed']) AND $aSnapshot['Changed'][$_col] != $_def['Default']) {
-				$aUpdatedField[] = sprintf('`%s`=:%s', $_def['Name'], $_col);
+				$aUpdatedField[]     = sprintf('`%s`=:%s', $_def['Name'], $_col);
 				$aQueryParams[$_col] = $aSnapshot['Changed'][$_col];
 			}
 			//identify
 			if (array_key_exists($_col, $aSnapshot['Identify'])) {
-				$aIdentify[] = sprintf('`%s`=:IDY_%s', $_def['Name'], $_col);
+				$aIdentify[]                  = sprintf('`%s`=:IDY_%s', $_def['Name'], $_col);
 				$aQueryParams['IDY_' . $_col] = $aSnapshot['Identify'][$_col];
 
 				//identify changed
@@ -618,7 +674,7 @@ class ModelAction
 				'IsPrimary'       => $_item->Key == 'PRI',
 				'Nullable'        => $_item->Null == 'YES',
 				'Default'         => $this->_colDefaultDecide($_item->Type, $_item->Null == 'YES', $_item->Default),
-				'Type' => $_item->Type,
+				'Type'            => $_item->Type,
 				'IsAutoIncrement' => strpos($_item->Extra, 'auto_increment') !== false
 			];
 
@@ -647,7 +703,7 @@ class ModelAction
 		if ($bNullable == true) {
 			return $sDefault;
 		} else {
-			if ($sDefault !== null) return settype($sDefault, $sType)? $sDefault: null;
+			if ($sDefault !== null) return settype($sDefault, $sType) ? $sDefault : null;
 			else if ($sType == 'int') return 0;
 			else if ($sType == 'float') return 0.0;
 			else if ($sType == 'string') return '';
