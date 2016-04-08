@@ -23,7 +23,7 @@ use Raindrop\Logger;
 
 class CacheFailException extends ApplicationException
 {
-	public function __construct($sHandler, $sMessage, $iCode, Exception $previous=null)
+	public function __construct($sHandler, $sMessage, $iCode, \Exception $previous=null)
 	{
 		//TODO Make Message Format Same
 
