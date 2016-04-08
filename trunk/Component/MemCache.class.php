@@ -89,7 +89,7 @@ class MemCache implements ICache
 		if ($bConnected !== true) {
 			$this->_oMemcache = null;
 			$aErr             = error_get_last();
-			throw new CacheFailException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')', 0);
+			throw new CacheFailException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')');
 		}
 	}
 

@@ -23,16 +23,20 @@ use Raindrop\Logger;
 
 class CacheFailException extends ApplicationException
 {
+	public function __construct($sHandler, $sMessage, $iCode, Exception $previous=null)
+	{
+		//TODO Make Message Format Same
+
+		parent::__construct(sprintf('[%s]%s', $sHandler, $sMessage), $iCode, $previous);
+	}
 }
 
 class CacheMissingException extends CacheFailException
 {
 	public function __construct($sHandler, $sName)
 	{
-		$sMessage = sprintf('CacheMissing:[%s]  %s', $sHandler, $sName);
+		Logger::Warning(sprintf('CacheMissing:[%s]  %s', $sHandler, $sName));
 
-		Logger::Warning($sMessage);
-
-		parent::__construct($sMessage, 0, null);
+		parent::__construct($sHandler, sprintf('CacheMissing:[%s]  %s', $sHandler, $sName), 0, $this);
 	}
 }

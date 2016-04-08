@@ -35,7 +35,7 @@ abstract class ApplicationException extends Exception
 			('Exception:' . get_called_class() . '; Line:' . $this->line .
 				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
 
-		parent::__construct($message, $code, $previous);
+		parent::__construct($message, intval($code), $previous);
 		/*
 				if (Application::IsDebugging()) {
 					Logger::Message(parent::__toString());
