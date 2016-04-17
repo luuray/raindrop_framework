@@ -78,6 +78,10 @@ class SimpleLogger implements ILogger
 		if ($sFilePath == null) return true;
 		$sFilePath = str_replace('$DATE$', date('Y-m-d'), $sFilePath);
 
+		if(!file_exists(pathinfo($sFilePath, PATHINFO_DIRNAME))){
+			@mkdir(pathinfo($sFilePath, PATHINFO_DIRNAME), 0755, true);
+		}
+
 		$bResult = file_put_contents($sFilePath, '[' . date('Y-m-d H:i:s O') . ", {$sLevel}]\t" . (string)$mMsg . PHP_EOL, FILE_APPEND);
 		if ($bResult == false) {
 			$aErr = error_get_last();

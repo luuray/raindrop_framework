@@ -58,8 +58,7 @@ abstract class Application
 		} else {
 			try {
 				return (new \ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
-			}
-			catch(\Exception $ex){
+			} catch (\Exception $ex) {
 				@header_remove();
 				@header('Uncaught exception', true, 500);
 				exit();
@@ -88,8 +87,8 @@ abstract class Application
 					isset($_SERVER['HTTP_HOST']) ?
 						(((empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) :
 						'Console';
-				$sPost = file_get_contents('php://input');
-				$sGet = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'NULL';
+				$sPost       = file_get_contents('php://input');
+				$sGet        = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'NULL';
 
 				if ($sRequestUri == 'Console') {
 					echo <<<EXP
@@ -212,10 +211,16 @@ EXP;
 		//Debug Mode
 		if (self::$_bEnableDebug == true) {
 			Logger::Message('---------- Request Begin ----------');
-			Logger::Message(sprintf('Request: [%s] %s', $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']));
+			if (str_beginwith(php_sapi_name(), 'cli')) {
+				$aArgs = $_SERVER['argv'];
+				$sFileName = array_shift($aArgs);
+				Logger::Message(sprintf('Console: [%s] %s', $sFileName, implode(' ', $aArgs)));
+			} else {
+				Logger::Message(sprintf('Request: [%s] %s', $_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']));
+			}
 
 			//Flush FileCache
-			del_recursive(SysRoot.'/cache');
+			del_recursive(SysRoot . '/cache');
 			//Flush CacheHandlers
 			Cache::Flush();
 		}

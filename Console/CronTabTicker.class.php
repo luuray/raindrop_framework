@@ -16,7 +16,7 @@
  * @version $Rev$
  */
 
-namespace Raindrop\Model;
+namespace Raindrop\Console;
 
 
 use Raindrop\Exceptions\InvalidArgumentException;

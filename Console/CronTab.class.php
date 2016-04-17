@@ -16,19 +16,12 @@
  * @version $Rev$
  */
 
-namespace Raindrop\Component;
+namespace Raindrop\Console;
 
-
-use Raindrop\AbstractClass\Worker;
 use Raindrop\Logger;
-use Raindrop\Model\CronTabTicker;
 
 final class CronTab extends Worker
 {
-	public function __construct()
-	{
-	}
-
 	public function reload()
 	{
 	}

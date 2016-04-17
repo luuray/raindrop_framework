@@ -18,15 +18,22 @@
 
 namespace Raindrop\Component;
 
-
 use Raindrop\Application;
 use Raindrop\Configuration;
+use Raindrop\Console\CronTab;
+use Raindrop\Console\CronTabTicker;
+use Raindrop\Console\Listener;
+use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Logger;
 
 class ConsoleDaemon
 {
 	protected $_oServer = null;
+	protected $_aListener = [];
 	protected $_aWorker = [];
+	protected $_aCronTab = [];
+	protected $_aTicker = [];
+	protected $_iMasterPort;
 
 	/**
 	 * @var Configuration
@@ -42,15 +49,23 @@ class ConsoleDaemon
 		$this->_oConfig = $oConfig;
 
 		$this->_oServer = new \swoole_server(
-			$this->_oConfig->Get('Address', '127.0.0.1'),
+			$this->_oConfig->Get('Host', '127.0.0.1'),
 			$this->_oConfig->Get('Port', 9501), SWOOLE_BASE, SWOOLE_SOCK_TCP);
+
+		$this->_aListener[$this->_oConfig->Get('Port', 9501)] = new Listener(
+			$this->_oConfig->Get('Host', '127.0.0.1'),
+			$this->_oConfig->Get('Port', 9501),
+			SWOOLE_SOCK_TCP);
+
+		$this->_iMasterPort = $this->_oConfig->Get('Port', 9501);
+
 
 		$this->_fetchWorker();
 
 		$this->_oServer->set([
 			//'daemonize'=>true,
 			'dispatch_mode'   => 2,
-			'worker_num'      => count($this->_aWorkers) + 1,
+			'worker_num'      => count($this->_aWorkers),
 			'task_worker_num' => $this->_oConfig->Get('TaskWorkerNum', 10),
 			'max_request'     => $this->_oConfig->Get('MaxRequest', 32),
 			'max_connection'  => $this->_oConfig->Get('MaxConnection', 256),
@@ -104,12 +119,15 @@ class ConsoleDaemon
 		$aInfo = $oServer->connection_info($iConnId);
 		Logger::Message('Connect: ' . json_encode($aInfo));
 
-		$oServer->send($iConnId, json_encode([
-			'StartTime'     => Application::GetRequestTime(),
-			'Workers'       => $this->_aWorkers,
-			'MemoryUsage'   => byte2string(memory_get_usage()),
-			'CronTabCounts' => count($this->_aCronTabs)
-		]));
+		if ($aInfo['server_port'] == $this->_iMasterPort) {
+			$oServer->send($iConnId, json_encode([
+				'StartTime'   => Application::GetRequestTime(),
+				'Worker'      => $this->_aWorkers,
+				'MemoryUsage' => byte2string(memory_get_usage()),
+				'CronTab'     => count($this->_aCronTab),
+				'Ticker'      => count($this->_aTicker)
+			]));
+		}
 	}
 
 	/**
@@ -126,6 +144,14 @@ class ConsoleDaemon
 		if ($sData == 'quit') {
 			@$oServer->clearTimer();
 			$oServer->shutdown();
+		} else if ($sData == 'ping') {
+			$oServer->send($iConnId, json_encode([
+				'StartTime'   => Application::GetRequestTime(),
+				'Worker'      => $this->_aWorkers,
+				'MemoryUsage' => byte2string(memory_get_usage()),
+				'CronTab'     => count($this->_aCronTab),
+				'Ticker'      => count($this->_aTicker)
+			]));
 		}
 	}
 
@@ -148,15 +174,21 @@ class ConsoleDaemon
 	{
 		if (array_key_exists($iWorkerId, $this->_aWorkers)) {
 			$aInstance = $this->_aWorkers[$iWorkerId];
-			$oInstance = $aInstance['Instance']->newInstance();
-			Logger::Message("Worker [{$aInstance['Name']}] Started@" . time());
+			$oInstance = $aInstance['Instance'];
+			$oInstance->setWorkerId($iWorkerId);
+			$oInstance->run();
 
 			//bind ticker
 			$mTicker = $oInstance->getTicker();
+
 			if (is_array($mTicker)) {
+				Logger::Trace('WorkerId:' . $iWorkerId . ', Ticker:' . count($mTicker));
+
 				foreach ($mTicker AS $_item) {
 					if ($_item instanceof CronTabTicker) {
 						$oServer->tick($_item->getInterval(), $_item->getCallback());
+						$this->_aTicker[] = ['WorkerId' => $iWorkerId, 'Worker' => $aInstance['Name'], 'Interval' => $_item->getInterval()];
+
 						Logger::Message("Worker [{$aInstance['Name']}] add a ticker, interval:" . $_item->getInterval());
 					} else {
 						Logger::Warning("Worker [{$aInstance['Name']}]'s ticker invalid");
@@ -164,6 +196,8 @@ class ConsoleDaemon
 				}
 			} else if ($mTicker instanceof CronTabTicker) {
 				$oServer->tick($mTicker->getInterval(), $mTicker->getCallback());
+				$this->_aTicker[] = ['WorkerId' => $iWorkerId, 'Worker' => $aInstance['Name'], 'Interval' => $mTicker->getInterval()];
+
 				Logger::Message("Worker [{$aInstance['Name']}] add a ticker, interval:" . $mTicker->getInterval());
 			}
 		}
@@ -188,6 +222,7 @@ class ConsoleDaemon
 	 */
 	public function onWorkerError(\swoole_server $oServer, $iWorkerId, $iWorkerPID, $iExitCode)
 	{
+		Logger::Trace('onWorkerError, WorkerId:' . $iWorkerId . ', WorkerPID:' . $iWorkerPID . ', ExitCode:' . $iExitCode);
 	}
 	#endregion
 
@@ -200,6 +235,7 @@ class ConsoleDaemon
 	 */
 	public function onTask(\swoole_server $oServer, $iTaskId, $iFromWorker, $sData)
 	{
+		Logger::Trace('onTask, TaskId:' . $iTaskId . ', FromWorker:' . $iFromWorker . ', Data:' . $sData);
 	}
 
 	/**
@@ -209,6 +245,7 @@ class ConsoleDaemon
 	 */
 	public function onFinish(\swoole_server $oServer, $iTaskId, $sData)
 	{
+		Logger::Trace('onFinish, TaskId:' . $iTaskId . ', Data:' . $sData);
 	}
 
 	/**
@@ -217,6 +254,7 @@ class ConsoleDaemon
 	 */
 	public function onTimer(\swoole_server $oServer, $iInterval)
 	{
+		Logger::Trace('onTimer, Interval:' . $iInterval);
 	}
 
 	#endregion
@@ -226,7 +264,7 @@ class ConsoleDaemon
 		//CronTab
 		$this->_aWorkers[] = [
 			'Name'     => 'CronTab',
-			'Instance' => new \ReflectionClass('Raindrop\Component\CronTab')
+			'Instance' => new CronTab($this->_oServer)
 		];
 
 		//fetch user defined workers
@@ -234,9 +272,33 @@ class ConsoleDaemon
 		foreach ($aFiles AS $_item) {
 			$aInfo = pathinfo($_item);
 			if (str_endwith($aInfo['basename'], '.class.php')) {
-				$sName = rtrim($aInfo['basename'], '.class.php');
-				$oInstance = new \ReflectionClass(AppName . "\Worker\\{$sName}");
-				if ($oInstance->isSubclassOf('Raindrop\AbstractClass\Worker') == false) throw new FatalErrorException('invalid_worker:' . $sName);
+				$sName     = AppName . '\Worker\\' . rtrim($aInfo['basename'], '.class.php');
+				$oInstance = new $sName($this->_oServer);
+
+				//bind extra ports
+				$mListener = $oInstance->getListener();
+				if ($mListener instanceof Listener) {
+					$mListener = [0 => $mListener];
+				} else if ($mListener == null) {
+					continue;
+				}
+
+				foreach ($mListener AS $_item) {
+					if ($_item instanceof Listener) {
+						if (array_key_exists($_item->getPort(), $this->_aListener)) {
+							throw new FatalErrorException(sprintf('multi_listener:[%s] %s:%d', $sName, $_item->getHost(), $_item->getPort()));
+						}
+
+						$oHandler = $this->_oServer->listen($_item->getHost(), $_item->getPort(), $_item->getType());
+						if ($oHandler == false) throw new FatalErrorException(sprintf('add_listener_fail:[%s] %s:%d', $_item->getHost(), $_item->getPort()));
+
+						$this->_aListener[$_item->getPort()] = $_item;
+
+						$oInstance->setHandler($oHandler);
+					} else {
+						throw new FatalErrorException('invalid_listener_define');
+					}
+				}
 
 				$this->_aWorkers[] = [
 					'Name'     => $sName,
