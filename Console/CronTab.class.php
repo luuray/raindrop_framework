@@ -18,8 +18,6 @@
 
 namespace Raindrop\Console;
 
-use Raindrop\Logger;
-
 final class CronTab extends Worker
 {
 	public function reload()
@@ -41,6 +39,5 @@ final class CronTab extends Worker
 	 */
 	public function tick()
 	{
-		Logger::Trace('Beeeeeep');
 	}
 }

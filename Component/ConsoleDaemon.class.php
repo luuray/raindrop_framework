@@ -120,13 +120,7 @@ class ConsoleDaemon
 		Logger::Message('Connect: ' . json_encode($aInfo));
 
 		if ($aInfo['server_port'] == $this->_iMasterPort) {
-			$oServer->send($iConnId, json_encode([
-				'StartTime'   => Application::GetRequestTime(),
-				'Worker'      => $this->_aWorkers,
-				'MemoryUsage' => byte2string(memory_get_usage()),
-				'CronTab'     => count($this->_aCronTab),
-				'Ticker'      => count($this->_aTicker)
-			]));
+			$oServer->send($iConnId, json_encode($this->getRuntimeStatus()));
 		}
 	}
 
@@ -145,13 +139,7 @@ class ConsoleDaemon
 			@$oServer->clearTimer();
 			$oServer->shutdown();
 		} else if ($sData == 'ping') {
-			$oServer->send($iConnId, json_encode([
-				'StartTime'   => Application::GetRequestTime(),
-				'Worker'      => $this->_aWorkers,
-				'MemoryUsage' => byte2string(memory_get_usage()),
-				'CronTab'     => count($this->_aCronTab),
-				'Ticker'      => count($this->_aTicker)
-			]));
+			$oServer->send($iConnId, json_encode($this->getRuntimeStatus()));
 		}
 	}
 
@@ -181,24 +169,23 @@ class ConsoleDaemon
 			//bind ticker
 			$mTicker = $oInstance->getTicker();
 
-			if (is_array($mTicker)) {
-				Logger::Trace('WorkerId:' . $iWorkerId . ', Ticker:' . count($mTicker));
-
-				foreach ($mTicker AS $_item) {
-					if ($_item instanceof CronTabTicker) {
-						$oServer->tick($_item->getInterval(), $_item->getCallback());
-						$this->_aTicker[] = ['WorkerId' => $iWorkerId, 'Worker' => $aInstance['Name'], 'Interval' => $_item->getInterval()];
-
-						Logger::Message("Worker [{$aInstance['Name']}] add a ticker, interval:" . $_item->getInterval());
-					} else {
-						Logger::Warning("Worker [{$aInstance['Name']}]'s ticker invalid");
-					}
-				}
+			if ($mTicker == null) {
+				return;
 			} else if ($mTicker instanceof CronTabTicker) {
-				$oServer->tick($mTicker->getInterval(), $mTicker->getCallback());
-				$this->_aTicker[] = ['WorkerId' => $iWorkerId, 'Worker' => $aInstance['Name'], 'Interval' => $mTicker->getInterval()];
+				$mTicker = [0 => $mTicker];
+			}
+			Logger::Trace('WorkerId:' . $iWorkerId . ', Ticker:' . count($mTicker));
 
-				Logger::Message("Worker [{$aInstance['Name']}] add a ticker, interval:" . $mTicker->getInterval());
+			foreach ($mTicker AS $_item) {
+				if ($_item instanceof CronTabTicker) {
+					$oServer->tick($_item->getInterval(), $_item->getCallback());
+
+					$this->_aTicker[] = ['WorkerId' => $iWorkerId, 'Worker' => $aInstance['Name'], 'Interval' => $_item->getInterval()];
+
+					Logger::Message("Worker [{$aInstance['Name']}] add a ticker, interval:" . $_item->getInterval());
+				} else {
+					Logger::Warning("Worker [{$aInstance['Name']}]'s ticker invalid");
+				}
 			}
 		}
 	}
@@ -259,6 +246,24 @@ class ConsoleDaemon
 
 	#endregion
 
+	public function getRuntimeStatus()
+	{
+		return [
+			'StartTime'   => Application::GetRequestTime(),
+			'MemoryUsage' => byte2string(memory_get_usage()),
+			'Worker'      => $this->_aWorkers,
+			'CronTab'     => count($this->_aCronTab),
+			'Ticker'      => $this->_aTicker
+		];
+	}
+
+	/**
+	 * Fetch Worker
+	 *
+	 * @return bool
+	 * @throws FatalErrorException
+	 * @throws \Raindrop\Exceptions\InvalidArgumentException
+	 */
 	protected function _fetchWorker()
 	{
 		//CronTab
@@ -279,24 +284,24 @@ class ConsoleDaemon
 				$mListener = $oInstance->getListener();
 				if ($mListener instanceof Listener) {
 					$mListener = [0 => $mListener];
-				} else if ($mListener == null) {
-					continue;
 				}
 
-				foreach ($mListener AS $_item) {
-					if ($_item instanceof Listener) {
-						if (array_key_exists($_item->getPort(), $this->_aListener)) {
-							throw new FatalErrorException(sprintf('multi_listener:[%s] %s:%d', $sName, $_item->getHost(), $_item->getPort()));
+				if ($mListener != null) {
+					foreach ($mListener AS $_item) {
+						if ($_item instanceof Listener) {
+							if (array_key_exists($_item->getPort(), $this->_aListener)) {
+								throw new FatalErrorException(sprintf('multi_listener:[%s] %s:%d', $sName, $_item->getHost(), $_item->getPort()));
+							}
+
+							$oHandler = $this->_oServer->listen($_item->getHost(), $_item->getPort(), $_item->getType());
+							if ($oHandler == false) throw new FatalErrorException(sprintf('add_listener_fail:[%s] %s:%d', $_item->getHost(), $_item->getPort()));
+
+							$this->_aListener[$_item->getPort()] = $_item;
+
+							$oInstance->setHandler($oHandler);
+						} else {
+							throw new FatalErrorException('invalid_listener_define');
 						}
-
-						$oHandler = $this->_oServer->listen($_item->getHost(), $_item->getPort(), $_item->getType());
-						if ($oHandler == false) throw new FatalErrorException(sprintf('add_listener_fail:[%s] %s:%d', $_item->getHost(), $_item->getPort()));
-
-						$this->_aListener[$_item->getPort()] = $_item;
-
-						$oInstance->setHandler($oHandler);
-					} else {
-						throw new FatalErrorException('invalid_listener_define');
 					}
 				}
 
