@@ -20,6 +20,7 @@ namespace Raindrop\ORM;
 
 use Raindrop\Exceptions\Database\DataModelException;
 use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\NotImplementedException;
 
 
 /**
@@ -125,7 +126,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	 */
 	public final function __construct(\stdClass $oData = null)
 	{
-		$aScheme = ModelAction::GetInstance()->getModelDefault(get_called_class());
+		$aScheme          = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
 		//get default data
@@ -146,8 +147,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 				if ($sSourceType == 'NULL' OR gettype($aData[$_col]) == $sSourceType OR settype($aData[$_col], $sSourceType)) {
 					$this->_aColumns[$_lowCaseCol] = ['Name' => $_col, 'Value' => $aData[$_col]];
-				}
-				else throw new DataModelException('invalid_column_datetype:' . $_col);
+				} else throw new DataModelException('invalid_column_datetype:' . $_col);
 
 				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_col];
 			}
@@ -232,6 +232,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * @param $sAction
 	 * @param $aArgs
+	 *
 	 * @return mixed
 	 */
 	public final static function __callStatic($sAction, $aArgs)
@@ -244,13 +245,19 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * @param $sAction
 	 * @param $aArgs
+	 *
 	 * @return mixed
+	 * @throws NotImplementedException
 	 */
 	public final function __call($sAction, $aArgs)
 	{
-		array_unshift($aArgs, $this);
+		if (method_exists('Raindrop\ORM\ModelAction', $sAction)) {
+			array_unshift($aArgs, $this);
 
-		return call_user_func_array("Raindrop\ORM\ModelAction::{$sAction}", $aArgs);
+			return call_user_func_array("Raindrop\ORM\ModelAction::{$sAction}", $aArgs);
+		} else {
+			throw new NotImplementedException(get_called_class() . '->' . $sAction);
+		}
 	}
 
 	/**
@@ -262,6 +269,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 			return ['Columns' => $this->_aColumns, 'Identify' => $this->_aIdentify, 'Changed' => $this->_aChangedColumns];
 		} else if (func_num_args() == 1 AND !is_array(func_get_arg(0))) {
 			$sKey = strtolower(func_get_arg(0));
+
 			return array_key_exists($sKey, $this->_aColumns) ? $this->_aColumns[$sKey] : null;
 		} else {
 			if (is_array(func_get_arg(0))) {
@@ -326,6 +334,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 	/**
 	 * @param $iState
+	 *
 	 * @return bool
 	 * @throws DataModelException
 	 */
@@ -362,7 +371,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	{
 		return serialize([
 			'columns'         => $this->_aColumns,
-			'extra_columns' => $this->_aExtraColumns,
+			'extra_columns'   => $this->_aExtraColumns,
 			'identify'        => $this->_aIdentify,
 			'changed_columns' => $this->_aChangedColumns,
 			'state'           => $this->_iState]);
@@ -371,9 +380,11 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * Constructs the object
 	 * @link http://php.net/manual/en/serializable.unserialize.php
+	 *
 	 * @param string $serialized <p>
 	 * The string representation of the object.
 	 * </p>
+	 *
 	 * @return void
 	 * @since 5.1.0
 	 * @throws DataModelException
@@ -384,10 +395,10 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 		if ($aResults == false) throw new DataModelException('unserialize_fail');
 
-		$this->_iState        = $aResults['state'];
-		$this->_aColumns      = $aResults['columns'];
-		$this->_aExtraColumns = $aResults['extra_columns'];
-		$this->_aIdentify     = $aResults['identify'];
+		$this->_iState          = $aResults['state'];
+		$this->_aColumns        = $aResults['columns'];
+		$this->_aExtraColumns   = $aResults['extra_columns'];
+		$this->_aIdentify       = $aResults['identify'];
 		$this->_aChangedColumns = $aResults['changed_columns'];
 	}
 
@@ -421,15 +432,13 @@ abstract class Model implements \JsonSerializable, \Serializable
 
 		foreach ($this->_aExtraColumns AS $_item) {
 			//$aResult[$_item['Name']] = $_item['Value'];
-			if($_item['Value'] instanceof Model){
+			if ($_item['Value'] instanceof Model) {
 				$aResult[$_item['Name']] = $_item['Value']->toArray();
-			}
-			else if(is_array($_item['Value']) && !empty($_item['Value'])){
-				$aResult[$_item['Name']] = array_map(function($arr){
+			} else if (is_array($_item['Value']) && !empty($_item['Value'])) {
+				$aResult[$_item['Name']] = array_map(function ($arr) {
 					return $arr->toArray();
 				}, $_item['Value']);
-			}
-			else{
+			} else {
 				$aResult[$_item['Name']] = $_item['Value'];
 			}
 		}
@@ -440,5 +449,7 @@ abstract class Model implements \JsonSerializable, \Serializable
 	/**
 	 * Prepare to Array
 	 */
-	protected function _prepareToArray() {}
+	protected function _prepareToArray()
+	{
+	}
 }

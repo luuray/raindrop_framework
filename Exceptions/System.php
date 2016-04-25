@@ -36,11 +36,6 @@ abstract class ApplicationException extends Exception
 				(Application::IsDebugging() ? '; File:' . $this->file : null)) : $message;
 
 		parent::__construct($message, intval($code), $previous);
-		/*
-				if (Application::IsDebugging()) {
-					Logger::Message(parent::__toString());
-				}
-		*/
 	}
 }
 
@@ -129,6 +124,29 @@ class InitializedException extends ApplicationException
  */
 class NotImplementedException extends ApplicationException
 {
+	public function __construct($sMessage = null)
+	{
+		if ($sMessage === null) {
+			$sFunc    = $this->getTrace()[0]['function'];
+			$sMessage = isset($this->getTrace()[0]['class']) ?
+				sprintf('%s%s%s', $this->getTrace()[0]['class'], $this->getTrace()[0]['type'], $sFunc) : $sFunc;
+
+			Logger::Warning(
+				sprintf('[NotImplementedException] File: %s, Line: %d, Call: %s, Args: %s',
+					empty($this->getTrace()[0]['file']) ? $this->file : $this->getTrace()[0]['file'],
+					empty($this->getTrace()[0]['line']) ? $this->line : $this->getTrace(),
+					$sMessage,
+					!empty($this->getTrace()[0]['args']) ? $this->getTrace()[0]['args'][0] . ', ...' : 'null'));
+		} else {
+			Logger::Warning(sprintf('[NotImplementedException] %s', $sMessage));
+		}
+		parent::__construct('NotImplemented:' . $sMessage);
+	}
+
+	public function __toString()
+	{
+		parent::__toString();
+	}
 }
 
 /**
