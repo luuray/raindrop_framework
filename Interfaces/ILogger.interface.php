@@ -21,7 +21,7 @@ use Raindrop\Configuration;
 
 interface ILogger
 {
-	public function __construct(Configuration $oConfig);
+	public function __construct(Configuration $oConfig, $sRequestId=null);
 
 	public function Trace($mMsg);
 

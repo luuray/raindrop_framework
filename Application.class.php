@@ -32,7 +32,7 @@ abstract class Application
 	protected static $_bEnableDebug = false;
 
 	protected $_aAppArgs = null;
-
+	protected $_sRequestId = null;
 	/**
 	 * @var null|Identify
 	 */
@@ -206,7 +206,8 @@ EXP;
 		Configuration::Load();
 
 		//Initialize Logger
-		Logger::Initialize();
+		$this->_sRequestId = isset($_SERVER['X-Request-Id']) ? $_SERVER['X-Request-Id'] : null;
+		Logger::Initialize($this->_sRequestId);
 
 		//Debug Mode
 		if (self::$_bEnableDebug == true) {
