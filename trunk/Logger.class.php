@@ -24,17 +24,18 @@ class Logger
 {
 	protected static $_oLogger = null;
 	protected static $_oInstance = null;
+	protected $_sRequestId = null;
 
-	public static function GetInstance()
+	public static function GetInstance($sRequestId=null)
 	{
 		if (self::$_oInstance === null) {
-			new self();
+			new self($sRequestId);
 		}
 	}
 
-	public static function Initialize()
+	public static function Initialize($sRequestId=null)
 	{
-		self::GetInstance();
+		self::GetInstance($sRequestId);
 	}
 
 	public static function Trace($mMsg)
@@ -79,14 +80,15 @@ class Logger
 		}
 	}
 
-	protected function __construct()
+	protected function __construct($sRequestId)
 	{
 		$aConfig = Configuration::Get('Logger', null);
+		$this->_sRequestId = $sRequestId;
 
 		if ($aConfig != null) {
 			try {
 				$oRefComp       = new \ReflectionClass('Raindrop\Component\\' . $aConfig['Component']);
-				self::$_oLogger = $oRefComp->newInstance($aConfig['Params']);
+				self::$_oLogger = $oRefComp->newInstance($aConfig['Params'], $sRequestId);
 			} catch (FileNotFoundException $ex) {
 				throw new ComponentNotFoundException('Raindrop\Component\\' . $aConfig['Component']);
 			}

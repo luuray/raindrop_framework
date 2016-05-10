@@ -28,7 +28,7 @@ class Log4Php implements ILogger
 	protected $_oLogger = null;
 	protected $_sLoggerName = null;
 
-	public function __construct(Configuration $aConfig)
+	public function __construct(Configuration $aConfig, $sRequestId=null)
 	{
 		$this->_sLoggerName = md5(microtime(true) . '-' . mt_rand(100, 999));
 		require_once __DIR__ . '/log4php/Logger.php';

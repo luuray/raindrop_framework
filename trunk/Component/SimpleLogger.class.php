@@ -29,10 +29,12 @@ class SimpleLogger implements ILogger
 	 * @var Configuration
 	 */
 	protected $_oConfig;
+	protected $_sRequestId;
 
-	public function __construct(Configuration $oConfig)
+	public function __construct(Configuration $oConfig, $sRequestId=null)
 	{
 		$this->_oConfig = $oConfig;
+		$this->_sRequestId = $sRequestId;
 	}
 
 	public function Trace($mMsg)
@@ -82,7 +84,7 @@ class SimpleLogger implements ILogger
 			@mkdir(pathinfo($sFilePath, PATHINFO_DIRNAME), 0755, true);
 		}
 
-		$bResult = file_put_contents($sFilePath, '[' . date('Y-m-d H:i:s O') . ", {$sLevel}]\t" . (string)$mMsg . PHP_EOL, FILE_APPEND);
+		$bResult = file_put_contents($sFilePath, '[' . date('Y-m-d H:i:s O') . ", {$sLevel}".($this->_sRequestId==null?null:", {$this->_sRequestId}")."]\t" . (string)$mMsg . PHP_EOL, FILE_APPEND);
 		if ($bResult == false) {
 			$aErr = error_get_last();
 			throw new FatalErrorException($aErr['message']);
