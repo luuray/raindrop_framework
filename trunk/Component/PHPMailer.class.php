@@ -29,8 +29,8 @@ class PHPMailer implements INotification
 	public function __construct($aConfig, $sHandlerName)
 	{
 		// TODO: Implement __construct() method.
-		require_once __DIR__ . '/PHPMailer/class.phpmailer.php';
-		require_once __DIR__ . '/PHPMailer/class.smtp.php';
+		require_once __DIR__ . '/phpmailer/phpmailer/class.phpmailer.php';
+		require_once __DIR__ . '/phpmailer/phpmailer/class.smtp.php';
 
 		$this->_sHandlerName = $sHandlerName;
 
