@@ -1,0 +1,22 @@
+{
+  "name": "rainhan-system/raindrop",
+  "description": "Raindrop Framework for PHP",
+  "type": "project",
+  "homepage": "http://raindrop-php.rainhan.net",
+  "minimum-stability": "stable",
+  "license": "private",
+  "authors": [
+    {
+      "name": "Luuray",
+      "email": "luuray@rainhan.com"
+    }
+  ],
+  "config": {
+    "vendor-dir": "Component"
+  },
+  "require": {
+    "phpmailer/phpmailer": "^5.2",
+    "phpoffice/phpexcel": "^1.8",
+    "phpoffice/phpword": "^0.12.1"
+  }
+}
