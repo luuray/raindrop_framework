@@ -183,9 +183,9 @@ final class Dispatcher
 			$aActParams     = $oRefAct->getParameters();
 			$aActCallParams = array();
 			foreach ($aActParams AS $_p) {
-				$aActCallParams[] = $this->_oRequest->getQuery(
-					strtolower($_p->getName()),
-					$_p->isDefaultValueAvailable() ? $_p->getDefaultValue() : null);
+				$sParam = strtolower($_p->getName());
+				$mValue = $this->_oRequest->$sParam;
+				$aActCallParams[] = $mValue === null ? ($_p->isDefaultValueAvailable()? $_p->getDefaultValue() : null) : $mValue;
 			}
 
 			//Invoke Target

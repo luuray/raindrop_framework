@@ -71,6 +71,16 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance;
 		} else {
+			register_shutdown_function(function(){
+				$aError =error_get_last();
+
+				if($aError['type'] <= E_PARSE){
+					header_remove();
+					http_response_code(500);
+					echo json_encode($aError);
+				}
+			});
+
 			try {
 				self::$_bEnableDebug = true;
 
@@ -125,11 +135,21 @@ EXP;
 		}
 	}
 
+	/**
+	 * Get Application Type
+	 *
+	 * @return string
+	 */
 	public final static function GetAppType()
 	{
 		return self::$_sAppType;
 	}
 
+	/**
+	 * Return is Debugging Mode
+	 *
+	 * @return bool
+	 */
 	public final static function IsDebugging()
 	{
 		if (self::$_oInstance instanceof Application) {
@@ -140,6 +160,12 @@ EXP;
 		}
 	}
 
+	/**
+	 * Get Request Object
+	 *
+	 * @return null|Request
+	 * @throws NotInitializeException
+	 */
 	public final static function GetRequest()
 	{
 		if (self::$_oInstance instanceof Application) {
@@ -149,6 +175,27 @@ EXP;
 		}
 	}
 
+	/**
+	 * Get Request Id
+	 *
+	 * @return null|string
+	 * @throws NotInitializeException
+	 */
+	public final static function GetRequestId()
+	{
+		if (self::$_oInstance instanceof Application) {
+			return self::$_oInstance->_sRequestId;
+		} else {
+			throw new NotInitializeException;
+		}
+	}
+
+	/**
+	 * Get Request Time
+	 *
+	 * @return null
+	 * @throws NotInitializeException
+	 */
 	public final static function GetRequestTime()
 	{
 		if (self::$_oInstance instanceof Application) {
@@ -158,6 +205,12 @@ EXP;
 		}
 	}
 
+	/**
+	 * Get Identify Object
+	 *
+	 * @return Identify
+	 * @throws NotInitializeException
+	 */
 	public final static function GetIdentify()
 	{
 		if (self::$_oInstance instanceof Application) {
@@ -167,11 +220,21 @@ EXP;
 		}
 	}
 
+	/**
+	 * Set Last Exception
+	 *
+	 * @param \Exception $ex
+	 */
 	public final static function SetLastException(\Exception $ex)
 	{
 		self::$_exLastException = $ex;
 	}
 
+	/**
+	 * Get Last Exception
+	 *
+	 * @return null
+	 */
 	public final static function GetLastException()
 	{
 		return self::$_exLastException;
