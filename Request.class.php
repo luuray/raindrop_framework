@@ -141,16 +141,13 @@ abstract class Request implements \ArrayAccess
 	public function __get($sKey)
 	{
 		$sKey = strtolower($sKey);
-
-
+		
+		//GET->POST
 		if(array_key_exists($sKey, $this->_aQuery)){
 			return $this->_aQuery[$sKey];
 		}
 		else if(array_key_exists($sKey, $this->_aData)){
 			return $this->_aData[$sKey];
-		}
-		else if(property_exists($this, $sKey)){
-			return $this->$sKey;
 		}
 		else{
 			return null;
