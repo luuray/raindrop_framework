@@ -39,9 +39,7 @@ use Raindrop\Application;
 if (Application::IsDebugging()) {
 	?>
 	<p><i>Backtrace:</i></p>
-	<pre>
-	<?= debug_print_backtrace() ?>
-	</pre>
+	<pre><?= debug_print_backtrace() ?></pre>
 	<p><i>Last Exception:</i></p>
 	<?= var_dump(Application::GetLastException()) ?>
 <?php
