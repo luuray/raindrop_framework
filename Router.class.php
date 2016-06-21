@@ -104,10 +104,14 @@ class Router
 		Loader::Import('config.route.php', AppDir);
 
 		$this->_oRequest = $oRequest;
-
+/*
 		if ($this->_matchStaticRoute() == false) {
 			$this->_sRequest =
 				strtolower((!isset($_SERVER['PATH_INFO']) OR $_SERVER['PATH_INFO'] == '/') ? '/Default/' : $_SERVER['PATH_INFO']);
+		}
+*/
+		if ($this->_matchStaticRoute() == false) {
+			$this->_sRequest = strtolower(!isset($_SERVER['PATH_INFO']) ? null : $_SERVER['PATH_INFO']);
 		}
 
 		$this->_decodeRoute();
@@ -198,6 +202,10 @@ class Router
 				}
 			}
 		} else {
+			//redirect to wildcard controller
+			$this->_oRequest->setController('_');
+			$this->_oRequest->setAction('_');
+
 			Logger::Warning('route_default_unmatched:' . $this->_sRequest);
 		}
 
