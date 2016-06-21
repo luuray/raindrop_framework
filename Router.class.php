@@ -148,7 +148,12 @@ class Router
 		$aMatch = array();
 		$sType = null;
 
-		if ($iMatch = preg_match(
+		if($this->_sRequest == '/' OR $this->_sRequest == null){
+			$this->_oRequest->setController('default');
+			$this->_oRequest->setAction('index');
+			$this->_oRequest->setType('View');
+		}
+		else if ($iMatch = preg_match(
 			'#^/(?<Match1>[a-z]+[a-z0-9\-_]*)(|\.(?<Match1Ext>[a-z0-9]+)|/(|(?<Match2>[a-z]+[a-z0-9\-_]*)(|\.(?<Match2Ext>[a-z0-9]+)|/(|(?<Match3>[a-z]+[a-z0-9\-_]*)(|\.(?<Match3Ext>[a-z0-9]+))))))$#i',
 			$this->_sRequest, $aMatch)
 		) {
