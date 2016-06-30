@@ -146,6 +146,7 @@ class Router
 	protected function _decodeRoute()
 	{
 		$aMatch = array();
+		$iMatch = 0;
 		$sType = null;
 
 		if($this->_sRequest == '/' OR $this->_sRequest == null){

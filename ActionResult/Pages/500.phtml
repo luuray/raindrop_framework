@@ -37,9 +37,11 @@ use Raindrop\Application;
 <?php
 if (Application::IsDebugging()) {
 	?>
-	<i>CallStack:</i> <?= $ViewData->CallStack ?><br>
+	<i>Call Stack:</i> <?= $ViewData->CallStack ?><br>
 	<p><i>Backtrace:</i></p>
 	<pre><?= debug_print_backtrace() ?></pre>
+	<i>Last Exception:</i><br>
+	<pre><?= Application::GetLastException() ?></pre>
 	<?php
 }
 ?>

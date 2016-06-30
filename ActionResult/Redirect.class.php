@@ -65,7 +65,7 @@ class Redirect extends ActionResult
 				}
 			} else {
 				if ($iArgsNum == 1) {
-					$this->_sTarget = Application::GetRequest()->getBaseUri() . '/' . $aArgs[0];
+					$this->_sTarget = Application::GetRequest()->getBaseUri() . (str_beginwith($aArgs[0], '/') ? $aArgs[0] : '/' . $aArgs[0]);
 				} else {
 					if ($this->_nameChecker($aArgs[0]) == false) {
 						throw new InvalidArgumentException('redirect_controller_name');

@@ -127,7 +127,7 @@ final class Session implements \Iterator, \ArrayAccess
 		//todo session to memCache
 
 		if ($bRestart) {
-			session_regenerate_id(true);
+			session_regenerate_id();
 		} else {
 			if (@session_start() == false) throw new FatalErrorException('session_start_fail');
 		}
