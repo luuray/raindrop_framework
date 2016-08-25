@@ -22,6 +22,7 @@ use Raindrop\Configuration;
 use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Exceptions\Cache\CacheMissingException;
 use Raindrop\Exceptions\ConfigurationMissingException;
+use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
@@ -77,7 +78,10 @@ class MemCache implements ICache
 		if ($oConfig->Server == null) {
 			throw new ConfigurationMissingException(sprintf('Cache\%s\Params\Server', $sName));
 		}
-		$this->_oMemcache = new \Memcache();
+		//decide extension to use
+		$this->_oMemcache = class_exists('Memcached')? new \Memcached() : (class_exists('Memcache')? new \Memcache() : null);
+		if($this->_oMemcache == null) throw new FatalErrorException('missing_module:memcached/memcache');
+
 		if (str_beginwith($oConfig->Server, 'unix://')) {
 			$bConnected = $this->_oMemcache->connect($oConfig->Server, 0);
 		} else {
