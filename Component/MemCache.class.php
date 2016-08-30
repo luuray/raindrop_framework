@@ -78,16 +78,32 @@ class MemCache implements ICache
 		if ($oConfig->Server == null) {
 			throw new ConfigurationMissingException(sprintf('Cache\%s\Params\Server', $sName));
 		}
-		//decide extension to use
-		$this->_oMemcache = class_exists('Memcached')? new \Memcached() : (class_exists('Memcache')? new \Memcache() : null);
-		if($this->_oMemcache == null) throw new FatalErrorException('missing_module:memcached/memcache');
 
-		if (str_beginwith($oConfig->Server, 'unix://')) {
-			$bConnected = $this->_oMemcache->connect($oConfig->Server, 0);
-		} else {
-			$bConnected = @$this->_oMemcache->connect(
-				$oConfig->Server,
-				$oConfig->Port == null ? 11211 : intval($oConfig->Port));
+		//handler decide
+		if(class_exists('Memcached')){
+			$this->_oMemcache = new \Memcached();
+
+			if (str_beginwith($oConfig->Server, 'unix://')) {
+				$bConnected = $this->_oMemcache->addserver($oConfig->Server, 0);
+			} else {
+				$bConnected = @$this->_oMemcache->addserver(
+					$oConfig->Server,
+					$oConfig->Port == null ? 11211 : intval($oConfig->Port));
+			}
+		}
+		else if(class_exists('Memcache')){
+			$this->_oMemcache = new \Memcache();
+
+			if (str_beginwith($oConfig->Server, 'unix://')) {
+				$bConnected = $this->_oMemcache->connect($oConfig->Server, 0);
+			} else {
+				$bConnected = @$this->_oMemcache->connect(
+					$oConfig->Server,
+					$oConfig->Port == null ? 11211 : intval($oConfig->Port));
+			}
+		}
+		else{
+			throw new FatalErrorException('missing_module:memcached/memcache');
 		}
 
 		if ($bConnected !== true) {
