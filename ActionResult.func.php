@@ -52,3 +52,8 @@ function Redirect()
 
 	return $oRef->newInstanceArgs(func_get_args());
 }
+
+function RawStream($pStream, $iCode=200)
+{
+	return new \Raindrop\ActionResult\RawStream($pStream, $iCode);
+}

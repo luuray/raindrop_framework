@@ -1,22 +1,18 @@
 <?php
 /**
+ * Raindrop Framework for PHP
+ *
  * WeChat Component
  *
- *
- *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @Id $Id$
  *
- * Copyright (c) 2010-2015, Rainhan System
+ * Copyright (c) 2010-2016, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
-namespace Raindrop\Component;
+namespace Raindrop\Component\WeChat;
 
 
 class WeChat
@@ -32,6 +28,24 @@ class WeChat
 
 	//access_token
 	protected $_sAccessToken;
+
+	/**
+	 * API Verification
+	 *
+	 * @param string $sToken
+	 * @param string $sSignature
+	 * @param int $iTimestamp
+	 * @param string $sNonce
+	 *
+	 * @return bool
+	 */
+	public static function VerifyAPI($sToken, $sSignature, $iTimestamp, $sNonce)
+	{
+		$aVerify = [$sToken, $iTimestamp, $sNonce];
+		sort($aVerify);
+
+		return sha1(implode($aVerify)) == $sSignature;
+	}
 
 	public function __construct($sName, $sAppId, $sAppSecret, $sToken, $sAESKey=null, $bEncrypt=false)
 	{
