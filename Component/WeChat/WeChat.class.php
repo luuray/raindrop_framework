@@ -15,12 +15,14 @@
 namespace Raindrop\Component\WeChat;
 
 
+use Raindrop\Application;
 use Raindrop\Component\WeChat\Component\CustomerService;
 use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
 use Raindrop\Component\WeChat\Model\AccessToken;
 use Raindrop\Component\WeChat\Model\WeChatMessage;
 use Raindrop\Exceptions\RuntimeException;
+use Raindrop\Logger;
 
 class WeChat
 {
@@ -119,6 +121,11 @@ class WeChat
 		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
 		$mResult = curl_exec($rAPI);
+
+		if(Application::IsDebugging()){
+			Logger::Message('wechat_access_key_'.$this->_sAppId.'_'.$mResult);
+		}
+
 		if ($mResult == false) {
 			throw new RuntimeException('get_access_token');
 		}

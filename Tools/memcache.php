@@ -16,6 +16,11 @@
  * @version $Rev$
  */
 
+$aConfig = [
+	'Server' => '127.0.0.1',
+	'Port'   => 11211
+];
+
 $sAct = empty($_GET['act']) ? 'index' : $_GET['act'];
 if ($sAct == 'index') {
 	?>
@@ -32,10 +37,9 @@ if ($sAct == 'index') {
 
 		<title>Memcached Manager</title>
 
-		<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<script src="/static/jquery/jquery.min.js" type="text/javascript"></script>
-		<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-		<script src="/static/angular/angular.min.js" type="text/javascript"></script>
+		<link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		<script src="//cdn.bootcss.com/angular.js/1.4.14/angular.min.js" type="text/javascript"></script>
+		<script src="//cdn.bootcss.com/angular-ui-bootstrap/2.2.0/ui-bootstrap-tpls.min.js" type="text/javascript"></script>
 
 		<!--[if lt IE 9]>
 		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -94,19 +98,33 @@ if ($sAct == 'index') {
 	exit;
 }
 
-$aConfig = [
-	'Server' => '127.0.0.1',
-	'Port'   => 11211
-];
-
 try {
-	$oMemcache = new Memcache();
-	if ($oMemcache->connect($aConfig['Server'], $aConfig['Port']) == false) {
-		echo json_encode(['status' => 'error', 'message' => 'connect_fail']);
+	if (class_exists('Memcached')) {
+		$oMemcache = new \Memcached();
+
+		if (substr($aConfig['Server'], 0, 7) == 'unix://') {
+			$bConnected = $oMemcache->addserver($aConfig['Server'], 0);
+		} else {
+			$bConnected = @$oMemcache->addserver(
+				$aConfig['Server'],
+				$aConfig['Port'] == null ? 11211 : intval($aConfig['Port']));
+		}
+	} else if (class_exists('Memcache')) {
+		$oMemcache = new \Memcache();
+
+		if (substr($aConfig['Server'], 0 ,7) == 'unix://') {
+			$bConnected = $oMemcache->connect($aConfig['Server'], 0);
+		} else {
+			$bConnected = @$oMemcache->connect(
+				$aConfig['Server'],
+				$aConfig['Port'] == null ? 11211 : intval($aConfig['Port']));
+		}
 	}
 
 	if ($sAct == 'stats') {
-		echo json_encode(['status' => 'success', 'data' => $oMemcache->getextendedstats()]);
+		echo json_encode(['status' => 'success', 'data' => (
+		($oMemcache instanceof Memcached) ?
+			$oMemcache->getStats() : $oMemcache->getextendedstats())]);
 	}
 	if ($sAct == 'list') {
 
