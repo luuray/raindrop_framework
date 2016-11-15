@@ -48,7 +48,9 @@ class Debugger
 
 	public static function Output($sMessage, $sLabel = null)
 	{
-		self::GetInstance()->_oDebugger->Output($sMessage, $sLabel);
+		if(self::GetInstance()->_oDebugger != null) {
+			self::GetInstance()->_oDebugger->Output($sMessage, $sLabel);
+		}
 	}
 
 	protected function __construct()

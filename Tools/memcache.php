@@ -176,7 +176,7 @@ try {
 			$oServer = getMemcache($_srv);
 
 			$aStats = $oServer->getStats();
-			$aStats = array_shift($aStats);
+			$aStats = isset($aStats['pid'])? $aStats : array_shift($aStats);
 
 			if($aStats['pid'] != -1){
 				$aResult[$_name]=['connection'=>$_srv,'flag'=>true, 'data'=>$aStats];
