@@ -65,7 +65,9 @@ class HttpCode extends ActionResult
 		//header('HTTP/1.1 404 Not Found');
 		//header(null, true, $this->_iCode);
 		http_response_code($this->_iCode);
-		echo json_encode($this->_mParam);
+		if(!empty($this->_mParam)) {
+			echo json_encode($this->_mParam);
+		}
 		exit;
 		///die('HttpCode:' . $this->_iCode . '<br>Message:' . $this->_aParam);
 	}

@@ -1,0 +1,1 @@
+<?php/** * Raindrop Framework for PHP * * News Message of WeChat Module * * @author Luuray * @copyright Rainhan System * @id $Id$ * * Copyright (c) 2010-2016, Rainhan System * Site: www.rainhan.net/?proj=DTeacher */namespace Raindrop\Component\WeChat\Message;use Raindrop\Component\WeChat\Model\WeChatMessage;class News extends WeChatMessage{}

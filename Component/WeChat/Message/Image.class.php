@@ -1,0 +1,1 @@
+<?php/** * Raindrop Framework for PHP * * Image Message of WeChat Component * * @author Luuray * @copyright Rainhan System * @id $Id$ * * Copyright (c) 2010-2016, Rainhan System * Site: raindrop-php.rainhan.net */namespace Raindrop\Component\WeChat\Message;use Raindrop\Component\WeChat\Model\WeChatMessage;class Image extends WeChatMessage{}

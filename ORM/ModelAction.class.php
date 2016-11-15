@@ -177,7 +177,7 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$aScheme = self::GetInstance()->getTableScheme($sModel::getTableName(), $sModel::getDbConnect());
+		$aScheme = self::GetInstance()->getTableSchema($sModel::getTableName(), $sModel::getDbConnect());
 
 		$aUpdated = array();
 
@@ -214,7 +214,7 @@ class ModelAction
 			throw new DataModelException('invalid_model_state');
 		}
 
-		$aScheme     = self::GetInstance()->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aScheme     = self::GetInstance()->getTableSchema($oModel::getTableName(), $oModel::getDbConnect());
 		$aSnapshot   = $oModel->getRAWData();
 		$aConditions = [];
 		$aParams     = [];
@@ -496,10 +496,10 @@ class ModelAction
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function getTableScheme($sTable, $sDbConnect)
+	public function getTableSchema($sTable, $sDbConnect)
 	{
 		if ($this->_bCacheEnable == false) {
-			return $this->_queryTableScheme($sTable, $sDbConnect);
+			return $this->_queryTableSchema($sTable, $sDbConnect);
 		} else {
 			try {
 				$aScheme = Cache::Get("{$sDbConnect}-{$sTable}", 'ModelCache');
@@ -512,7 +512,7 @@ class ModelAction
 				//
 			}
 
-			$aScheme = $this->_queryTableScheme($sTable, $sDbConnect);
+			$aScheme = $this->_queryTableSchema($sTable, $sDbConnect);
 			Cache::Set("{$sDbConnect}-{$sTable}", serialize($aScheme), 'ModelCache');
 
 			return $aScheme;
@@ -531,7 +531,7 @@ class ModelAction
 			throw new ModelNotFoundException($sModel);
 		}
 
-		$aScheme = $this->getTableScheme((string)$sModel::GetTableName(), (string)$sModel::GetDbConnect());
+		$aScheme = $this->getTableSchema((string)$sModel::GetTableName(), (string)$sModel::GetDbConnect());
 
 		$aResult = ['Default' => [], 'Identify' => []];
 		foreach ($aScheme['Columns'] AS $_col) {
@@ -554,7 +554,7 @@ class ModelAction
 	 */
 	public function modelInsert(Model $oModel)
 	{
-		$aScheme = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aScheme = $this->getTableSchema($oModel::getTableName(), $oModel::getDbConnect());
 
 		$aSnapshot = $oModel->getRAWData();
 
@@ -612,7 +612,7 @@ class ModelAction
 	 */
 	public function modelUpdate(Model $oModel)
 	{
-		$aScheme   = $this->getTableScheme($oModel::getTableName(), $oModel::getDbConnect());
+		$aScheme   = $this->getTableSchema($oModel::getTableName(), $oModel::getDbConnect());
 		$aSnapshot = $oModel->getRAWData();
 
 		$aChangedIdentifies = array();
@@ -660,7 +660,7 @@ class ModelAction
 	 *
 	 * @return array|bool
 	 */
-	protected function _queryTableScheme($sTable, $sDbConnect)
+	protected function _queryTableSchema($sTable, $sDbConnect)
 	{
 		$aColumns = DatabaseAdapter::GetData(sprintf('SHOW FULL COLUMNS FROM `%s`', $sTable), null, $sDbConnect);
 		if ($aColumns == false || !is_array($aColumns)) {
