@@ -18,10 +18,10 @@
 
 namespace Raindrop\Exceptions\Cache;
 
-use Raindrop\Exceptions\ApplicationException;
+use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
 
-class CacheFailException extends ApplicationException
+class CacheFailException extends RuntimeException
 {
 	public function __construct($sHandler, $sMessage, $iCode, \Exception $previous=null)
 	{

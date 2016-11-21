@@ -20,7 +20,7 @@ use Raindrop\Component\WeChat\Component\CustomerService;
 use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
 use Raindrop\Component\WeChat\Model\AccessToken;
-use Raindrop\Component\WeChat\Model\WeChatMessage;
+use Raindrop\Component\WeChat\Model\Message;
 use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
 
@@ -147,7 +147,7 @@ class WeChat
 	 *
 	 * @param $sMessage
 	 *
-	 * @return WeChatMessage
+	 * @return Message
 	 *
 	 * @throws RuntimeException
 	 */
@@ -203,7 +203,7 @@ class WeChat
 				'ToUserName'   => '',
 				'CreateTime'   => '',
 				'MsgId'        => '']));
-		if ($oMessage instanceof WeChatMessage) {
+		if ($oMessage instanceof Message) {
 			return $oMessage;
 		} else {
 			throw new RuntimeException('undefined');
@@ -211,9 +211,9 @@ class WeChat
 	}
 
 	/**
-	 * @param WeChatMessage $oMessage
+	 * @param Message $oMessage
 	 */
-	public function sendMessage(WeChatMessage $oMessage)
+	public function sendMessage(Message $oMessage)
 	{
 
 	}
