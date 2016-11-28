@@ -17,6 +17,8 @@ namespace Raindrop\Component\WeChat;
 
 use Raindrop\Application;
 use Raindrop\Component\WeChat\Component\CustomerService;
+use Raindrop\Component\WeChat\Component\MenuService;
+use Raindrop\Component\WeChat\Component\MessageAdapter;
 use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
 use Raindrop\Component\WeChat\Model\AccessToken;
@@ -46,6 +48,7 @@ class WeChat
 
 	//config
 	protected $_sName;
+	protected $_sAccount;
 	protected $_sAppId;
 	protected $_sAppSecret;
 	protected $_sToken;
@@ -58,14 +61,16 @@ class WeChat
 	 * WeChat constructor.
 	 *
 	 * @param $sName
+	 * @param $sAccount
 	 * @param $sAppId
 	 * @param $sAppSecret
 	 * @param $sToken
 	 * @param null $sAESKey
 	 */
-	public function __construct($sName, $sAppId, $sAppSecret, $sToken, $sAESKey = null)
+	public function __construct($sName, $sAccount, $sAppId, $sAppSecret, $sToken, $sAESKey = null)
 	{
 		$this->_sName      = $sName;
+		$this->_sAccount   = $sAccount;
 		$this->_sAppId     = $sAppId;
 		$this->_sAppSecret = $sAppSecret;
 		$this->_sToken     = $sToken;
@@ -153,7 +158,7 @@ class WeChat
 	 */
 	public function receivedMessage($sMessage)
 	{
-		$oDocument = @simplexml_load_string($sMessage, 'SimpleXMLElement');
+		$oDocument = @simplexml_load_string($sMessage, 'SimpleXMLElement', LIBXML_NOCDATA);
 		if ($oDocument == false) {
 			throw new RuntimeException('decode_failed');
 		}
@@ -223,7 +228,7 @@ class WeChat
 	 */
 	public function customerService()
 	{
-		return new CustomerService($this->_oAccessToken, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new CustomerService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	/**
@@ -231,7 +236,7 @@ class WeChat
 	 */
 	public function newsService()
 	{
-		return new NewsService($this->_oAccessToken, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new NewsService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	/**
@@ -239,6 +244,19 @@ class WeChat
 	 */
 	public function templateService()
 	{
-		return new TemplateService($this->_oAccessToken, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new TemplateService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+	}
+
+	/**
+	 * @return MenuService
+	 */
+	public function menuService()
+	{
+		return new MenuService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+	}
+
+	public function getMessageAdapter()
+	{
+		return new MessageAdapter($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 }
