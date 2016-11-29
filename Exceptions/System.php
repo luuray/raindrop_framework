@@ -142,11 +142,6 @@ class NotImplementedException extends ApplicationException
 		}
 		parent::__construct('NotImplemented:' . $sMessage);
 	}
-
-	public function __toString()
-	{
-		parent::__toString();
-	}
 }
 
 /**

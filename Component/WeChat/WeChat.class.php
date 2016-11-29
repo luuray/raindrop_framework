@@ -190,7 +190,7 @@ class WeChat
 				}
 				$iMsgId = $aData['MsgId'];
 				if (isset($this->_aMsgType[$sMsgType])) {
-					$sMessageModel = $this->_aEventType[$sMsgType];
+					$sMessageModel = $this->_aMsgType[$sMsgType];
 				}
 			}
 		} else {
