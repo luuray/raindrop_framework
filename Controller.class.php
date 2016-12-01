@@ -37,6 +37,11 @@ abstract class Controller
 	protected $_aDependency = array();
 
 	/**
+	 * @var Application
+	 */
+	protected $Application;
+
+	/**
 	 * @var Request
 	 */
 	protected $Request;
@@ -71,8 +76,9 @@ abstract class Controller
 
 	public final function __construct()
 	{
-		$this->Request  = Application::GetRequest();
-		$this->Identify = Application::GetIdentify();
+		$this->Request     = Application::GetRequest();
+		$this->Identify    = Application::GetIdentify();
+		$this->Application = Application::GetInstance();
 
 		$this->_aDependency = [
 			'viewdata' => function () {
