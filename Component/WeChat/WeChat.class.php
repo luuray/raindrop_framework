@@ -23,6 +23,8 @@ use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
 use Raindrop\Component\WeChat\Model\AccessToken;
 use Raindrop\Component\WeChat\Model\Message;
+use Raindrop\Component\WeChat\Model\UserInfo;
+use Raindrop\Component\WeChat\Model\WebAccessToken;
 use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
 
@@ -55,7 +57,8 @@ class WeChat
 	protected $_sAESKey;
 
 	//access_token
-	protected $_oAccessToken;
+	protected $_oAPIAccessToken;
+	protected $_oWebAccessToken;
 
 	/**
 	 * WeChat constructor.
@@ -79,6 +82,14 @@ class WeChat
 	}
 
 	/**
+	 * @return mixed
+	 */
+	public function getAppId()
+	{
+		return $this->_sAppId;
+	}
+
+	/**
 	 * API Verification
 	 *
 	 * @param string $sToken
@@ -96,6 +107,7 @@ class WeChat
 		return sha1(implode($aVerify)) == $sSignature;
 	}
 
+	#region Message Process
 	/**
 	 * Set Access Token
 	 *
@@ -103,13 +115,13 @@ class WeChat
 	 *
 	 * @throws RuntimeException
 	 */
-	public function setAccessToken(AccessToken $oToken)
+	public function setAPIAccessToken(AccessToken $oToken)
 	{
 		if ($oToken->ExpireTime <= time()) {
 			throw new RuntimeException('token_expire');
 		}
 
-		$this->_oAccessToken = $oToken;
+		$this->_oAPIAccessToken = $oToken;
 	}
 
 	/**
@@ -118,7 +130,7 @@ class WeChat
 	 * @return AccessToken
 	 * @throws RuntimeException
 	 */
-	public function getAccessToken()
+	public function getAPIAccessToken()
 	{
 		$rAPI = curl_init(sprintf(
 			'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s',
@@ -127,21 +139,21 @@ class WeChat
 		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
 		$mResult = curl_exec($rAPI);
 
-		if(Application::IsDebugging()){
-			Logger::Message('wechat_access_key_'.$this->_sAppId.'_'.$mResult);
+		if (Application::IsDebugging()) {
+			Logger::Message('wechat_access_key_api[' . $this->_sName . ']:' . $mResult);
 		}
 
 		if ($mResult == false) {
-			throw new RuntimeException('get_access_token');
+			throw new RuntimeException('get_access_token_api');
 		}
 
 		$mResult = json_decode($mResult);
 		if (!is_object($mResult)) {
-			throw new RuntimeException('get_access_token:decode');
+			throw new RuntimeException('get_access_token_api:decode');
 		}
 
 		if (property_exists($mResult, 'errcode')) {
-			throw new RuntimeException('get_access_token:' . $mResult->errmsg, $mResult->errcode);
+			throw new RuntimeException('get_access_token_api:' . $mResult->errmsg, $mResult->errcode);
 		}
 
 		return new AccessToken($mResult);
@@ -228,7 +240,7 @@ class WeChat
 	 */
 	public function customerService()
 	{
-		return new CustomerService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new CustomerService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	/**
@@ -236,7 +248,7 @@ class WeChat
 	 */
 	public function newsService()
 	{
-		return new NewsService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new NewsService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	/**
@@ -244,7 +256,7 @@ class WeChat
 	 */
 	public function templateService()
 	{
-		return new TemplateService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new TemplateService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	/**
@@ -252,11 +264,153 @@ class WeChat
 	 */
 	public function menuService()
 	{
-		return new MenuService($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new MenuService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
 
 	public function getMessageAdapter()
 	{
-		return new MessageAdapter($this->_oAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new MessageAdapter($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
 	}
+	#endregion
+
+	#region Web Token, Web UserInfo
+	/**
+	 * @param $sRedirect
+	 * @param bool $bUserInfo
+	 * @param null $sState
+	 *
+	 * @return object
+	 */
+	public function webAuthRedirect($sRedirect, $bUserInfo = false, $sState = null)
+	{
+		if ($bUserInfo == true) {
+			/*if(strtolower(parse_url($sRedirect, PHP_URL_SCHEME)) != 'https'){
+				throw new RuntimeException('request_secure_failed');
+			}*/
+
+			return Redirect(sprintf(
+				'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=%s#wechat_redirect',
+				$this->_sAppId, urlencode($sRedirect), urlencode($sState)));
+		} else {
+			return Redirect(sprintf(
+				'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect',
+				$this->_sAppId, urlencode($sRedirect), urlencode($sState)));
+		}
+	}
+
+	/**
+	 * @param $sCode
+	 *
+	 * @return WebAccessToken
+	 * @throws RuntimeException
+	 */
+	public function getWebAccessToken($sCode)
+	{
+		$rAPI = curl_init(sprintf(
+			'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code',
+			$this->_sAppId, $this->_sAppSecret, $sCode));
+		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
+		$mResult = curl_exec($rAPI);
+
+		if (Application::IsDebugging()) {
+			Logger::Message('wechat_get_access_key_web[' . $this->_sName . ']:' . $mResult);
+		}
+
+		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+			throw new RuntimeException('get_access_token_web');
+		}
+
+		if (property_exists($mResult, 'errcode')) {
+			throw new RuntimeException('get_access_token_web:' . $mResult->errmsg, $mResult->errcode);
+		}
+
+		return new WebAccessToken($mResult);
+	}
+
+	/**
+	 * @param $sRefreshToken
+	 *
+	 * @return WebAccessToken
+	 * @throws RuntimeException
+	 */
+	public function refreshWebAccessToken($sRefreshToken)
+	{
+		$rAPI = curl_init(sprintf(
+			'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s',
+			$this->_sAppId, $sRefreshToken));
+		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
+		$mResult = curl_exec($rAPI);
+
+		if (Application::IsDebugging()) {
+			Logger::Message('wechat_refresh_access_key_web[' . $this->_sName . ']:' . $mResult);
+		}
+
+		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+			throw new RuntimeException('refresh_access_token_web');
+		}
+
+		if (property_exists($mResult, 'errcode')) {
+			throw new RuntimeException('get_access_token_web:' . $mResult->errmsg, $mResult->errcode);
+		}
+
+		return new WebAccessToken($mResult);
+	}
+
+	/**
+	 * @param $sToken
+	 * @param $sUserId
+	 *
+	 * @return bool
+	 * @throws RuntimeException
+	 */
+	public function verifyWebAccessToken($sToken, $sUserId)
+	{
+		$rAPI = curl_init(sprintf(
+			'https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s',
+			$sToken, $sUserId));
+		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
+		$mResult = curl_exec($rAPI);
+
+		if (Application::IsDebugging()) {
+			Logger::Message('wechat_verify_access_key_web[' . $this->_sName . ']:' . $mResult);
+		}
+
+		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+			throw new RuntimeException('refresh_access_token_web');
+		}
+
+		return isset($mResult['errcode']) && $mResult['errcode'] == 0 ? true : false;
+	}
+
+	/**
+	 * @param $sToken
+	 * @param $sUserId
+	 *
+	 * @return UserInfo
+	 * @throws RuntimeException
+	 */
+	public function getUserInfo($sToken, $sUserId)
+	{
+		$rAPI = curl_init(sprintf(
+			'https://api.weixin.qq.com/sns/userinfo?access_token=%ss&openid=%s&lang=zh_CN',
+			$sToken, $sUserId));
+		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);
+
+		$mResult = curl_exec($rAPI);
+
+		if (Application::IsDebugging()) {
+			Logger::Message('wechat_get_userinfo_web[' . $this->_sName . ']:' . $mResult);
+		}
+
+		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+			throw new RuntimeException('get_userinfo');
+		}
+
+		return new UserInfo($mResult);
+	}
+	#endregion
 }

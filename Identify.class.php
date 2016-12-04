@@ -97,6 +97,8 @@ abstract class Identify
 	 */
 	public abstract function SignIn($sAccount, $sPassword, $sToken=null);
 
+	public abstract function OAuthSignIn($sApp, $sAccount, $sOAuthToken);
+
 	/**
 	 * SignOut
 	 *
