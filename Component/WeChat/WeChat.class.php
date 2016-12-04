@@ -103,7 +103,7 @@ class WeChat
 	{
 		$aVerify = [$this->_sToken, $iTimestamp, $sNonce];
 		sort($aVerify);
-var_dump($this, $aVerify, sha1(implode($aVerify)));exit;
+
 		return sha1(implode($aVerify)) == $sSignature;
 	}
 
