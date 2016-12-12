@@ -37,7 +37,7 @@ use Raindrop\ORM\BaseModel;
  * @method static int GetLastId($sQuery, $aParam = null, $sDataSource = 'default')
  * @method static int GetAffectedRowNum($sQuery, $aParam = null, $sDataSource = 'default')
  * @method static mixed GetVar($sQuery, $aParam = null, $sDataSource = 'default')
- * @method static BaseModel GetLine($sQuery, $aParam = null, $sDataSource = 'default')
+ * @method static ORM\Model GetLine($sQuery, $aParam = null, $sDataSource = 'default')
  * @method static array GetData($sQuery, $aParam = null, $sDataSource = 'default')
  * @method static bool BeginTransaction($sDataSource)
  * @method static bool CommitTransaction($sDataSource)
@@ -140,7 +140,7 @@ final class DatabaseAdapter
 				}
 			}
 			else{
-				throw new InvalidArgumentException;
+				throw new InvalidArgumentException('too_much_argument');
 			}
 
 			throw new NotImplementedException($sName);

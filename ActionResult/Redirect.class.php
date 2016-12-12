@@ -22,7 +22,6 @@ use Raindrop\ActionResult;
 use Raindrop\Application;
 use Raindrop\Exceptions\ArgumentNullException;
 use Raindrop\Exceptions\InvalidArgumentException;
-use Raindrop\Exceptions\NotImplementedException;
 use Raindrop\Session;
 
 class Redirect extends ActionResult
@@ -142,7 +141,7 @@ class Redirect extends ActionResult
 
 	public function toString()
 	{
-		throw new NotImplementedException();
+		return $this->_sTarget;
 	}
 
 	/**

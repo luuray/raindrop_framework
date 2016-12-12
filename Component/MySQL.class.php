@@ -31,6 +31,7 @@ use Raindrop\Exceptions\Model\ModelNotFoundException;
 use Raindrop\Interfaces\IDbConnector;
 use Raindrop\Interfaces\ModelAbstract;
 use Raindrop\Logger;
+use Raindrop\ORM\Model;
 
 class MySQL implements IDbConnector
 {
@@ -76,7 +77,7 @@ class MySQL implements IDbConnector
 	/**
 	 * Is Connected
 	 *
-	 * @return bool|void
+	 * @return bool
 	 */
 	public function isConnected()
 	{
@@ -212,7 +213,7 @@ class MySQL implements IDbConnector
 	 * @param null|string $sModelName Model FullName with Namespace
 	 *
 	 * @throws ModelNotFoundException
-	 * @return null|ModelAbstract
+	 * @return null|Model
 	 */
 	public function getLine($sQuery, $aParam = null, $sModelName = null)
 	{
@@ -344,7 +345,7 @@ class MySQL implements IDbConnector
 				$this->_iQueryCount++;
 
 				if (Application::IsDebugging()) {
-					Logger::Message(sprintf('query: %s, param: %s, SUCCESS, %d', $sQuery, var_export($aParam, true), $oStat->rowCount()));
+					Logger::Message(sprintf('dsname: %s, query: %s, param: %s, SUCCESS, %d', $this->_sDSName, $sQuery, var_export($aParam, true), $oStat->rowCount()));
 				}
 
 				return $oStat;

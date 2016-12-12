@@ -284,10 +284,6 @@ class WeChat
 	public function webAuthRedirect($sRedirect, $bUserInfo = false, $sState = null)
 	{
 		if ($bUserInfo == true) {
-			/*if(strtolower(parse_url($sRedirect, PHP_URL_SCHEME)) != 'https'){
-				throw new RuntimeException('request_secure_failed');
-			}*/
-
 			return Redirect(sprintf(
 				'https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_userinfo&state=%s#wechat_redirect',
 				$this->_sAppId, urlencode($sRedirect), urlencode($sState)));
@@ -317,7 +313,7 @@ class WeChat
 			Logger::Message('wechat_get_access_key_web[' . $this->_sName . ']:' . $mResult);
 		}
 
-		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
 			throw new RuntimeException('get_access_token_web');
 		}
 
@@ -347,7 +343,7 @@ class WeChat
 			Logger::Message('wechat_refresh_access_key_web[' . $this->_sName . ']:' . $mResult);
 		}
 
-		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
 			throw new RuntimeException('refresh_access_token_web');
 		}
 
@@ -378,7 +374,7 @@ class WeChat
 			Logger::Message('wechat_verify_access_key_web[' . $this->_sName . ']:' . $mResult);
 		}
 
-		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
 			throw new RuntimeException('refresh_access_token_web');
 		}
 
@@ -406,7 +402,7 @@ class WeChat
 			Logger::Message('wechat_get_userinfo_web[' . $this->_sName . ']:' . $mResult);
 		}
 
-		if ($mResult == false OR ($mResult = json_decode($mResult)) == false) {
+		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
 			throw new RuntimeException('get_userinfo');
 		}
 
