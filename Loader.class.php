@@ -107,8 +107,8 @@ class Loader
 	public static function ClearPath($sSource)
 	{
 		return preg_replace([
-			'#^'.addslashes(AppDir).'#',
-			'#^'.addslashes(CorePath).'#'
+			'#^' . addslashes(AppDir) . '#',
+			'#^' . addslashes(CorePath) . '#'
 		], ['%AppDir%', '%CoreDir%'], $sSource);
 	}
 
@@ -116,6 +116,7 @@ class Loader
 	 * Security Check for FileName
 	 *
 	 * @param $sPath
+	 *
 	 * @return bool
 	 */
 	public static function SecurityCheck($sPath)
@@ -157,7 +158,7 @@ class Loader
 			//Controller, Database, Identify, Model, System, View;
 			array_shift($aNameTree);
 
-			$sTargetClass = $aNameTree[0].'.php';
+			$sTargetClass = $aNameTree[0] . '.php';
 
 			$aNameTree = ['Exceptions'];
 		} else {
@@ -177,10 +178,18 @@ class Loader
 		$aNameTree[] = $sLayOut;
 		$sLayOut     = strtolower($sLayOut);
 
-		$sPath        = AppDir . DIRECTORY_SEPARATOR . strtolower(implode(DIRECTORY_SEPARATOR, $aNameTree));
-		$sTargetClass = $sLayOut === 'controller' ?
-			substr($sClassName, 0, -10) . '.controller.php' :
-			$sClassName . '.class.php';
+		$sPath = AppDir . DIRECTORY_SEPARATOR . strtolower(implode(DIRECTORY_SEPARATOR, $aNameTree));
+
+		switch ($sLayOut) {
+			case 'controller':
+				$sTargetClass = substr($sClassName, 0, -10) . 'controller.php';
+				break;
+			case 'interfaces':
+				$sTargetClass = $sClassName . '.interface.php';
+				break;
+			default:
+				$sTargetClass = $sClassName . '.class.php';
+		}
 
 		self::Import($sTargetClass, $sPath, true);
 	}

@@ -34,7 +34,7 @@ use Raindrop\Exceptions\NotImplementedException;
  * @method static null|array All(array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static null|array Find(string $sCondition = null, array $aParam = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
  * @method static null|array FindSql(string $sQuery = null, array $aParams = null, string $sGroupBy = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0)
- * @method static false|int DelAny(mixed $sConditions = null, array $aParams = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0, int $bForceDel = false)
+ * @method static false|int DelAny(mixed $sConditions = null, array $aParams = null, array $aOrderBy = null, int $iLimit = 0, int $iSkip = 0, int $bForceDel = null)
  * @method static Transaction BeginTransaction()
  * @method static RawQuery(string $sQuery, array $aParams = null)
  *

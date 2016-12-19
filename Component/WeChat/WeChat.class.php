@@ -159,7 +159,9 @@ class WeChat
 	public function receivedMessage($sMessage)
 	{
 		$oDocument = @simplexml_load_string($sMessage, 'SimpleXMLElement', LIBXML_NOCDATA);
-		if ($oDocument == false) {
+
+		if ($oDocument instanceof \SimpleXMLElement) {}
+		else{
 			throw new RuntimeException('decode_failed');
 		}
 
@@ -203,7 +205,7 @@ class WeChat
 			$aData['ToUserName'],
 			$aData['CreateTime'],
 			$iMsgId,
-			array_diff($aData, [
+			array_diff_key($aData, [
 				'FromUserName' => '',
 				'ToUserName'   => '',
 				'CreateTime'   => '',
