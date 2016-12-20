@@ -183,6 +183,31 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	}
 
 	/**
+	 * @param $sColumn
+	 *
+	 * @return bool
+	 */
+	public function __isset($sColumn)
+	{
+
+		//user-defined
+		if (!str_beginwith($sColumn, '_') AND method_exists($this, "get{$sColumn}")) {
+			return true;
+		}
+
+		$sColumn        = str_beginwith($sColumn, '_') ? substr($sColumn, 1) : $sColumn;
+		$sLowCaseColumn = strtolower($sColumn);
+
+		if (array_key_exists($sLowCaseColumn, $this->_aColumns)) { //scheme columns
+			return true;
+		} else if (array_key_exists($sLowCaseColumn, $this->_aExtraColumns)) { //earlier-append property
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Property Setter
 	 *
 	 * @param string $sColumn Column's Name, if column name begin with '_' means direct access without check user-defined getter
