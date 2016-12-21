@@ -497,7 +497,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	 */
 	public function offsetSet($offset, $value)
 	{
-		return $this->__set($offset, $value);
+		$this->__set($offset, $value);
 	}
 
 	/**

@@ -25,9 +25,23 @@ use Raindrop\Component\WeChat\Model\AccessToken;
 use Raindrop\Component\WeChat\Model\Message;
 use Raindrop\Component\WeChat\Model\UserInfo;
 use Raindrop\Component\WeChat\Model\WebAccessToken;
+use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
 
+/**
+ * Class WeChat
+ * @package Raindrop\Component\WeChat
+ *
+ * @property string $Name
+ * @property string $Account
+ * @property string $AppId
+ * @property string $AppSecret
+ * @property string $AESKey
+ * @property string $Token
+ * @property null|AccessToken $APIToken
+ * @property null|WebAccessToken $WebToken
+ */
 class WeChat
 {
 	protected $_aMsgType = [
@@ -53,12 +67,13 @@ class WeChat
 	protected $_sAccount;
 	protected $_sAppId;
 	protected $_sAppSecret;
-	protected $_sToken;
 	protected $_sAESKey;
+	protected $_sToken;
+
 
 	//access_token
-	protected $_oAPIAccessToken;
-	protected $_oWebAccessToken;
+	protected $_oAPIAccessToken = null;
+	protected $_oWebAccessToken = null;
 
 	/**
 	 * WeChat constructor.
@@ -81,13 +96,82 @@ class WeChat
 		$this->_sAESKey = $sAESKey;
 	}
 
+	public function __get($sKey)
+	{
+		if (method_exists($this, 'get' . $sKey)) {
+			$sKey = 'get' . $sKey;
+
+			return $this->$sKey();
+		}
+
+		throw new InvalidArgumentException($sKey);
+	}
+
+	#region Getters
 	/**
-	 * @return mixed
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->_sName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAccount()
+	{
+		return $this->Account;
+	}
+
+	/**
+	 * @return string
 	 */
 	public function getAppId()
 	{
 		return $this->_sAppId;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getAppSecret()
+	{
+		return $this->_sAppSecret;
+	}
+
+	/**
+	 * @return null|string
+	 */
+	public function getAESKey()
+	{
+		return $this->_sAESKey;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getToken()
+	{
+		return $this->_sToken;
+	}
+
+	/**
+	 * @return null|AccessToken
+	 */
+	public function getAPIToken()
+	{
+		return clone $this->_oAPIAccessToken;
+	}
+
+	/**
+	 * @return null|WebAccessToken
+	 */
+	public function getWebToken()
+	{
+		return clone $this->_oWebAccessToken;
+	}
+	#endregion
 
 	/**
 	 * API Verification
@@ -107,7 +191,7 @@ class WeChat
 		return sha1(implode($aVerify)) == $sSignature;
 	}
 
-	#region Message Process
+	#region API Access Token
 	/**
 	 * Set Access Token
 	 *
@@ -133,7 +217,7 @@ class WeChat
 	public function getAPIAccessToken()
 	{
 		try {
-			$oResult = $this->_apiGetRequest(sprintf(
+			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s',
 				$this->_sAppId, $this->_sAppSecret));
 
@@ -146,7 +230,9 @@ class WeChat
 			throw new RuntimeException('get_api_access_token:' . $ex->getMessage());
 		}
 	}
+	#endregion
 
+	#region Message Process
 	/**
 	 * Decode Received Message
 	 *
@@ -160,8 +246,8 @@ class WeChat
 	{
 		$oDocument = @simplexml_load_string($sMessage, 'SimpleXMLElement', LIBXML_NOCDATA);
 
-		if ($oDocument instanceof \SimpleXMLElement) {}
-		else{
+		if ($oDocument instanceof \SimpleXMLElement) {
+		} else {
 			throw new RuntimeException('decode_failed');
 		}
 
@@ -230,7 +316,7 @@ class WeChat
 	 */
 	public function customerService()
 	{
-		return new CustomerService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new CustomerService($this);
 	}
 
 	/**
@@ -238,7 +324,7 @@ class WeChat
 	 */
 	public function newsService()
 	{
-		return new NewsService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new NewsService($this);
 	}
 
 	/**
@@ -246,7 +332,7 @@ class WeChat
 	 */
 	public function templateService()
 	{
-		return new TemplateService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new TemplateService($this);
 	}
 
 	/**
@@ -254,12 +340,12 @@ class WeChat
 	 */
 	public function menuService()
 	{
-		return new MenuService($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new MenuService($this);
 	}
 
 	public function getMessageAdapter()
 	{
-		return new MessageAdapter($this->_oAPIAccessToken, $this->_sAccount, $this->_sAppId, $this->_sAppSecret, $this->_sAESKey);
+		return new MessageAdapter($this);
 	}
 	#endregion
 
@@ -293,7 +379,7 @@ class WeChat
 	public function getWebAccessToken($sCode)
 	{
 		try {
-			$oResult = $this->_apiGetRequest(sprintf(
+			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code',
 				$this->_sAppId, $this->_sAppSecret, $sCode));
 
@@ -316,7 +402,7 @@ class WeChat
 	public function refreshWebAccessToken($sRefreshToken)
 	{
 		try {
-			$oResult = $this->_apiGetRequest(sprintf(
+			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s',
 				$this->_sAppId, $sRefreshToken));
 
@@ -340,7 +426,7 @@ class WeChat
 	public function verifyWebAccessToken($sToken, $sUserId)
 	{
 		try {
-			$oResult = $this->_apiGetRequest(sprintf(
+			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s',
 				$sToken, $sUserId));
 
@@ -360,7 +446,7 @@ class WeChat
 	public function getUserInfo($sToken, $sUserId)
 	{
 		try {
-			$oResult = $this->_apiGetRequest(sprintf(
+			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN',
 				$sToken, $sUserId));
 
@@ -372,12 +458,19 @@ class WeChat
 
 	#endregion
 
-	protected function _apiGetRequest($sTarget)
+	#region Api Request
+	/**
+	 * @param $sTarget
+	 *
+	 * @return mixed
+	 * @throws RuntimeException
+	 */
+	public function ApiGetRequest($sTarget)
 	{
 		$rAPI = curl_init($sTarget);
 		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
-		$mResult = curl_exec($rAPI);
+		$mResult = @curl_exec($rAPI);
 
 		if (Application::IsDebugging()) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
@@ -393,4 +486,41 @@ class WeChat
 
 		return $mResult;
 	}
+
+	/**
+	 * @param $sTarget
+	 * @param $sContent
+	 *
+	 * @return mixed
+	 * @throws RuntimeException
+	 */
+	public function ApiPostRequest($sTarget, $sContent)
+	{
+		$rAPI = curl_init($sTarget);
+		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($rAPI, CURLOPT_POST, true);
+		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
+		curl_setopt($rAPI, CURLOPT_POSTFIELDS, $sContent);
+
+		$mResult = @curl_exec($rAPI);
+
+		if (Application::IsDebugging()) {
+			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+
+			Logger::Message(
+				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
+				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', result=>' . $mResult . ' =>length: ' . strlen($mResult));
+		}
+
+		if (empty($mResult) OR ($mResult = json_decode($mResult, true)) == false) {
+			throw new RuntimeException('invalid_response');
+		}
+
+		if (isset($mResult['errcode']) AND $mResult['errcode'] != 0) {
+			return false;
+		}
+
+		return $mResult;
+	}
+	#endregion
 }
