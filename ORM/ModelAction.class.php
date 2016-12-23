@@ -277,10 +277,10 @@ class ModelAction
 			$sQuery .= ' WHERE ' . $sCondition;
 		}
 
-		if (settype($iLimit) === false OR $iLimit < 0) {
+		if (settype($iLimit, 'int') === false OR $iLimit < 0) {
 			throw new InvalidArgumentException('limit');
 		}
-		if (settype($iSkip) === false OR $iSkip < 0) {
+		if (settype($iSkip, 'int') === false OR $iSkip < 0) {
 			throw new InvalidArgumentException('skip');
 		}
 
@@ -621,7 +621,7 @@ class ModelAction
 		$aQueryParams       = array();
 		foreach ($aScheme['Columns'] AS $_col => $_def) {
 			//changed columns
-			if (array_key_exists($_col, $aSnapshot['Changed']) AND $aSnapshot['Changed'][$_col] != $_def['Default']) {
+			if (array_key_exists($_col, $aSnapshot['Changed'])) {
 				$aUpdatedField[]     = sprintf('`%s`=:%s', $_def['Name'], $_col);
 				$aQueryParams[$_col] = $aSnapshot['Changed'][$_col];
 			}

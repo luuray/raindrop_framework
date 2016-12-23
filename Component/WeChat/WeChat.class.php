@@ -121,7 +121,7 @@ class WeChat
 	 */
 	public function getAccount()
 	{
-		return $this->Account;
+		return $this->_sAccount;
 	}
 
 	/**

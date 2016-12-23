@@ -345,7 +345,9 @@ class MySQL implements IDbConnector
 				$this->_iQueryCount++;
 
 				if (Application::IsDebugging()) {
-					Logger::Message(sprintf('dsname: %s, query: %s, param: %s, SUCCESS, affected: %d', $this->_sDSName, $sQuery, var_export($aParam, true), $oStat->rowCount()));
+					Logger::Message(sprintf(
+						'dsname: %s, query: %s, param: %s, SUCCESS, affected: %d',
+						$this->_sDSName, $sQuery, var_export($aParam, true), $oStat->rowCount()));
 				}
 
 				return $oStat;
