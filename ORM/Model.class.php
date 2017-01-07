@@ -213,46 +213,40 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	 * @param string $sColumn Column's Name, if column name begin with '_' means direct access without check user-defined getter
 	 * @param mixed $mValue
 	 *
-	 * @return mixed
-	 *
 	 * @throws DataModelException
 	 */
 	public function __set($sColumn, $mValue)
 	{
 		//direct access
 		if (!str_beginwith($sColumn, '_') AND method_exists($this, "set{$sColumn}")) {
-			return $this->{'set' . $sColumn}($mValue);
-		}
-
-		$sColumn        = str_beginwith($sColumn, '_') ? substr($sColumn, 1) : $sColumn;
-		$sLowCaseColumn = strtolower($sColumn);
-
-		if (array_key_exists($sLowCaseColumn, $this->_aColumns)) {
-			$sSourceType = gettype($this->_aColumns[$sLowCaseColumn]['Value']);
-			if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType OR settype($mValue, $sSourceType)) {
-				$this->_aColumns[$sLowCaseColumn]['Value'] = $mValue;
-
-				//set identification
-				if ($this->_iState == self::ModelState_Create AND array_key_exists($sLowCaseColumn, $this->_aIdentify)) {
-					$this->_aIdentify[$sLowCaseColumn] = $mValue;
-				}
-				//update state
-				if ($this->_iState != self::ModelState_Create) {
-					$this->_iState = self::ModelState_Updated;
-				}
-
-				$this->_aChangedColumns[$sLowCaseColumn] = $mValue;
-
-				return;
-			}
-
-			throw new DataModelException('invalid_column_type:' . $sLowCaseColumn . ', require:' . $sSourceType . ', provide:' . gettype($mValue));
-		} else if (array_key_exists($sLowCaseColumn, $this->_aExtraColumns)) {
-			$this->_aExtraColumns[$sLowCaseColumn]['Value'] = $mValue;
-
-			return;
+			$this->{'set' . $sColumn}($mValue);
 		} else {
-			$this->_aExtraColumns[$sLowCaseColumn] = ['Name' => $sColumn, 'Value' => $mValue];
+			$sColumn        = str_beginwith($sColumn, '_') ? substr($sColumn, 1) : $sColumn;
+			$sLowCaseColumn = strtolower($sColumn);
+
+			if (array_key_exists($sLowCaseColumn, $this->_aColumns)) {
+				$sSourceType = gettype($this->_aColumns[$sLowCaseColumn]['Value']);
+				if ($sSourceType == 'NULL' OR gettype($mValue) == $sSourceType OR settype($mValue, $sSourceType)) {
+					$this->_aColumns[$sLowCaseColumn]['Value'] = $mValue;
+
+					//set identification
+					if ($this->_iState == self::ModelState_Create AND array_key_exists($sLowCaseColumn, $this->_aIdentify)) {
+						$this->_aIdentify[$sLowCaseColumn] = $mValue;
+					}
+					//update state
+					if ($this->_iState != self::ModelState_Create) {
+						$this->_iState = self::ModelState_Updated;
+					}
+
+					$this->_aChangedColumns[$sLowCaseColumn] = $mValue;
+				} else {
+					throw new DataModelException('invalid_column_type:' . $sLowCaseColumn . ', require:' . $sSourceType . ', provide:' . gettype($mValue));
+				}
+			} else if (array_key_exists($sLowCaseColumn, $this->_aExtraColumns)) {
+				$this->_aExtraColumns[$sLowCaseColumn]['Value'] = $mValue;
+			} else {
+				$this->_aExtraColumns[$sLowCaseColumn] = ['Name' => $sColumn, 'Value' => $mValue];
+			}
 		}
 	}
 
