@@ -477,7 +477,17 @@ class WeChat
 
 			Logger::Message(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
-				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult . ' =>length: ' . strlen($mResult));
+				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult
+				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+		}
+
+		if ($mResult == false) {
+			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+
+			Logger::Warning(
+				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
+				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult
+				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
 		}
 
 		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
@@ -509,7 +519,17 @@ class WeChat
 
 			Logger::Message(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
-				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult . ' =>length: ' . strlen($mResult));
+				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+		}
+
+		if ($mResult == false) {
+			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+
+			Logger::Warning(
+				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
+				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
 		}
 
 		if (empty($mResult) OR ($mResult = json_decode($mResult, true)) == false) {
