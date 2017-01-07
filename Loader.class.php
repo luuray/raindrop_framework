@@ -75,7 +75,7 @@ class Loader
 	public static function Import($sFileName, $sDir = null, $bAutoLoad = true)
 	{
 		$sPath = (str_nullorwhitespace($sDir) ? null : $sDir . DIRECTORY_SEPARATOR) . $sFileName;
-		$sPath = preg_replace(['/[^0-9a-z_\-\.\/\\\]/i', '/[\/\\\]+/', '/^(\/\.+)+\\//'], ['_', '/', ''], $sPath);
+		$sPath = preg_replace(['/[^0-9a-z_:\-\.\/\\\]/i', '/[\/\\\]+/', '/^(\/\.+)+\\//'], ['_', '/', ''], $sPath);
 
 		$aSearchPath = array();
 		//if only filename then search in app root or framework root
@@ -121,7 +121,7 @@ class Loader
 	 */
 	public static function SecurityCheck($sPath)
 	{
-		return str_beginwith(strtolower($sPath), strtolower(SysRoot));
+		return str_beginwith(str_replace('\\', '/',strtolower($sPath)), str_replace('\\', '/', strtolower(SysRoot)));
 	}
 
 	public function __construct()
