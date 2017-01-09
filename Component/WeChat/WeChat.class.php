@@ -176,16 +176,16 @@ class WeChat
 	/**
 	 * API Verification
 	 *
-	 * @param string $sToken
 	 * @param string $sSignature
 	 * @param int $iTimestamp
 	 * @param string $sNonce
+	 * @param string $sToken
 	 *
 	 * @return bool
 	 */
-	public function VerifyAPI($sSignature, $iTimestamp, $sNonce)
+	public static function VerifyAPI($sSignature, $iTimestamp, $sNonce, $sToken)
 	{
-		$aVerify = [$this->_sToken, $iTimestamp, $sNonce];
+		$aVerify = [$sToken, $iTimestamp, $sNonce];
 		sort($aVerify, SORT_STRING);
 
 		return sha1(implode($aVerify)) == $sSignature;
