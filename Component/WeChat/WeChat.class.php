@@ -343,6 +343,9 @@ class WeChat
 		return new MenuService($this);
 	}
 
+	/**
+	 * @return MessageAdapter
+	 */
 	public function getMessageAdapter()
 	{
 		return new MessageAdapter($this);
