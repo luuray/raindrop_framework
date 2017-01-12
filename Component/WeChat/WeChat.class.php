@@ -516,6 +516,7 @@ class WeChat
 		curl_setopt($rAPI, CURLOPT_POSTFIELDS, $sContent);
 
 		$mResult = @curl_exec($rAPI);
+		$aDecoded = null;
 
 		if (Application::IsDebugging()) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
@@ -535,15 +536,21 @@ class WeChat
 				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
 		}
 
-		if (empty($mResult) OR ($mResult = json_decode($mResult, true)) == false) {
+		if (empty($mResult) OR ($aDecoded = json_decode($mResult, true)) == false) {
 			throw new RuntimeException('invalid_response');
 		}
 
-		if (isset($mResult['errcode']) AND $mResult['errcode'] != 0) {
-			return false;
+		if (isset($aDecoded['errcode']) AND $aDecoded['errcode'] != 0) {
+			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+			Logger::Warning(
+				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
+				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+
+			throw new RuntimeException($aDecoded['errmsg'], $aDecoded['errcode']);
 		}
 
-		return $mResult;
+		return $aDecoded;
 	}
 	#endregion
 }

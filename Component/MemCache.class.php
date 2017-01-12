@@ -43,10 +43,6 @@ class MemCache implements ICache
 	protected $_sPrefix = null;
 
 	/**
-	 * @var null|int
-	 */
-	protected $_iLifetime = null;
-	/**
 	 * @var \Memcache
 	 */
 	protected $_oMemcache;
@@ -69,18 +65,17 @@ class MemCache implements ICache
 			throw new InvalidArgumentException('name');
 		}
 
-		$this->_oConfig   = $oConfig;
+		$this->_oConfig = $oConfig;
 
 		$this->_sHandlerName = $sName;
-		$this->_sPrefix   = $oConfig->Prefix == null ? '' : $oConfig->Prefix;
-		$this->_iLifetime = $oConfig->Lifetime === null ? 0 : (int)$oConfig->Lifetime;
+		$this->_sPrefix      = $oConfig->Prefix == null ? '' : $oConfig->Prefix;
 
 		if ($oConfig->Server == null) {
 			throw new ConfigurationMissingException(sprintf('Cache\%s\Params\Server', $sName));
 		}
 
 		//handler decide
-		if(class_exists('Memcached')){
+		if (class_exists('Memcached')) {
 			$this->_oMemcache = new \Memcached();
 
 			if (str_beginwith($oConfig->Server, 'unix://')) {
@@ -90,8 +85,7 @@ class MemCache implements ICache
 					$oConfig->Server,
 					$oConfig->Port == null ? 11211 : intval($oConfig->Port));
 			}
-		}
-		else if(class_exists('Memcache')){
+		} else if (class_exists('Memcache')) {
 			$this->_oMemcache = new \Memcache();
 
 			if (str_beginwith($oConfig->Server, 'unix://')) {
@@ -101,15 +95,14 @@ class MemCache implements ICache
 					$oConfig->Server,
 					$oConfig->Port == null ? 11211 : intval($oConfig->Port));
 			}
-		}
-		else{
+		} else {
 			throw new FatalErrorException('missing_module:memcached/memcache');
 		}
 
 		if ($bConnected !== true) {
 			$this->_oMemcache = null;
 			$aErr             = error_get_last();
-			throw new CacheFailException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')');
+			throw new CacheFailException($sName, 'handler_error: connect_fail(' . $aErr['message'] . ')', 0);
 		}
 	}
 
@@ -119,16 +112,18 @@ class MemCache implements ICache
 	 * @param string $sName
 	 * @param mixed $mValue
 	 *
+	 * @param null $iLifetime
+	 *
 	 * @return bool
 	 * @throws CacheFailException
 	 */
-	public function set($sName, $mValue)
+	public function set($sName, $mValue, $iLifetime = null)
 	{
 		if ($this->_oMemcache == null) {
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $this->_iLifetime);
+		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime ? $iLifetime : 0);
 	}
 
 	/**

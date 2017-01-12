@@ -23,11 +23,12 @@ use Raindrop\Logger;
 
 class CacheFailException extends RuntimeException
 {
-	public function __construct($sHandler, $sMessage, $iCode, \Exception $previous=null)
+	public function __construct($sHandler, $sMessage)
 	{
 		//TODO Make Message Format Same
+		Logger::Error(sprintf('CacheMissing:[%s]  %s', $sHandler, $sMessage));
 
-		parent::__construct(sprintf('[%s]%s', $sHandler, $sMessage), $iCode, $previous);
+		parent::__construct(sprintf('[%s]%s', $sHandler, $sMessage), 0, $this);
 	}
 }
 
@@ -37,6 +38,6 @@ class CacheMissingException extends CacheFailException
 	{
 		Logger::Warning(sprintf('CacheMissing:[%s]  %s', $sHandler, $sName));
 
-		parent::__construct($sHandler, sprintf('CacheMissing:[%s]  %s', $sHandler, $sName), 0, $this);
+		parent::__construct(sprintf('CacheMissing[%s]  %s', $sHandler, $sName), 0, $this);
 	}
 }

@@ -60,7 +60,7 @@ class RuntimeException extends ApplicationException
 	{
 		parent::__construct($message, $code, $previous);
 
-		Logger::Warning(parent::__toString());
+		Logger::Message(parent::__toString());
 	}
 }
 
