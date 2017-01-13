@@ -74,7 +74,7 @@ final class Cache
 	 *
 	 * @return mixed
 	 */
-	public static function Set($sKey, $mValue, $iLifetime=0, $sHandler = 'default')
+	public static function Set($sKey, $mValue, $iLifetime = 0, $sHandler = 'default')
 	{
 		$oHandler = self::GetInstance()->getHandler($sHandler);
 
@@ -84,6 +84,7 @@ final class Cache
 	/**
 	 * @param string $sKey
 	 * @param string $sHandler
+	 *
 	 * @return mixed
 	 */
 	public static function Del($sKey, $sHandler = 'default')
@@ -112,15 +113,16 @@ final class Cache
 			return self::GetInstance()->flushByLevel($iLevel);
 		}
 	}
+
 #endregion
 
 	protected function __construct()
 	{
-		$oHandlersConfig                     = Configuration::Get('Cache');
+		$oHandlersConfig = Configuration::Get('Cache');
 
 		if ($oHandlersConfig instanceof Configuration) {
 			foreach ($oHandlersConfig AS $_name => $_config) {
-				$_name = strtolower($_name);
+				$_name      = strtolower($_name);
 				$sComponent = $_config->Component;
 
 				//black hole

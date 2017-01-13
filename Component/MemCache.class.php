@@ -18,6 +18,7 @@
 
 namespace Raindrop\Component;
 
+use Raindrop\Application;
 use Raindrop\Configuration;
 use Raindrop\Exceptions\Cache\CacheFailException;
 use Raindrop\Exceptions\Cache\CacheMissingException;
@@ -123,7 +124,13 @@ class MemCache implements ICache
 			throw new CacheFailException($this->_sHandlerName, 'handler_error: not_connect', 0);
 		}
 
-		return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0, $iLifetime ? $iLifetime : 0);
+		if ($this->_oMemcache instanceof \Memcache) {
+			return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue, 0,
+				$iLifetime ? (Application::GetRequestTime() + $iLifetime) : ($this->_oConfig->Lifetime ? Application::GetRequestTime() + $this->_oConfig->Lifetime : 0));
+		} else if ($this->_oMemcache instanceof \Memcached) {
+			return $this->_oMemcache->set($this->_sPrefix . strtolower($sName), $mValue,
+				$iLifetime ? (Application::GetRequestTime() + $iLifetime) : ($this->_oConfig->Lifetime ? Application::GetRequestTime() + $this->_oConfig->Lifetime : 0));
+		}
 	}
 
 	/**
