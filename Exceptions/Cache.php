@@ -26,7 +26,7 @@ class CacheFailException extends RuntimeException
 	public function __construct($sHandler, $sMessage)
 	{
 		//TODO Make Message Format Same
-		Logger::Error(sprintf('CacheMissing:[%s]  %s', $sHandler, $sMessage));
+		Logger::Error(sprintf('[%s]  %s', $sHandler, $sMessage));
 
 		parent::__construct(sprintf('[%s]%s', $sHandler, $sMessage), 0, $this);
 	}

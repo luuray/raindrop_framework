@@ -18,6 +18,7 @@
 
 namespace Raindrop\Component;
 
+use Raindrop\Configuration;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
@@ -30,12 +31,13 @@ class FileCache implements ICache
 	/**
 	 * Construct Cache Adapter
 	 *
-	 * @param array $aConfig Adapter Params
+	 * @param Configuration $oConfig
 	 * @param string $sName Adapter Identify Name
-	 * @return mixed
+	 *
 	 * @throws InvalidArgumentException
+	 * @internal param array $oConfig Adapter Params
 	 */
-	public function __construct($aConfig, $sName)
+	public function __construct(Configuration $oConfig, $sName)
 	{
 		if (empty($sName)) {
 			throw new InvalidArgumentException('name');
@@ -43,8 +45,8 @@ class FileCache implements ICache
 
 		$this->_sName = preg_replace('/[^0-9a-z\-_]/i', '_', $sName);
 
-		if (!empty($aConfig['SavePath'])) {
-			$sDir = $aConfig['SavePath'] . DIRECTORY_SEPARATOR . $sName;
+		if (!empty($oConfig->SavePath)) {
+			$sDir = $oConfig->SavePath . DIRECTORY_SEPARATOR . $sName;
 
 			if (is_dir($sDir)) {
 				if (is_readable($sDir) && is_writable($sDir)) {

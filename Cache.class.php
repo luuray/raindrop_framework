@@ -75,11 +75,11 @@ final class Cache
 	 * @return mixed
 	 * @throws InvalidArgumentException
 	 */
-	public static function Set($sKey, $mValue, $sHandler = 'default')
+	public static function Set($sKey, $mValue, $iLifetime=0, $sHandler = 'default')
 	{
 		$oHandler = self::GetInstance()->getHandler($sHandler);
 
-		return $oHandler->set($sKey, $mValue);
+		return $oHandler->set($sKey, $mValue, $iLifetime);
 	}
 
 	/**
