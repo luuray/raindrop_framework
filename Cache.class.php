@@ -20,7 +20,6 @@ namespace Raindrop;
 
 use Raindrop\Component\BlackHoleCache;
 use Raindrop\Exceptions\Cache\CacheFailException;
-use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Interfaces\ICache;
 
 /**
@@ -70,10 +69,10 @@ final class Cache
 	/**
 	 * @param $sKey
 	 * @param $mValue
+	 * @param int $iLifetime
 	 * @param string $sHandler
 	 *
 	 * @return mixed
-	 * @throws InvalidArgumentException
 	 */
 	public static function Set($sKey, $mValue, $iLifetime=0, $sHandler = 'default')
 	{
