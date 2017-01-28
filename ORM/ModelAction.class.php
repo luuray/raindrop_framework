@@ -513,7 +513,7 @@ class ModelAction
 			}
 
 			$aScheme = $this->_queryTableSchema($sTable, $sDbConnect);
-			Cache::Set("{$sDbConnect}-{$sTable}", serialize($aScheme), 'ModelCache');
+			Cache::Set("{$sDbConnect}-{$sTable}", serialize($aScheme), 0, 'ModelCache');
 
 			return $aScheme;
 		}
