@@ -1,8 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/Component/WeChat/Component" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/WeChat/Message" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/WeChat/Model" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/appenders" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/configurators" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/filters" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/helpers" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/layouts" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/pattern" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/renderers" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/log4php/xml" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/phpmailer/phpmailer" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/phpoffice/phpexcel" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/phpoffice/phpword" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/symfony/options-resolver" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="PHP Runtime" type="php">
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard" />
+        </CLASSES>
+        <SOURCES>
+          <root url="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="PHP" type="php">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/Component/WeChat/Component" />
+          <root url="file://$MODULE_DIR$/Component/WeChat/Message" />
+          <root url="file://$MODULE_DIR$/Component/WeChat/Model" />
+          <root url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
+          <root url="file://$MODULE_DIR$/Component/composer" />
+          <root url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+          <root url="file://$MODULE_DIR$/Component/log4php/appenders" />
+          <root url="file://$MODULE_DIR$/Component/log4php/configurators" />
+          <root url="file://$MODULE_DIR$/Component/log4php/filters" />
+          <root url="file://$MODULE_DIR$/Component/log4php/helpers" />
+          <root url="file://$MODULE_DIR$/Component/log4php/layouts" />
+          <root url="file://$MODULE_DIR$/Component/log4php/pattern" />
+          <root url="file://$MODULE_DIR$/Component/log4php/renderers" />
+          <root url="file://$MODULE_DIR$/Component/log4php/xml" />
+          <root url="file://$MODULE_DIR$/Component/phpmailer/phpmailer" />
+          <root url="file://$MODULE_DIR$/Component/phpoffice/phpexcel" />
+          <root url="file://$MODULE_DIR$/Component/phpoffice/phpword" />
+          <root url="file://$MODULE_DIR$/Component/symfony/options-resolver" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/Component/WeChat/Component" />
+          <root url="file://$MODULE_DIR$/Component/WeChat/Message" />
+          <root url="file://$MODULE_DIR$/Component/WeChat/Model" />
+          <root url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
+          <root url="file://$MODULE_DIR$/Component/composer" />
+          <root url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+          <root url="file://$MODULE_DIR$/Component/log4php/appenders" />
+          <root url="file://$MODULE_DIR$/Component/log4php/configurators" />
+          <root url="file://$MODULE_DIR$/Component/log4php/filters" />
+          <root url="file://$MODULE_DIR$/Component/log4php/helpers" />
+          <root url="file://$MODULE_DIR$/Component/log4php/layouts" />
+          <root url="file://$MODULE_DIR$/Component/log4php/pattern" />
+          <root url="file://$MODULE_DIR$/Component/log4php/renderers" />
+          <root url="file://$MODULE_DIR$/Component/log4php/xml" />
+          <root url="file://$MODULE_DIR$/Component/phpmailer/phpmailer" />
+          <root url="file://$MODULE_DIR$/Component/phpoffice/phpexcel" />
+          <root url="file://$MODULE_DIR$/Component/phpoffice/phpword" />
+          <root url="file://$MODULE_DIR$/Component/symfony/options-resolver" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
