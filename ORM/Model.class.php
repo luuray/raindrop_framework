@@ -543,6 +543,19 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 
 		return $aResult;
 	}
+	/**
+	 * Call on Model Changed
+	 */
+	public function onChanged()
+	{
+	}
+
+	/**
+	 * Call on Model Delete
+	 */
+	public function onDelete()
+	{
+	}
 
 	/**
 	 * Prepare to Array

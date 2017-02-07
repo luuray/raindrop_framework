@@ -246,6 +246,7 @@ class ModelAction
 		}
 
 		$oModel->setModelState(Model::ModelState_Deleted);
+		$oModel->onDelete();
 
 		return true;
 	}
@@ -650,6 +651,7 @@ class ModelAction
 		if (!empty($aChangedIdentifies)) $oModel->setRAWData($aChangedIdentifies);
 
 		$oModel->setModelState(Model::ModelState_Normal);
+		$oModel->onChanged();
 
 		return true;
 	}
