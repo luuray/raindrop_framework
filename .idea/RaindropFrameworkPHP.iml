@@ -8,6 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
       <excludeFolder url="file://$MODULE_DIR$/Component/composer" />
       <excludeFolder url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+      <excludeFolder url="file://$MODULE_DIR$/Component/jpush/jpush" />
       <excludeFolder url="file://$MODULE_DIR$/Component/log4php/appenders" />
       <excludeFolder url="file://$MODULE_DIR$/Component/log4php/configurators" />
       <excludeFolder url="file://$MODULE_DIR$/Component/log4php/filters" />
@@ -42,6 +43,7 @@
           <root url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
           <root url="file://$MODULE_DIR$/Component/composer" />
           <root url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+          <root url="file://$MODULE_DIR$/Component/jpush/jpush" />
           <root url="file://$MODULE_DIR$/Component/log4php/appenders" />
           <root url="file://$MODULE_DIR$/Component/log4php/configurators" />
           <root url="file://$MODULE_DIR$/Component/log4php/filters" />
@@ -62,6 +64,7 @@
           <root url="file://$MODULE_DIR$/Component/aliyuncs/oss-sdk-php" />
           <root url="file://$MODULE_DIR$/Component/composer" />
           <root url="file://$MODULE_DIR$/Component/endroid/qrcode" />
+          <root url="file://$MODULE_DIR$/Component/jpush/jpush" />
           <root url="file://$MODULE_DIR$/Component/log4php/appenders" />
           <root url="file://$MODULE_DIR$/Component/log4php/configurators" />
           <root url="file://$MODULE_DIR$/Component/log4php/filters" />

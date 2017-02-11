@@ -19,6 +19,7 @@
     "phpoffice/phpexcel": "^1.8",
     "phpoffice/phpword": "^0.12.1",
     "endroid/qrcode": "^1.7",
-    "aliyuncs/oss-sdk-php": "^2.2"
+    "aliyuncs/oss-sdk-php": "^2.2",
+    "jpush/jpush": "^3.5"
   }
 }

@@ -19,6 +19,10 @@ class ComposerStaticInit3c6695d164dac324be61b4869a1c6ab6
         array (
             'OSS\\' => 4,
         ),
+        'J' => 
+        array (
+            'JPush\\' => 6,
+        ),
         'E' => 
         array (
             'Endroid\\QrCode\\' => 15,
@@ -37,6 +41,10 @@ class ComposerStaticInit3c6695d164dac324be61b4869a1c6ab6
         'OSS\\' => 
         array (
             0 => __DIR__ . '/..' . '/aliyuncs/oss-sdk-php/src/OSS',
+        ),
+        'JPush\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jpush/jpush/src/JPush',
         ),
         'Endroid\\QrCode\\' => 
         array (

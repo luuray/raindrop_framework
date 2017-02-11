@@ -9,5 +9,6 @@ return array(
     'Symfony\\Component\\OptionsResolver\\' => array($vendorDir . '/symfony/options-resolver'),
     'PhpOffice\\PhpWord\\' => array($vendorDir . '/phpoffice/phpword/src/PhpWord'),
     'OSS\\' => array($vendorDir . '/aliyuncs/oss-sdk-php/src/OSS'),
+    'JPush\\' => array($vendorDir . '/jpush/jpush/src/JPush'),
     'Endroid\\QrCode\\' => array($vendorDir . '/endroid/qrcode/src'),
 );
