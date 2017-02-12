@@ -101,7 +101,7 @@ final class DatabaseAdapter
 				$iCount += $i;
 			}
 
-			Debugger::Output("Count({$iCount}), Connections[ " . implode('/', $aContent) . ' ]', 'Database');
+			Logger::Debug("Database: Count({$iCount}), Connections[" . implode('/', $aContent) . ']');
 		}
 	}
 

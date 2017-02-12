@@ -473,7 +473,11 @@ class WeChat
 		$rAPI = curl_init($sTarget);
 		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
+
 		$mResult = @curl_exec($rAPI);
+		$sError  = curl_error($rAPI);
+
+		curl_close($rAPI);
 
 		if (Application::IsDebugging()) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
@@ -481,7 +485,7 @@ class WeChat
 			Logger::Message(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult
-				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 		}
 
 		if ($mResult == false) {
@@ -490,8 +494,9 @@ class WeChat
 			Logger::Warning(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult
-				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 		}
+
 
 		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
 			throw new RuntimeException('invalid_response');
@@ -515,8 +520,11 @@ class WeChat
 		curl_setopt($rAPI, CURLOPT_CONNECTTIMEOUT, 5);//request timeout in 5 sec
 		curl_setopt($rAPI, CURLOPT_POSTFIELDS, $sContent);
 
-		$mResult = @curl_exec($rAPI);
+		$mResult  = @curl_exec($rAPI);
+		$sError   = curl_error($rAPI);
 		$aDecoded = null;
+
+		curl_close($rAPI);
 
 		if (Application::IsDebugging()) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
@@ -524,7 +532,7 @@ class WeChat
 			Logger::Message(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
-				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 		}
 
 		if ($mResult == false) {
@@ -533,7 +541,7 @@ class WeChat
 			Logger::Warning(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
-				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 		}
 
 		if (empty($mResult) OR ($aDecoded = json_decode($mResult, true)) == false) {
@@ -542,10 +550,11 @@ class WeChat
 
 		if (isset($aDecoded['errcode']) AND $aDecoded['errcode'] != 0) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+
 			Logger::Warning(
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
-				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . curl_error($rAPI) : null));
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 
 			throw new RuntimeException($aDecoded['errmsg'], $aDecoded['errcode']);
 		}

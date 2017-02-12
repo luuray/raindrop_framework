@@ -19,6 +19,8 @@
 namespace Raindrop;
 
 
+use Raindrop\Model\UploadFile;
+
 abstract class Request implements \ArrayAccess
 {
 	#region Method Constants
@@ -110,7 +112,7 @@ abstract class Request implements \ArrayAccess
 	 * Get Uploaded File
 	 *
 	 * @param $sKey
-	 * @return mixed
+	 * @return UploadFile
 	 */
 	public abstract function getFile($sKey);
 
