@@ -93,11 +93,14 @@ class View extends ActionResult
 		if (str_nullorwhitespace($sTpl)) {
 			$sBodyView = implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]);
 		} else {
+			/*
 			if (strpos($sTpl, '\\') !== false OR strpos($sTpl, '/') !== false) {
 				$sBodyView = $sTpl;
 			} else {
 				$sBodyView = $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sTpl;
 			}
+			*/
+			$sBodyView = $sTpl;
 		}
 
 		$this->_sBodyView = $this->_decidePath($sBodyView);
@@ -243,7 +246,7 @@ class View extends ActionResult
 				$ViewData = $this->_oViewData;
 				$Identify = Application::GetIdentify();
 				try {
-					require Loader::Import($sViewName, null, false);
+					require_once Loader::Import($sViewName, null, false);
 				}catch(FileNotFoundException $ex){
 					throw new ViewNotFoundException($sViewName);
 				}

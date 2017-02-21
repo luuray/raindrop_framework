@@ -21,7 +21,7 @@ namespace Raindrop;
 /**
  * Class Configuration
  * @package Raindrop
- * @method mixed Get() Get($sKey, $mDefaultValue)
+ * @method static mixed Get($sKey, $mDefaultValue=null)
  */
 class Configuration implements \ArrayAccess, \Iterator
 {

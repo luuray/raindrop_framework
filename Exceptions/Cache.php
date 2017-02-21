@@ -18,15 +18,21 @@
 
 namespace Raindrop\Exceptions\Cache;
 
+use PhpOffice\PhpWord\Exception\Exception;
 use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
 
 class CacheFailException extends RuntimeException
 {
-	public function __construct($sHandler, $sMessage)
+	public function __construct($sHandler, $sMessage, Exception $exParent = null)
 	{
-		//TODO Make Message Format Same
-		Logger::Error(sprintf('[%s]  %s', $sHandler, $sMessage));
+		if ($exParent != null) {
+			if ($exParent instanceof CacheMissingException) {
+				//
+			} else {
+				Logger::Error(sprintf('[%s] %s', $sHandler, $sMessage));
+			}
+		}
 
 		parent::__construct(sprintf('[%s]%s', $sHandler, $sMessage), 0, $this);
 	}
@@ -36,8 +42,8 @@ class CacheMissingException extends CacheFailException
 {
 	public function __construct($sHandler, $sName)
 	{
-		Logger::Warning(sprintf('CacheMissing:[%s]  %s', $sHandler, $sName));
+		Logger::Warning(sprintf('cache_missing: [%s]%s', $sHandler, $sName));
 
-		parent::__construct(sprintf('CacheMissing[%s]  %s', $sHandler, $sName), 0, $this);
+		parent::__construct($sHandler, 'cache_missing:' . $sName, $this);
 	}
 }

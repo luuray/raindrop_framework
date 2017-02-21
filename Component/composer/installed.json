@@ -219,62 +219,6 @@
         ]
     },
     {
-        "name": "symfony/options-resolver",
-        "version": "v3.2.2",
-        "version_normalized": "3.2.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/options-resolver.git",
-            "reference": "855429e3e9014b9dafee2a667de304c3aaa86fe6"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/symfony/options-resolver/zipball/855429e3e9014b9dafee2a667de304c3aaa86fe6",
-            "reference": "855429e3e9014b9dafee2a667de304c3aaa86fe6",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.5.9"
-        },
-        "time": "2017-01-02T20:32:22+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.2-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Symfony\\Component\\OptionsResolver\\": ""
-            },
-            "exclude-from-classmap": [
-                "/Tests/"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            },
-            {
-                "name": "Symfony Community",
-                "homepage": "https://symfony.com/contributors"
-            }
-        ],
-        "description": "Symfony OptionsResolver Component",
-        "homepage": "https://symfony.com",
-        "keywords": [
-            "config",
-            "configuration",
-            "options"
-        ]
-    },
-    {
         "name": "endroid/qrcode",
         "version": "1.9.1",
         "version_normalized": "1.9.1.0",
@@ -381,17 +325,17 @@
     },
     {
         "name": "jpush/jpush",
-        "version": "v3.5.10",
-        "version_normalized": "3.5.10.0",
+        "version": "v3.5.11",
+        "version_normalized": "3.5.11.0",
         "source": {
             "type": "git",
             "url": "https://github.com/jpush/jpush-api-php-client.git",
-            "reference": "c4e23cbba8604a916d167d5fff37891ee8cf4446"
+            "reference": "7a66f4a24805834d40253b8ca62ee3f008546a7f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/jpush/jpush-api-php-client/zipball/c4e23cbba8604a916d167d5fff37891ee8cf4446",
-            "reference": "c4e23cbba8604a916d167d5fff37891ee8cf4446",
+            "url": "https://api.github.com/repos/jpush/jpush-api-php-client/zipball/7a66f4a24805834d40253b8ca62ee3f008546a7f",
+            "reference": "7a66f4a24805834d40253b8ca62ee3f008546a7f",
             "shasum": ""
         },
         "require": {
@@ -401,7 +345,7 @@
         "require-dev": {
             "phpunit/phpunit": "*"
         },
-        "time": "2017-01-24T03:02:22+00:00",
+        "time": "2017-02-14T05:59:21+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -423,5 +367,61 @@
         ],
         "description": "JPush API PHP Client",
         "homepage": "https://github.com/jpush/jpush-api-php-client"
+    },
+    {
+        "name": "symfony/options-resolver",
+        "version": "v3.2.4",
+        "version_normalized": "3.2.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/options-resolver.git",
+            "reference": "855429e3e9014b9dafee2a667de304c3aaa86fe6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/options-resolver/zipball/855429e3e9014b9dafee2a667de304c3aaa86fe6",
+            "reference": "855429e3e9014b9dafee2a667de304c3aaa86fe6",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.9"
+        },
+        "time": "2017-01-02T20:32:22+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\OptionsResolver\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony OptionsResolver Component",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "config",
+            "configuration",
+            "options"
+        ]
     }
 ]

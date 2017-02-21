@@ -20,31 +20,41 @@ namespace Raindrop\Component;
 
 
 use Raindrop\Exceptions\InvalidArgumentException;
+use Raindrop\Exceptions\RuntimeException;
 
 class Encryptor
 {
+	private static $_sEncryptMethod = 'aes-256-cfb';
+
+	public static function ValidateKey($sKey)
+	{
+		return mb_strlen($sKey, '8bit') === 32;
+	}
+
 	/**
 	 * Encrypt String
 	 *
 	 * @param $sKey
 	 * @param $sSource
+	 *
 	 * @return bool|string
 	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public static function EncryptString($sKey, $sSource)
 	{
-		//validate key length
-		if (strlen($sKey) > mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC)) throw new InvalidArgumentException('Key');
+		if (mb_strlen($sKey, '8bit') !== 32) {
+			throw new InvalidArgumentException('invalid_key');
+		}
+		$sIV = openssl_random_pseudo_bytes(openssl_cipher_iv_length(self::$_sEncryptMethod));
 
-		$sIv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC));
+		$sEncrypted = openssl_encrypt($sSource, self::$_sEncryptMethod, $sKey, OPENSSL_RAW_DATA, $sIV);
 
-		$sEnc = mcrypt_encrypt(
-			MCRYPT_RIJNDAEL_256,
-			$sKey, $sSource,
-			MCRYPT_MODE_CBC,
-			$sIv);
+		if ($sEncrypted == false) {
+			throw new RuntimeException('encrypt_failed');
+		}
 
-		return $sEnc != false ? base64_encode(serialize([$sEnc, $sIv])) : false;
+		return base64_encode($sIV . $sEncrypted);
 	}
 
 	/**
@@ -52,30 +62,33 @@ class Encryptor
 	 *
 	 * @param $sKey
 	 * @param $sSource
+	 *
 	 * @return bool|string
 	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public static function DecryptString($sKey, $sSource)
 	{
-		//validate key length
-		if (strlen($sKey) > mcrypt_get_key_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC)) throw new InvalidArgumentException('Key');
-
-		//decode source
-		$sSource = base64_decode($sSource);
-		if ($sSource != false) {
-			$sSource = @unserialize($sSource);
-			if ($sSource == false OR count($sSource) != 2) throw new InvalidArgumentException('Source');
-			list($sData, $sIv) = $sSource;
-
-			$sDec = mcrypt_decrypt(
-				MCRYPT_RIJNDAEL_256,
-				$sKey, $sData,
-				MCRYPT_MODE_CBC,
-				$sIv);
-
-			return $sDec == false ? false : rtrim($sDec, "\0");
+		if (mb_strlen($sKey, '8bit') !== 32) {
+			throw new InvalidArgumentException('invalid_key');
 		}
 
-		return false;
+		$sSource = base64_decode($sSource);
+		if ($sSource == false) {
+			throw new InvalidArgumentException('invalid_source');
+		}
+
+		$iIVSize = openssl_cipher_iv_length(self::$_sEncryptMethod);
+
+		$sIV     = mb_substr($sSource, 0, $iIVSize, '8bit');
+		$sSource = mb_substr($sSource, $iIVSize, null, '8bit');
+
+		$sResult = openssl_decrypt($sSource, self::$_sEncryptMethod, $sKey, OPENSSL_RAW_DATA, $sIV);
+
+		if ($sResult === false) {
+			throw new RuntimeException('encrypt_failed');
+		}
+
+		return $sResult;
 	}
 }
