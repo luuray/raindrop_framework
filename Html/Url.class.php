@@ -18,6 +18,7 @@
 namespace Raindrop\Html;
 
 use Raindrop\Application;
+use Raindrop\Configuration;
 use Raindrop\Exceptions\InvalidArgumentException;
 
 class Url extends Html
@@ -37,6 +38,19 @@ class Url extends Html
 	protected function __construct()
 	{
 		self::$_oInstance = $this;
+	}
+
+	public static function Config($sKey, $sDefault = null)
+	{
+		$sKey = 'System/Url/' . $sKey;
+
+		$sResult = Configuration::Get($sKey, $sDefault);
+
+		if (str_beginwith($sResult, '//')) {
+			$sResult = Application::GetRequest()->getScheme() . ':' . $sResult;
+		}
+
+		return is_string($sResult) ? $sResult : '';
 	}
 
 	/**
@@ -120,6 +134,7 @@ class Url extends Html
 	 *
 	 * @param string $sActName Action Name
 	 * @param null|string $sParam Parameters
+	 *
 	 * @return string
 	 */
 	protected function _toAction($sActName, $sParam = null)
@@ -140,6 +155,7 @@ class Url extends Html
 	 * @param string $sCtrl Controller Name
 	 * @param string $sAct Action NAme
 	 * @param null|string $sParam Parameters
+	 *
 	 * @return string
 	 */
 	protected function _toController($sCtrl, $sAct, $sParam = null)
@@ -161,6 +177,7 @@ class Url extends Html
 	 * @param string $sCtrl Controller Name
 	 * @param string $sAct Action Name
 	 * @param null|string $sParam Parameters
+	 *
 	 * @return string
 	 */
 	protected function _toModule($sModule, $sCtrl, $sAct, $sParam = null)
@@ -177,6 +194,7 @@ class Url extends Html
 	 * Check Subject Name
 	 *
 	 * @param $sName
+	 *
 	 * @return bool
 	 */
 	protected function _nameChecker($sName)

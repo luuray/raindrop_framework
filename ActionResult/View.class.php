@@ -87,21 +87,8 @@ class View extends ActionResult
 		$this->_oViewData = ViewData::GetInstance()->mergeReplace($mData);
 		$this->_oRequest  = Application::GetRequest();
 
-		$sBodyView = null;
-
 		//decide bodyPage
-		if (str_nullorwhitespace($sTpl)) {
-			$sBodyView = implode('/', [$this->_oRequest->getController(), $this->_oRequest->getAction()]);
-		} else {
-			/*
-			if (strpos($sTpl, '\\') !== false OR strpos($sTpl, '/') !== false) {
-				$sBodyView = $sTpl;
-			} else {
-				$sBodyView = $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sTpl;
-			}
-			*/
-			$sBodyView = $sTpl;
-		}
+		$sBodyView = str_nullorwhitespace($sTpl)?$this->_oRequest->getAction():$sTpl;
 
 		$this->_sBodyView = $this->_decidePath($sBodyView);
 
@@ -300,12 +287,12 @@ class View extends ActionResult
 
 			if ($this->_oRequest->getModule() != null) {
 				//controller's
-				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'module', $this->_oRequest->getModule(), 'view']) . DIRECTORY_SEPARATOR . $sPage;
+				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'module', $this->_oRequest->getModule(), 'view', $this->_oRequest->getController()]) . DIRECTORY_SEPARATOR . $sPage;
 				//shared
 				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'module', $this->_oRequest->getModule(), 'view', 'shared']) . DIRECTORY_SEPARATOR . $sPage;
 			} else {
 				//controller's
-				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'view']) . DIRECTORY_SEPARATOR . $sPage;
+				$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'view', $this->_oRequest->getController()]) . DIRECTORY_SEPARATOR . $sPage;
 			}
 
 			//public shared
