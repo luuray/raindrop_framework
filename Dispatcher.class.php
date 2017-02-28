@@ -183,9 +183,9 @@ final class Dispatcher
 			$aActParams     = $oRefAct->getParameters();
 			$aActCallParams = array();
 			foreach ($aActParams AS $_p) {
-				$sParam = strtolower($_p->getName());
-				$mValue = $this->_oRequest->$sParam;
-				$aActCallParams[] = $mValue === null ? ($_p->isDefaultValueAvailable()? $_p->getDefaultValue() : null) : $mValue;
+				$sParam           = strtolower($_p->getName());
+				$mValue           = $this->_oRequest->$sParam;
+				$aActCallParams[] = $mValue === null ? ($_p->isDefaultValueAvailable() ? $_p->getDefaultValue() : null) : $mValue;
 			}
 
 			//Invoke Target
@@ -331,53 +331,61 @@ final class Dispatcher
 			return true;
 		}
 
-		//same permission for all actions
-		if (is_string($mPermRequired)) {
-			if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
-			if ($mPermRequired == '*') {
-				return true;
-			} else {
+		if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
+
+		if(is_string($mPermRequired) AND $mPermRequired == '*'){
+			return true;//any role
+		}
+		else if(is_string($mPermRequired) AND (strpos($mPermRequired, ',')!==-1 OR strpos($mPermRequired, '|') !==-1)){
+			$mPermRequired = preg_split('/[,|]/', $mPermRequired);
+			array_walk($mPermRequired, function(&$val){
+				$val = trim($val);
+			});
+
+			return Application::GetIdentify()->hasRole($mPermRequired);
+		}
+		else if(is_array($mPermRequired)){
+			//controller-level permission define
+			if(is_string(array_values($mPermRequired)[0])){
 				return Application::GetIdentify()->hasRole($mPermRequired);
 			}
-		}
-		#endregion
+			else{
+				//action-level permission define
+				$mPermRequired = array_key_case($mPermRequired, CASE_LOWER);
+				$sActionFull   = strtolower($this->_oRequest->getMethod() . '_' . $this->_oRequest->getAction());
+				$sAction       = strtolower($this->_oRequest->getAction());
 
-		#region Action Level
-		if (!is_array($mPermRequired)) {
+				if (array_key_exists($sActionFull, $mPermRequired)) {
+					$mActionPerm = $mPermRequired[$sActionFull];
+				} else if (array_key_exists($sAction, $mPermRequired)) {
+					$mActionPerm = $mPermRequired[$sAction];
+				} else {
+					$mActionPerm = '*';
+				}
+
+				if ($mActionPerm == null) {
+					return true;
+				} else if (is_string($mActionPerm) AND $mActionPerm == '*') {
+					if (Application::GetIdentify()->IsIdentified()) return true;
+					throw new UnidentifiedException;
+				} else {
+					$mActionPerm = is_string($mActionPerm) ? preg_split('/\|,/', $mActionPerm) : (is_array($mActionPerm) ? $mActionPerm : false);
+
+					if ($mActionPerm == false) throw new IdentifyException('invalid_permission_defined');
+
+					//some cleanup
+					$mActionPerm = array_values($mActionPerm);
+					foreach ($mActionPerm AS $_k => &$_v) {
+						$_v = strtolower(trim($_v));
+						if (empty($_v)) unset($mActionPerm[$_k]);
+					}
+
+					return Application::GetIdentify()->hasRole($mActionPerm);
+				}
+			}
+		}
+		else{
 			throw new IdentifyException('invalid_permission_defined');
 		}
-
-		$mPermRequired = array_key_case($mPermRequired, CASE_LOWER);
-		$sActionFull   = strtolower($this->_oRequest->getMethod() . '_' . $this->_oRequest->getAction());
-		$sAction       = strtolower($this->_oRequest->getAction());
-
-		if (array_key_exists($sActionFull, $mPermRequired)) {
-			$mActionPerm = $mPermRequired[$sActionFull];
-		} else if (array_key_exists($sAction, $mPermRequired)) {
-			$mActionPerm = $mPermRequired[$sAction];
-		} else {
-			$mActionPerm = '*';
-		}
-
-		if ($mActionPerm == null) {
-			return true;
-		} else if (is_string($mActionPerm) AND $mActionPerm == '*') {
-			if (Application::GetIdentify()->IsIdentified()) return true;
-			throw new UnidentifiedException;
-		} else {
-			$mActionPerm = is_string($mActionPerm) ? preg_split('/\|,/', $mActionPerm) : (is_array($mActionPerm) ? $mActionPerm : false);
-
-			if ($mActionPerm == false) throw new IdentifyException('invalid_permission_defined');
-
-			//some cleanup
-			$mActionPerm = array_values($mActionPerm);
-			foreach ($mActionPerm AS $_k => &$_v) {
-				$_v = strtolower(trim($_v));
-				if (empty($_v)) unset($mActionPerm[$_k]);
-			}
-
-			return Application::GetIdentify()->hasRole($mActionPerm);
-		}
-		#endregion
 	}
 } 
