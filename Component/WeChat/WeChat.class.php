@@ -54,12 +54,13 @@ class WeChat
 		'link'       => 'Link'
 	];
 	protected $_aEventType = [
-		'subscribe'   => 'SubscribeEvent',
-		'unsubscribe' => 'UnsubscribeEvent',
-		'scan'        => 'ScanEvent',
-		'location'    => 'LocationEvent',
-		'click'       => 'ClickEvent',
-		'view'        => 'ViewEvent'
+		'subscribe'             => 'SubscribeEvent',
+		'unsubscribe'           => 'UnsubscribeEvent',
+		'scan'                  => 'ScanEvent',
+		'location'              => 'LocationEvent',
+		'click'                 => 'ClickEvent',
+		'view'                  => 'ViewEvent',
+		'templatesendjobfinish' => 'TemplateEvent'
 	];
 
 	//config

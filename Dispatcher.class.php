@@ -331,9 +331,9 @@ final class Dispatcher
 			return true;
 		}
 
-		if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
-
 		if(is_string($mPermRequired) AND $mPermRequired == '*'){
+			if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
+
 			return true;//any role
 		}
 		else if(is_string($mPermRequired) AND (strpos($mPermRequired, ',')!==-1 OR strpos($mPermRequired, '|') !==-1)){
@@ -346,7 +346,7 @@ final class Dispatcher
 		}
 		else if(is_array($mPermRequired)){
 			//controller-level permission define
-			if(is_string(array_values($mPermRequired)[0])){
+			if(array_key_exists(0, $mPermRequired)){
 				return Application::GetIdentify()->hasRole($mPermRequired);
 			}
 			else{
