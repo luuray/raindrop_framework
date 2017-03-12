@@ -182,7 +182,7 @@ class Loader
 
 		switch ($sLayOut) {
 			case 'controller':
-				$sTargetClass = substr($sClassName, 0, -10) . '.controller.php';
+				$sTargetClass = strtolower(substr($sClassName, 0, -10)) . '.controller.php';
 				break;
 			case 'interfaces':
 				$sTargetClass = $sClassName . '.interface.php';
