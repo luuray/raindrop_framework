@@ -19,6 +19,7 @@
 namespace Raindrop;
 
 
+use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\InitializedException;
 use Raindrop\Exceptions\NotInitializeException;
 
