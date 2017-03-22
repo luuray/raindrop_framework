@@ -21,6 +21,10 @@ use Exception;
 use Raindrop\Application;
 use Raindrop\Logger;
 
+if (PHP_MAJOR_VERSION < 7) {
+	require_once 'PHP7Compatible.php';
+}
+
 /**
  * Class ApplicationException(Base Exception)
  * @package Raindrop

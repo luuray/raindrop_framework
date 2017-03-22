@@ -337,6 +337,8 @@ final class Dispatcher
 			return true;//any role
 		}
 		else if(is_string($mPermRequired) AND (strpos($mPermRequired, ',')!==-1 OR strpos($mPermRequired, '|') !==-1)){
+			if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
+
 			$mPermRequired = preg_split('/[,|]/', $mPermRequired);
 			array_walk($mPermRequired, function(&$val){
 				$val = trim($val);
@@ -347,6 +349,8 @@ final class Dispatcher
 		else if(is_array($mPermRequired)){
 			//controller-level permission define
 			if(array_key_exists(0, $mPermRequired)){
+				if (Application::GetIdentify()->IsIdentified() == false) throw new UnidentifiedException;
+
 				return Application::GetIdentify()->hasRole($mPermRequired);
 			}
 			else{

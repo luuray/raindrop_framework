@@ -130,7 +130,11 @@ final class Session implements \Iterator, \ArrayAccess
 		if ($bRestart) {
 			session_regenerate_id();
 		} else {
-			if (@session_start() == false) throw new FatalErrorException('session_start_fail');
+			try {
+				if (@session_start() == false) throw new FatalErrorException('session_start_fail');
+			}catch (\Error $ex){
+				throw new FatalErrorException($ex->getMessage());
+			}
 		}
 
 		$this->_pSession = &$_SESSION;
