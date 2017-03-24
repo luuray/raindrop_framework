@@ -253,6 +253,7 @@ function number_to_half($sSubject)
 
 	return str_replace(array_values($aFullWidth), array_keys($aFullWidth), $sSubject);
 }
+
 #endregion
 
 #region Numeric Functions
@@ -293,22 +294,22 @@ function parse_int($mSubject)
  *
  * @return array
  */
-function to_int_array($mSubject, $sPattern=',|', $bUnique=false)
+function to_int_array($mSubject, $sPattern = ',|', $bUnique = false)
 {
-	if(is_array($mSubject)){
+	if (is_array($mSubject)) {
 		$mSubject = implode(str_first($sPattern), $mSubject);
 	}
 
-	$aResult = preg_split('/['.preg_quote($sPattern, '/').']/', $mSubject);
-	foreach($aResult AS $_k => &$_v){
-		if(str_nullorwhitespace($_v) OR !settype($_v, 'int'))
-		{
+	$aResult = preg_split('/[' . preg_quote($sPattern, '/') . ']/', $mSubject);
+	foreach ($aResult AS $_k => &$_v) {
+		if (str_nullorwhitespace($_v) OR !settype($_v, 'int')) {
 			unset($aResult[$_k]);
 		}
 	}
 
 	return $bUnique ? array_values($aResult) : $aResult;
 }
+
 #endregion
 
 #region Array Functions
@@ -545,4 +546,21 @@ function del_recursive($sPath)
 		return @unlink($sPath);
 	}
 }
+
 #endregion
+
+function bson2json($sBSON, $bAssoc = false)
+{
+	$aJson = json_decode($sBSON, true);
+
+	echo array_walk_recursive($aJson, function (&$_v) {
+		if (is_string($_v)) {
+			$aMatch = [];
+			if (preg_match('/^\/Date\(([0-9]{1,14})\)\/$/', $_v, $aMatch)) {
+				$_v = intval((int)$aMatch[1] / 1000);
+			}
+		}
+	});
+
+	return $bAssoc == true ? $aJson : (object)$aJson;
+}
