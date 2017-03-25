@@ -521,14 +521,24 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	public function toArray()
 	{
 		$this->_prepareToArray();
+		$aHiddenColumns = $this->_hiddenColumns();
+		if ($aHiddenColumns != null) {
+			array_walk($aHiddenColumns, function (&$_v) {
+				$_v = strtolower($_v);
+			});
+		} else {
+			$aHiddenColumns = [];
+		}
 
 		$aResult = array();
 
-		foreach ($this->_aColumns AS $_item) {
-			$aResult[$_item['Name']] = $_item['Value'];
+		foreach ($this->_aColumns AS $_key => $_item) {
+			if(!in_array($_key, $aHiddenColumns)){
+				$aResult[$_item['Name']] = $_item['Value'];
+			}
 		}
 
-		foreach ($this->_aExtraColumns AS $_item) {
+		foreach ($this->_aExtraColumns AS $_key => $_item) {
 			//$aResult[$_item['Name']] = $_item['Value'];
 			if ($_item['Value'] instanceof Model) {
 				$aResult[$_item['Name']] = $_item['Value']->toArray();
@@ -537,12 +547,15 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 					return $arr->toArray();
 				}, $_item['Value']);
 			} else {
-				$aResult[$_item['Name']] = $_item['Value'];
+				if(!in_array($_key, $aHiddenColumns)){
+					$aResult[$_item['Name']] = $_item['Value'];
+				}
 			}
 		}
 
 		return $aResult;
 	}
+
 	/**
 	 * Call on Model Changed
 	 */
@@ -562,5 +575,10 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	 */
 	protected function _prepareToArray()
 	{
+	}
+
+	protected function _hiddenColumns()
+	{
+		return null;
 	}
 }
