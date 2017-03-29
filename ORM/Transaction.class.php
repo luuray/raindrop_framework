@@ -20,7 +20,7 @@ namespace Raindrop\ORM;
 
 use Raindrop\Application;
 use Raindrop\DatabaseAdapter;
-use Raindrop\Debugger;
+use Raindrop\Logger;
 
 final class Transaction
 {
@@ -31,6 +31,10 @@ final class Transaction
 
 	public static function BeginTransaction($sDataSource)
 	{
+		if(Application::IsDebugging()){
+			Logger::Message('beginTransaction');
+		}
+
 		$sDataSource = strtolower($sDataSource);
 		if (array_key_exists($sDataSource, self::$_aTransPool)) {
 			self::$_aTransPool[$sDataSource]->newTrans();
@@ -54,7 +58,7 @@ final class Transaction
 			DatabaseAdapter::RollbackTransaction($this->_sDataSource);
 
 			if (Application::IsDebugging()) {
-				Debugger::Output('transaction_active(' . $this->_sDataSource . ')', 'Transaction');
+				Logger::Warning('transaction_active(' . $this->_sDataSource . ')', 'Transaction');
 			}
 		}
 	}
@@ -66,6 +70,10 @@ final class Transaction
 
 	public function commit()
 	{
+		if(Application::IsDebugging()){
+			Logger::Message('commitTransaction');
+		}
+
 		if ($this->_iTransDeep > 0) {
 			$this->_iTransDeep--;
 			if ($this->_iTransDeep == 0) {
@@ -80,6 +88,10 @@ final class Transaction
 
 	public function rollback()
 	{
+		if(Application::IsDebugging()){
+			Logger::Message('rollbackTransaction');
+		}
+
 		if ($this->_iTransDeep > 0) {
 			$this->_iTransDeep--;
 			if ($this->_iTransDeep == 0) {
