@@ -15,6 +15,7 @@
  *
  * @version $Rev$
  */
+
 namespace Raindrop;
 
 use Raindrop\Exceptions\FatalErrorException;
@@ -71,12 +72,12 @@ abstract class Application
 		if (self::$_oInstance instanceof Application) {
 			return self::$_oInstance;
 		} else {
-			register_shutdown_function(function(){
-				$aError =error_get_last();
+			register_shutdown_function(function () {
+				$aError = error_get_last();
 
-				if($aError['type'] <= E_PARSE){
-					header_remove();
-					http_response_code(500);
+				if ($aError['type'] <= E_PARSE) {
+					@header_remove();
+					@http_response_code(500);
 					echo json_encode($aError);
 				}
 			});
@@ -86,8 +87,6 @@ abstract class Application
 
 				//clean file stat cache
 				clearstatcache();
-
-				ob_start();
 
 				return (new \ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
 			} catch (\Exception $ex) {
@@ -276,7 +275,7 @@ EXP;
 		if (self::$_bEnableDebug == true) {
 			Logger::Message('---------- Request Begin ----------');
 			if (str_beginwith(php_sapi_name(), 'cli')) {
-				$aArgs = $_SERVER['argv'];
+				$aArgs     = $_SERVER['argv'];
 				$sFileName = array_shift($aArgs);
 				Logger::Message(sprintf('Console: [%s] %s', $sFileName, implode(' ', $aArgs)));
 			} else {

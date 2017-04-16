@@ -26,6 +26,8 @@ final class WebApplication extends Application
 {
 	protected function _initialize()
 	{
+		ob_start();
+
 		if (self::IsDebugging()) {
 			//Initialize Debugger
 			Debugger::Initialize();
