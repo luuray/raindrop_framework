@@ -212,7 +212,7 @@ class Router
 			$this->_oRequest->setController('_');
 			$this->_oRequest->setAction('_');
 
-			Logger::Warning('route_default_unmatched:' . $this->_sRequest);
+			Logger::Message('route_default_unmatched:' . $this->_sRequest);
 		}
 
 		//Debugger
