@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * Aliyun ACE Storage Handler
+ * Aliyun ACE Storage Wrapper
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2016, Rainhan System
- * Site: www.rainhan.net/?proj=FruitShop
- *
- * $Id$
- *
- * @version $Rev$
+ * Copyright (c) 2010-2017, Rainhan System
+ * Site: raindrop-php.rainhan.net
  */
 
 namespace Raindrop\Component\Aliyun;

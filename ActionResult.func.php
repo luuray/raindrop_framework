@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * Action Result Functional Call
+ * Action Result Functional Caller
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2014, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
 function View($sTplName = null, $mData = null)

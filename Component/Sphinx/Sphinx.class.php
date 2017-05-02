@@ -1,0 +1,1 @@
+<?php/** * DTeacher * * * * @author Luuray * @copyright Rainhan System * @id $Id$ * * Copyright (c) 2010-2017, Rainhan System * Site: www.rainhan.net/?proj=DTeacher */namespace Raindrop\Component\Sphinx;class Sphinx{	public function __construct()	{	}}

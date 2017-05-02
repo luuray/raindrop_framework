@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * Error Page View
+ * View of ErrorPage
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2014-2015, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
 namespace Raindrop\ActionResult;

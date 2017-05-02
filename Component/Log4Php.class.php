@@ -2,19 +2,16 @@
 /**
  * Raindrop Framework for PHP
  *
- * Log4Php Adapter Component
+ * Log4Php Wrapper
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2014, Rainhan System
- * Site: www.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
+ * Copyright (c) 2010-2017, Rainhan System
+ * Site: raindrop-php.rainhan.net
  */
+
 namespace Raindrop\Component;
 
 use Raindrop\Configuration;

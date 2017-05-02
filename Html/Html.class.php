@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * HTML Component Base
+ * HTML Component Abstract
  *
- * @author $Author$
- * @copyright
- * @date $Date$
+ * @author Luuray
+ * @copyright Rainhan System
+ * @id $Id$
  *
- * Copyright (c) 2014-2015, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
 namespace Raindrop\Html;

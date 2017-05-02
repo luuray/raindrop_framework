@@ -4,17 +4,14 @@
  *
  * Random String Generator
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2014, Rainhan System
- * Site: www.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
+ * Copyright (c) 2010-2017, Rainhan System
+ * Site: raindrop-php.rainhan.net
  */
+
 namespace Raindrop\Component;
 
 class RandomString

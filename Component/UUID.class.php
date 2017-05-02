@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * UUID
+ * UUID Gerent
  *
- * @author $Author$
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2015, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
 namespace Raindrop\Component;

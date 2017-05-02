@@ -2,18 +2,14 @@
 /**
  * Raindrop Framework for PHP
  *
- * Memcached Manager
+ * MemcacheD Manager
  *
- * @author $Author: Luuray $
+ * @author Luuray
  * @copyright Rainhan System
- * @date $Date$
+ * @id $Id$
  *
- * Copyright (c) 2010-2015, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: raindrop-php.rainhan.net
- *
- * $Id$
- *
- * @version $Rev$
  */
 
 $aServer['main'] = '127.0.0.1:11211';

@@ -8,7 +8,7 @@
  * @copyright Rainhan System
  * @date $Date$
  *
- * Copyright (c) 2010-2016, Rainhan System
+ * Copyright (c) 2010-2017, Rainhan System
  * Site: www.rainhan.net/?proj=BoostStream
  *
  * $Id$
