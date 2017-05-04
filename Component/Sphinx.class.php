@@ -1,0 +1,1 @@
+<?php/** * Raindrop Framework for PHP * * Sphinx Search Provider * * @author Luuray * @copyright Rainhan System * @id $Id$ * * Copyright (c) 2010-2017, Rainhan System * Site: raindrop-php.rainhan.net */namespace Raindrop\Component\Sphinx;use Raindrop\Interfaces\ISearchProvider;class Sphinx implements ISearchProvider{}
