@@ -67,9 +67,17 @@ class RuntimeException extends ApplicationException
 
 class ConfigurationMissingException extends FatalErrorException
 {
+	protected $_sSection;
+
 	public function __construct($sSection)
 	{
+		$this->_sSection = $sSection;
 		parent::__construct(sprintf('Configuration section "%s" is missing', $sSection));
+	}
+
+	public final function getSection()
+	{
+		return $this->_sSection;
 	}
 }
 
