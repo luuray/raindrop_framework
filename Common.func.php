@@ -303,7 +303,7 @@ function to_int_array($mSubject, $sPattern = ',|', $bUnique = false)
 		}
 	}
 
-	return $bUnique ? array_values($aResult) : $aResult;
+	return $bUnique ? array_unique($aResult) : $aResult;
 }
 
 #endregion
