@@ -22,7 +22,6 @@ class Loader
 
 	/**
 	 * Alias of Loader::GetInstance
-	 * @return Loader
 	 */
 	public static function Initialize()
 	{
@@ -91,7 +90,7 @@ class Loader
 			}
 		}
 		if (empty($sLoadPath)) {
-			throw new FileNotFoundException(self::ClearPath($_path));
+			throw new FileNotFoundException(self::ClearPath($sLoadPath));
 		}
 
 		if ($bAutoLoad == true) {
@@ -126,10 +125,15 @@ class Loader
 
 	}
 
+	/**
+	 * @param $sTargetClass
+	 *
+	 * @return void
+	 */
 	public function autoload($sTargetClass)
 	{
 		//declared check
-		if (class_exists($sTargetClass, false) || interface_exists($sTargetClass, false)) return true;
+		if (class_exists($sTargetClass, false) || interface_exists($sTargetClass, false)) return;
 
 		//load framework
 		if (str_beginwith($sTargetClass, 'Raindrop')) {
@@ -137,9 +141,6 @@ class Loader
 		} //load application
 		else if (str_beginwith($sTargetClass, AppName)) {
 			$this->_loadApplication($sTargetClass);
-		} else {
-			//jump to other spl registered loader
-			return;
 		}
 	}
 

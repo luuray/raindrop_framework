@@ -1,0 +1,1 @@
+<?php/*** Raindrop Framework for PHP** WeChat Payment Component** @author Luuray* @copyright Rainhan System* @id $Id$** Copyright (c) 2010-2017, Rainhan System* Site: raindrop-php.rainhan.net*/namespace Raindrop\Component\WeChat;class WeChatPay{}

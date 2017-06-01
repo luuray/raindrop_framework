@@ -1,0 +1,1 @@
+<?php/** * Raindrop Framework for PHP * * Aliyun Message Service * * @author Luuray * @copyright Rainhan System * @id $Id$ * * Copyright (c) 2010-2017, Rainhan System * Site: raindrop-php.rainhan.net */namespace Raindrop\Component\Aliyun;require_once '../aliyuncs/mns-sdk-php/mns-autoloader.php';class MNS{	public function __construct()	{	}}
