@@ -24,6 +24,7 @@ class HttpCode extends ActionResult
 	protected $_mParam = null;
 	
 	const CODE_OK = 200;
+	const CODE_NoContent = 204;
 
 	const CODE_Unauthorized = 401;
 	const CODE_Forbidden = 403;

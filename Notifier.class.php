@@ -17,7 +17,11 @@ namespace Raindrop;
 
 class Notifier
 {
-	public function Send($mReceiver, $sContent, $sTitle = null, $sHandler = 'default')
+	public static function SendMsg($mReceiver, $sContent, $sTitle = null, $sHandler = 'default')
+	{
+	}
+
+	public static function SendTemplateMsg($mReceiver, $sTemplateName, $aParams, $sHandler)
 	{
 	}
 }

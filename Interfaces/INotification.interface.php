@@ -14,9 +14,14 @@
 
 namespace Raindrop\Interfaces;
 
+use Raindrop\Configuration;
+
 interface INotification
 {
-	public function __construct($aConfig, $sHandlerName);
+	public function __construct(Configuration $oConfig, $sHandlerName);
 
-	public function send($mReceiver, $sContent, $sTitle = 'no subject');
+	public function sendMsg($mReceiver, $sContent, $sTitle);
+	public function sendTemplateMsg($mReceiver, $sTemplateName, $aParams);
+
+	public function getName();
 }
