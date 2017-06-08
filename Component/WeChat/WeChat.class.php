@@ -73,8 +73,14 @@ class WeChat
 
 
 	//access_token
+	/**
+	 * @var null|AccessToken
+	 */
 	protected $_oAPIAccessToken = null;
-	protected $_oWebAccessToken = null;
+	/**
+	 * @var null|AccessToken
+	 */
+	protected $_oJSApiAccessToken = null;
 
 	/**
 	 * WeChat constructor.
@@ -109,6 +115,7 @@ class WeChat
 	}
 
 	#region Getters
+
 	/**
 	 * @return string
 	 */
@@ -166,11 +173,11 @@ class WeChat
 	}
 
 	/**
-	 * @return null|WebAccessToken
+	 * @return null|AccessToken
 	 */
-	public function getWebToken()
+	public function getJSAPIToken()
 	{
-		return clone $this->_oWebAccessToken;
+		return clone $this->_oJSApiAccessToken;
 	}
 	#endregion
 
@@ -193,6 +200,7 @@ class WeChat
 	}
 
 	#region API Access Token
+
 	/**
 	 * Set Access Token
 	 *
@@ -210,12 +218,30 @@ class WeChat
 	}
 
 	/**
+	 * Set JS API Access Token
+	 *
+	 * @param AccessToken $oToken
+	 *
+	 * @throws RuntimeException
+	 */
+	public function setJSAPIAccessToken(AccessToken $oToken)
+	{
+		if ($oToken->ExpireTime <= time()) {
+			throw new RuntimeException('token_expire');
+		}
+
+		$this->_oJSApiAccessToken = $oToken;
+	}
+
+	/**
 	 * Get Access Token from Server
+	 *
+	 * @param bool $bSkipFlush
 	 *
 	 * @return AccessToken
 	 * @throws RuntimeException
 	 */
-	public function getAPIAccessToken()
+	public function getAPIAccessToken($bSkipFlush = false)
 	{
 		try {
 			$oResult = $this->ApiGetRequest(sprintf(
@@ -226,9 +252,48 @@ class WeChat
 				throw new RuntimeException($oResult->errmsg, $oResult->errcode);
 			}
 
-			return new AccessToken($oResult);
+			$oAccessToken = new AccessToken($oResult);
+			if ($bSkipFlush == true) {
+				$this->_oAPIAccessToken = $oAccessToken;
+			}
+
+			return $oAccessToken;
 		} catch (RuntimeException $ex) {
 			throw new RuntimeException('get_api_access_token:' . $ex->getMessage());
+		}
+	}
+
+	/**
+	 * Get JS API Access Token
+	 *
+	 * @param bool $bSkipFlush
+	 *
+	 * @return AccessToken
+	 * @throws RuntimeException
+	 */
+	public function getJSAPIAccessToken($bSkipFlush = false)
+	{
+		try {
+			if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
+				throw new RuntimeException('invalid_api_access_token');
+			}
+
+			$oResult = $this->ApiGetRequest(sprintf(
+				'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi',
+				$this->_oAPIAccessToken->AccessToken));
+
+			if (property_exists($oResult, 'errcode') AND $oResult->errcode == 0) {
+				$oToken = new AccessToken($oResult);
+				if ($bSkipFlush == true) {
+					$this->_oJSApiAccessToken = $oToken;
+				}
+
+				return $oToken;
+			} else {
+				throw new RuntimeException(property_exists($oResult, 'errmsg') ? $oResult->errmsg : json_encode($oResult));
+			}
+		} catch (RuntimeException $ex) {
+			throw new RuntimeException('get_js_api_access_token:' . $ex->getMessage());
 		}
 	}
 	#endregion
@@ -353,7 +418,7 @@ class WeChat
 	}
 	#endregion
 
-	#region Web Token, Web UserInfo
+	#region Web Token, Web UserInfo, Web Signature
 	/**
 	 * @param $sRedirect
 	 * @param bool $bUserInfo
@@ -460,6 +525,22 @@ class WeChat
 		}
 	}
 
+	public function getWebSignature($aApiRequire)
+	{
+		$aSignature = [
+			'appId'     => $this->_sAppId,
+			'timestamp' => Application::GetRequestTime(),
+			'nonceStr'  => '',
+			'signature' => '',
+			'jsApiList' => []
+		];
+
+		if (Application::IsDebugging()) {
+			$aSignature['debug'] = true;
+		}
+
+		return $aSignature;
+	}
 	#endregion
 
 	#region Api Request
