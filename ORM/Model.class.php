@@ -118,36 +118,46 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	#endregion
 
 	/**
-	 * @param \stdClass|null $oData
+	 * @param null $mData
 	 *
-	 * @throws \Raindrop\Exceptions\Model\ModelNotFoundException
+	 * @throws DataModelException
+	 * @throws InvalidArgumentException
+	 * @internal param array|null|\stdClass $oData
 	 */
-	public final function __construct(\stdClass $oData = null)
+	public final function __construct($mData = null)
 	{
 		$aScheme          = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
 		//get default data
-		if ($oData === null) {
+		if ($mData === null) {
 			$this->_iState = self::ModelState_Create;
 			//assign columns with default
 			foreach ($aScheme['Default'] AS $_col => $_val) {
 				$this->_aColumns[strtolower($_col)] = ['Name' => $_col, 'Value' => $_val];
 			}
 		} else {
-			$aData = get_object_vars($oData);
+			if($mData instanceof \stdClass) {
+				$aData = array_key_case(get_object_vars($mData), CASE_LOWER);
+			}
+			else if(is_array($mData)){
+				$aData = array_key_case($mData, CASE_LOWER);
+			}
+			else{
+				throw new InvalidArgumentException('data');
+			}
 
 			foreach ($aScheme['Default'] AS $_col => $_val) {
 				$_lowCaseCol = strtolower($_col);
-				if (!array_key_exists($_col, $aData)) continue;
+				if (!array_key_exists($_lowCaseCol, $aData)) continue;
 
 				$sSourceType = gettype($_val);
 
-				if ($sSourceType == 'NULL' OR gettype($aData[$_col]) == $sSourceType OR settype($aData[$_col], $sSourceType)) {
-					$this->_aColumns[$_lowCaseCol] = ['Name' => $_col, 'Value' => $aData[$_col]];
+				if ($sSourceType == 'NULL' OR gettype($aData[$_lowCaseCol]) == $sSourceType OR settype($aData[$_lowCaseCol], $sSourceType)) {
+					$this->_aColumns[$_lowCaseCol] = ['Name' => $_col, 'Value' => $aData[$_lowCaseCol]];
 				} else throw new DataModelException('invalid_column_datetype:' . $_col);
 
-				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_col];
+				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_lowCaseCol];
 			}
 		}
 	}

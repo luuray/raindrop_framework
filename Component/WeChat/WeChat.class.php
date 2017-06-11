@@ -273,11 +273,11 @@ class WeChat
 	 */
 	public function getJSAPIAccessToken($bSkipFlush = false)
 	{
-		try {
-			if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
-				throw new RuntimeException('invalid_api_access_token');
-			}
+		if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
+			throw new RuntimeException('invalid_api_access_token');
+		}
 
+		try {
 			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi',
 				$this->_oAPIAccessToken->AccessToken));
@@ -506,19 +506,25 @@ class WeChat
 	}
 
 	/**
-	 * @param $sToken
 	 * @param $sUserId
 	 *
 	 * @return UserInfo
 	 * @throws RuntimeException
 	 */
-	public function getUserInfo($sToken, $sUserId)
+	public function getUserInfo($sUserId)
 	{
+		if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
+			throw new RuntimeException('invalid_api_access_token');
+		}
+
 		try {
 			$oResult = $this->ApiGetRequest(sprintf(
-				'https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN',
-				$sToken, $sUserId));
+				'https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN',
+				$this->_oAPIAccessToken->AccessToken, $sUserId));
 
+			if(property_exists($oResult, 'errorcode')){
+				throw new RuntimeException($oResult->errmsg);
+			}
 			return new UserInfo($oResult);
 		} catch (RuntimeException $ex) {
 			throw new RuntimeException('get_user_info:' . $ex->getMessage());
