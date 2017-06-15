@@ -14,21 +14,23 @@
 
 namespace Raindrop\Component\WeChat;
 
-
 use Raindrop\Application;
 use Raindrop\Component\WeChat\Component\CustomerService;
 use Raindrop\Component\WeChat\Component\MenuService;
 use Raindrop\Component\WeChat\Component\MessageAdapter;
 use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
+use Raindrop\Component\WeChat\Exceptions\InvalidAccessTokenException;
 use Raindrop\Component\WeChat\Model\AccessToken;
 use Raindrop\Component\WeChat\Model\Message;
 use Raindrop\Component\WeChat\Model\UserInfo;
 use Raindrop\Component\WeChat\Model\WebAccessToken;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\RuntimeException;
+use Raindrop\Loader;
 use Raindrop\Logger;
 
+Loader::Import('Exceptions.php', __DIR__);
 /**
  * Class WeChat
  * @package Raindrop\Component\WeChat
@@ -211,7 +213,7 @@ class WeChat
 	public function setAPIAccessToken(AccessToken $oToken)
 	{
 		if ($oToken->ExpireTime <= time()) {
-			throw new RuntimeException('token_expire');
+			throw new InvalidAccessTokenException('expire');
 		}
 
 		$this->_oAPIAccessToken = $oToken;
@@ -295,6 +297,13 @@ class WeChat
 		} catch (RuntimeException $ex) {
 			throw new RuntimeException('get_js_api_access_token:' . $ex->getMessage());
 		}
+	}
+	#endregion
+
+	#region Account Manage
+	public function getQRCode($iExpireTime)
+	{
+
 	}
 	#endregion
 
