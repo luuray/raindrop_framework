@@ -20,7 +20,11 @@ use Raindrop\Component\WeChat\Component\MenuService;
 use Raindrop\Component\WeChat\Component\MessageAdapter;
 use Raindrop\Component\WeChat\Component\NewsService;
 use Raindrop\Component\WeChat\Component\TemplateService;
+use Raindrop\Component\WeChat\Exceptions\AccessTokenExpiredException;
+use Raindrop\Component\WeChat\Exceptions\APIRequestException;
+use Raindrop\Component\WeChat\Exceptions\APIResponseException;
 use Raindrop\Component\WeChat\Exceptions\InvalidAccessTokenException;
+use Raindrop\Component\WeChat\Exceptions\MessageDecodingException;
 use Raindrop\Component\WeChat\Model\AccessToken;
 use Raindrop\Component\WeChat\Model\Message;
 use Raindrop\Component\WeChat\Model\UserInfo;
@@ -31,6 +35,7 @@ use Raindrop\Loader;
 use Raindrop\Logger;
 
 Loader::Import('Exceptions.php', __DIR__);
+
 /**
  * Class WeChat
  * @package Raindrop\Component\WeChat
@@ -167,19 +172,33 @@ class WeChat
 	}
 
 	/**
-	 * @return null|AccessToken
+	 * @return AccessToken
+	 * @throws InvalidAccessTokenException
 	 */
 	public function getAPIToken()
 	{
-		return clone $this->_oAPIAccessToken;
+		if ($this->_oAPIAccessToken == null) {
+			throw new InvalidAccessTokenException('token_not_initialize');
+		} else if ($this->_oAPIAccessToken->ExpireTime <= time()) {
+			throw new InvalidAccessTokenException('token_expired');
+		} else {
+			return clone $this->_oAPIAccessToken;
+		}
 	}
 
 	/**
-	 * @return null|AccessToken
+	 * @return AccessToken
+	 * @throws InvalidAccessTokenException
 	 */
 	public function getJSAPIToken()
 	{
-		return clone $this->_oJSApiAccessToken;
+		if ($this->_oJSApiAccessToken == null) {
+			throw new InvalidAccessTokenException('token_not_initialize');
+		} else if ($this->_oJSApiAccessToken->ExpireTime <= time()) {
+			throw new InvalidAccessTokenException('token_expired');
+		} else {
+			return clone $this->_oJSApiAccessToken;
+		}
 	}
 	#endregion
 
@@ -213,7 +232,7 @@ class WeChat
 	public function setAPIAccessToken(AccessToken $oToken)
 	{
 		if ($oToken->ExpireTime <= time()) {
-			throw new InvalidAccessTokenException('expire');
+			throw new InvalidAccessTokenException('token_expired');
 		}
 
 		$this->_oAPIAccessToken = $oToken;
@@ -229,7 +248,7 @@ class WeChat
 	public function setJSAPIAccessToken(AccessToken $oToken)
 	{
 		if ($oToken->ExpireTime <= time()) {
-			throw new RuntimeException('token_expire');
+			throw new InvalidAccessTokenException('token_expired');
 		}
 
 		$this->_oJSApiAccessToken = $oToken;
@@ -250,18 +269,15 @@ class WeChat
 				'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s',
 				$this->_sAppId, $this->_sAppSecret));
 
-			if (property_exists($oResult, 'errcode')) {
-				throw new RuntimeException($oResult->errmsg, $oResult->errcode);
-			}
-
 			$oAccessToken = new AccessToken($oResult);
+
 			if ($bSkipFlush == true) {
 				$this->_oAPIAccessToken = $oAccessToken;
 			}
 
 			return $oAccessToken;
-		} catch (RuntimeException $ex) {
-			throw new RuntimeException('get_api_access_token:' . $ex->getMessage());
+		} catch (APIRequestException $ex) {
+			throw new APIRequestException('get_api_access_token', 0, $ex);
 		}
 	}
 
@@ -275,8 +291,10 @@ class WeChat
 	 */
 	public function getJSAPIAccessToken($bSkipFlush = false)
 	{
-		if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
-			throw new RuntimeException('invalid_api_access_token');
+		if ($this->_oAPIAccessToken == null) {
+			throw new InvalidAccessTokenException('token_not_initialize');
+		} else if ($this->_oAPIAccessToken->ExpireTime <= time()) {
+			throw new InvalidAccessTokenException('token_expired');
 		}
 
 		try {
@@ -284,18 +302,14 @@ class WeChat
 				'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi',
 				$this->_oAPIAccessToken->AccessToken));
 
-			if (property_exists($oResult, 'errcode') AND $oResult->errcode == 0) {
-				$oToken = new AccessToken($oResult);
-				if ($bSkipFlush == true) {
-					$this->_oJSApiAccessToken = $oToken;
-				}
-
-				return $oToken;
-			} else {
-				throw new RuntimeException(property_exists($oResult, 'errmsg') ? $oResult->errmsg : json_encode($oResult));
+			$oToken = new AccessToken($oResult);
+			if ($bSkipFlush == true) {
+				$this->_oJSApiAccessToken = $oToken;
 			}
-		} catch (RuntimeException $ex) {
-			throw new RuntimeException('get_js_api_access_token:' . $ex->getMessage());
+
+			return $oToken;
+		} catch (APIRequestException $ex) {
+			throw new APIRequestException('get_js_api_access_token', 0, $ex);
 		}
 	}
 	#endregion
@@ -323,7 +337,7 @@ class WeChat
 
 		if ($oDocument instanceof \SimpleXMLElement) {
 		} else {
-			throw new RuntimeException('decode_failed');
+			throw new MessageDecodingException('decode');
 		}
 
 		$aData         = get_object_vars($oDocument);
@@ -336,20 +350,20 @@ class WeChat
 			if ($sMsgType == 'event') {
 				//event message
 				if (!isset($aData['Event'])) {
-					throw new RuntimeException('missing_event_type');
+					throw new MessageDecodingException('missing_event_type');
 				}
 
 				$sEvent = strtolower($aData['Event']);
 				if (isset($this->_aEventType[$sEvent])) {
 					$sMessageModel = $this->_aEventType[$sEvent];
 				} else {
-					throw new RuntimeException('undefined_event');
+					throw new MessageDecodingException('undefined_event');
 				}
 
 			} else {
 				//normal message
 				if (!isset($aData['MsgId'])) {
-					throw new RuntimeException('missing_msg_id');
+					throw new MessageDecodingException('missing_msg_id');
 				}
 				$iMsgId = $aData['MsgId'];
 				if (isset($this->_aMsgType[$sMsgType])) {
@@ -357,7 +371,7 @@ class WeChat
 				}
 			}
 		} else {
-			throw new RuntimeException('messing_param');
+			throw new MessageDecodingException('messing_param');
 		}
 
 		$oRefClass = new \ReflectionClass('Raindrop\Component\WeChat\Message\\' . $sMessageModel);
@@ -371,10 +385,11 @@ class WeChat
 				'ToUserName'   => '',
 				'CreateTime'   => '',
 				'MsgId'        => '']));
+
 		if ($oMessage instanceof Message) {
 			return $oMessage;
 		} else {
-			throw new RuntimeException('undefined');
+			throw new MessageDecodingException('undefined');
 		}
 	}
 
@@ -461,13 +476,9 @@ class WeChat
 				'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code',
 				$this->_sAppId, $this->_sAppSecret, $sCode));
 
-			if (property_exists($oResult, 'errcode')) {
-				throw new RuntimeException($oResult->errmsg, $oResult->errcode);
-			}
-
 			return new WebAccessToken($oResult);
 		} catch (RuntimeException $ex) {
-			throw new RuntimeException('get_web_access_token:' . $ex->getMessage());
+			throw new APIRequestException('get_web_access_token', 0, $ex);
 		}
 	}
 
@@ -484,13 +495,9 @@ class WeChat
 				'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s',
 				$this->_sAppId, $sRefreshToken));
 
-			if (property_exists($oResult, 'errcode')) {
-				throw new RuntimeException($oResult->errmsg, $oResult->errcode);
-			}
-
 			return new WebAccessToken($oResult);
-		} catch (RuntimeException $ex) {
-			throw new RuntimeException('get_access_token_web:' . $ex->getMessage());
+		} catch (APIRequestException $ex) {
+			throw new APIRequestException('get_access_token_web', 0, $ex);
 		}
 	}
 
@@ -504,13 +511,15 @@ class WeChat
 	public function verifyWebAccessToken($sToken, $sUserId)
 	{
 		try {
-			$oResult = $this->ApiGetRequest(sprintf(
+			$this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s',
 				$sToken, $sUserId));
 
-			return property_exists($oResult, 'errcode') && $oResult->errcode == 0 ? true : false;
-		} catch (RuntimeException $ex) {
-			throw new RuntimeException('verify_web_access_token:' . $ex->getMessage());
+			return true;
+		} catch (APIResponseException $ex) {
+			return false;
+		} catch (APIRequestException $ex) {
+			throw new APIRequestException('verify_web_access_token', 0, $ex);
 		}
 	}
 
@@ -522,8 +531,10 @@ class WeChat
 	 */
 	public function getUserInfo($sUserId)
 	{
-		if ($this->_oAPIAccessToken == null OR $this->_oAPIAccessToken->ExpireTime <= time()) {
-			throw new RuntimeException('invalid_api_access_token');
+		if ($this->_oAPIAccessToken == null) {
+			throw new InvalidAccessTokenException('token_not_initialize');
+		} else if ($this->_oAPIAccessToken->ExpireTime <= time()) {
+			throw new InvalidAccessTokenException('token_expired');
 		}
 
 		try {
@@ -531,12 +542,9 @@ class WeChat
 				'https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN',
 				$this->_oAPIAccessToken->AccessToken, $sUserId));
 
-			if(property_exists($oResult, 'errorcode')){
-				throw new RuntimeException($oResult->errmsg);
-			}
 			return new UserInfo($oResult);
-		} catch (RuntimeException $ex) {
-			throw new RuntimeException('get_user_info:' . $ex->getMessage());
+		} catch (APIRequestException $ex) {
+			throw new APIRequestException('get_user_info', 0, $ex);
 		}
 	}
 
@@ -592,12 +600,25 @@ class WeChat
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>' . $sTarget . ', response=>' . $mResult
 				. ' length=>' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
-		}
 
+			throw new APIRequestException($sError);
+		}
 
 		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
-			throw new RuntimeException('invalid_response');
+			throw new APIResponseException('invalid_response');
 		}
+
+		if (property_exists($mResult, 'errcode') AND $mResult->errcode != 0) {
+			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+
+			Logger::Warning(
+				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
+				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . ', response=>' . $mResult
+				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
+
+			throw new APIResponseException($mResult->errmsg, $mResult->errcode);
+		}
+
 
 		return $mResult;
 	}
@@ -639,13 +660,15 @@ class WeChat
 				$aDebugBacktrace['class'] . $aDebugBacktrace['type'] . $aDebugBacktrace['function']
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
 				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
+
+			throw new APIRequestException($sError);
 		}
 
-		if (empty($mResult) OR ($aDecoded = json_decode($mResult, true)) == false) {
-			throw new RuntimeException('invalid_response');
+		if (empty($mResult) OR ($oDecoded = json_decode($mResult)) == false) {
+			throw new APIResponseException('invalid_response');
 		}
 
-		if (isset($aDecoded['errcode']) AND $aDecoded['errcode'] != 0) {
+		if (property_exists($oDecoded, 'errcode') AND $oDecoded->errcode != 0) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
 
 			Logger::Warning(
@@ -653,7 +676,7 @@ class WeChat
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . $sContent . ', response=>' . $mResult
 				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 
-			throw new RuntimeException($aDecoded['errmsg'], $aDecoded['errcode']);
+			throw new APIResponseException($oDecoded->errmsg, $oDecoded->errcode);
 		}
 
 		return $aDecoded;

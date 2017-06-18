@@ -378,7 +378,7 @@ class ModelAction
 				($iLimit > 0 ? ('LIMIT ' . ($iSkip >= 0 ? "{$iSkip},{$iLimit}" : $iLimit)) : null)),
 			$aParam, $sModel::GetDbConnect());
 
-		if ($aResults !== false) {
+		if ($aResults != null) {
 			$aModelArray = array();
 			foreach ($aResults AS $_item) {
 				$aModelArray[] = new $sModel($_item);
