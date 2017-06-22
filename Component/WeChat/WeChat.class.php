@@ -604,11 +604,11 @@ class WeChat
 			throw new APIRequestException($sError);
 		}
 
-		if (empty($mResult) OR ($mResult = json_decode($mResult)) == false) {
+		if (empty($mResult) OR ($mDecoded = json_decode($mResult)) == false) {
 			throw new APIResponseException('invalid_response');
 		}
 
-		if (property_exists($mResult, 'errcode') AND $mResult->errcode != 0) {
+		if (property_exists($mDecoded, 'errcode') AND $mDecoded->errcode != 0) {
 			$aDebugBacktrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
 
 			Logger::Warning(
@@ -616,11 +616,11 @@ class WeChat
 				. '[' . $this->_sName . ']:request=>(' . $sTarget . ')' . ', response=>' . $mResult
 				. ' =>length: ' . strlen($mResult) . ($mResult == false ? ' error=>' . $sError : null));
 
-			throw new APIResponseException($mResult->errmsg, $mResult->errcode);
+			throw new APIResponseException($mDecoded->errmsg, $mDecoded->errcode);
 		}
 
 
-		return $mResult;
+		return $mDecoded;
 	}
 
 	/**
