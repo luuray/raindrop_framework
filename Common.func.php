@@ -549,7 +549,7 @@ function bson2json($sBSON, $bAssoc = false)
 {
 	$aJson = json_decode($sBSON, true);
 
-	echo array_walk_recursive($aJson, function (&$_v) {
+	array_walk_recursive($aJson, function (&$_v) {
 		if (is_string($_v)) {
 			$aMatch = [];
 			if (preg_match('/^\/Date\(([0-9]{1,14})\)\/$/', $_v, $aMatch)) {
