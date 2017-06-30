@@ -100,12 +100,12 @@ class Router
 		Loader::Import('config.route.php', AppDir);
 
 		$this->_oRequest = $oRequest;
-/*
-		if ($this->_matchStaticRoute() == false) {
-			$this->_sRequest =
-				strtolower((!isset($_SERVER['PATH_INFO']) OR $_SERVER['PATH_INFO'] == '/') ? '/Default/' : $_SERVER['PATH_INFO']);
-		}
-*/
+		/*
+				if ($this->_matchStaticRoute() == false) {
+					$this->_sRequest =
+						strtolower((!isset($_SERVER['PATH_INFO']) OR $_SERVER['PATH_INFO'] == '/') ? '/Default/' : $_SERVER['PATH_INFO']);
+				}
+		*/
 		if ($this->_matchStaticRoute() == false) {
 			$this->_sRequest = strtolower(!isset($_SERVER['PATH_INFO']) ? null : $_SERVER['PATH_INFO']);
 		}
@@ -124,7 +124,7 @@ class Router
 				$this->_sRequest = @preg_replace('#' . $_rule . '#i', $_target, $sRequest);
 
 				//parse query params
-				if(($aQuery = parse_url($this->_sRequest, PHP_URL_QUERY))!==null){
+				if (($aQuery = parse_url($this->_sRequest, PHP_URL_QUERY)) !== null) {
 					$this->_sRequest = parse_url($this->_sRequest, PHP_URL_PATH);
 					parse_str($aQuery, $aQuery);
 					$this->_oRequest->setQuery($aQuery);
@@ -132,6 +132,7 @@ class Router
 
 				if (Application::IsDebugging()) {
 					Debugger::Output('RouteMatch:' . $_rule);
+					Logger::Message('RouteMatch:' . $_rule);
 				}
 
 				return true;
@@ -143,14 +144,13 @@ class Router
 	{
 		$aMatch = array();
 		$iMatch = 0;
-		$sType = null;
+		$sType  = null;
 
-		if($this->_sRequest == '/' OR $this->_sRequest == null){
+		if ($this->_sRequest == '/' OR $this->_sRequest == null) {
 			$this->_oRequest->setController('default');
 			$this->_oRequest->setAction('index');
 			$this->_oRequest->setType('View');
-		}
-		else if ($iMatch = preg_match(
+		} else if ($iMatch = preg_match(
 			'#^/(?<Match1>[a-z]+[a-z0-9\-_]*)(|\.(?<Match1Ext>[a-z0-9]+)|/(|(?<Match2>[a-z]+[a-z0-9\-_]*)(|\.(?<Match2Ext>[a-z0-9]+)|/(|(?<Match3>[a-z]+[a-z0-9\-_]*)(|\.(?<Match3Ext>[a-z0-9]+))))))$#i',
 			$this->_sRequest, $aMatch)
 		) {
