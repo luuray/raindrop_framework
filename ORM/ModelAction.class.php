@@ -314,7 +314,7 @@ class ModelAction
 				!empty($aOrderBy) ? 'ORDER BY ' . implode(',', $aOrderBy) : null),
 			$aParams, $sModel::GetDbConnect());
 
-		return $oResult == false ? null : new $sModel($oResult);
+		return $oResult == false ? null : new $sModel($oResult, false);
 	}
 
 	/**
@@ -342,7 +342,7 @@ class ModelAction
 		if ($aResults !== false) {
 			$aModelArray = [];
 			foreach ($aResults AS $_item) {
-				$aModelArray[] = new $sModel($_item);
+				$aModelArray[] = new $sModel($_item, false);
 			}
 
 			return $aModelArray;
@@ -381,7 +381,7 @@ class ModelAction
 		if ($aResults != null) {
 			$aModelArray = array();
 			foreach ($aResults AS $_item) {
-				$aModelArray[] = new $sModel($_item);
+				$aModelArray[] = new $sModel($_item, false);
 			}
 
 			return $aModelArray;
@@ -420,7 +420,7 @@ class ModelAction
 		if ($aResults !== false) {
 			$aModelArray = array();
 			foreach ($aResults AS $_item) {
-				$aModelArray[] = new $sModel($_item);
+				$aModelArray[] = new $sModel($_item, false);
 			}
 
 			return $aModelArray;

@@ -76,6 +76,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	protected $_iState = self::ModelState_Normal;
 
 	#region Static Getters
+
 	/**
 	 * Get Table's Name
 	 *
@@ -119,12 +120,13 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 
 	/**
 	 * @param null $mData
+	 * @param bool $bCreate
 	 *
 	 * @throws DataModelException
 	 * @throws InvalidArgumentException
 	 * @internal param array|null|\stdClass $oData
 	 */
-	public final function __construct($mData = null)
+	public final function __construct($mData = null, $bCreate = true)
 	{
 		$aScheme          = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
@@ -137,13 +139,11 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 				$this->_aColumns[strtolower($_col)] = ['Name' => $_col, 'Value' => $_val];
 			}
 		} else {
-			if($mData instanceof \stdClass) {
+			if ($mData instanceof \stdClass) {
 				$aData = array_key_case(get_object_vars($mData), CASE_LOWER);
-			}
-			else if(is_array($mData)){
+			} else if (is_array($mData)) {
 				$aData = array_key_case($mData, CASE_LOWER);
-			}
-			else{
+			} else {
 				throw new InvalidArgumentException('data');
 			}
 
@@ -159,6 +159,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 
 				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_lowCaseCol];
 			}
+			$this->_iState = $bCreate == true ? self::ModelState_Create : self::ModelState_Normal;
 		}
 	}
 
@@ -388,6 +389,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	}
 
 	#region Serializable
+
 	/**
 	 * String representation of object
 	 *
@@ -539,7 +541,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 		$aResult = array();
 
 		foreach ($this->_aColumns AS $_key => $_item) {
-			if(!in_array($_key, $aHiddenColumns)){
+			if (!in_array($_key, $aHiddenColumns)) {
 				$aResult[$_item['Name']] = $_item['Value'];
 			}
 		}
@@ -553,7 +555,7 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 					return $arr->toArray();
 				}, $_item['Value']);
 			} else {
-				if(!in_array($_key, $aHiddenColumns)){
+				if (!in_array($_key, $aHiddenColumns)) {
 					$aResult[$_item['Name']] = $_item['Value'];
 				}
 			}
