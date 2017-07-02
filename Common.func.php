@@ -434,6 +434,30 @@ function object_get_public_properties($oSubject)
 	throw new InvalidArgumentException();
 }
 
+/**
+ * @param bool $bFilename
+ *
+ * @return array|null|string
+ */
+function get_caller($bFilename = false)
+{
+	$aBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+
+	if (isset($aBacktrace[2])) {
+		$pOffset = $aBacktrace[2];
+		if ($bFilename == false) {
+			return (isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $aBacktrace[2]['function'];
+		} else {
+			return [
+				(isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $aBacktrace[2]['function'],
+				((isset($pOffset['file']) ? ($pOffset['file'] . ',' . (isset($pOffset['line']) ? $pOffset['line'] : null)) : null))
+			];
+		}
+	}
+
+	return null;
+}
+
 #endregion
 
 #region Datetime Functions
@@ -545,6 +569,7 @@ function del_recursive($sPath)
 
 #endregion
 
+#serializer & deserializer
 function bson2json($sBSON, $bAssoc = false)
 {
 	$aJson = json_decode($sBSON, true);
@@ -560,3 +585,4 @@ function bson2json($sBSON, $bAssoc = false)
 
 	return $bAssoc == true ? $aJson : (object)$aJson;
 }
+#endregion
