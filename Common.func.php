@@ -446,10 +446,10 @@ function get_caller($bFilename = false)
 	if (isset($aBacktrace[2])) {
 		$pOffset = $aBacktrace[2];
 		if ($bFilename == false) {
-			return (isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $aBacktrace[2]['function'];
+			return (isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $pOffset['function'];
 		} else {
 			return [
-				(isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $aBacktrace[2]['function'],
+				(isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $pOffset['function'],
 				((isset($pOffset['file']) ? ($pOffset['file'] . ',' . (isset($pOffset['line']) ? $pOffset['line'] : null)) : null))
 			];
 		}
