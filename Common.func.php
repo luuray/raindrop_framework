@@ -577,8 +577,12 @@ function bson2json($sBSON, $bAssoc = false)
 	array_walk_recursive($aJson, function (&$_v) {
 		if (is_string($_v)) {
 			$aMatch = [];
-			if (preg_match('/^\/Date\(([0-9]{1,14})\)\/$/', $_v, $aMatch)) {
-				$_v = intval((int)$aMatch[1] / 1000);
+			if (preg_match('/^\/Date\((?<negative>\-|)(?<time>[0-9]{1,14})\)\/$/', $_v, $aMatch)) {
+				if (!empty($aMatch['negative'])) {
+					$_v = 0;
+				} else if (!empty($aMatch['time'])) {
+					$_v = intval((int)$aMatch['time'] / 1000);
+				}
 			}
 		}
 	});
