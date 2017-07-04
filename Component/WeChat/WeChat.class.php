@@ -524,12 +524,12 @@ class WeChat
 	}
 
 	/**
-	 * @param $sUserId
+	 * @param $sOpenId
 	 *
 	 * @return UserInfo
 	 * @throws RuntimeException
 	 */
-	public function getUserInfo($sUserId)
+	public function getUserInfo($sOpenId)
 	{
 		if ($this->_oAPIAccessToken == null) {
 			throw new InvalidAccessTokenException('token_not_initialize');
@@ -540,11 +540,29 @@ class WeChat
 		try {
 			$oResult = $this->ApiGetRequest(sprintf(
 				'https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN',
-				$this->_oAPIAccessToken->AccessToken, $sUserId));
+				$this->_oAPIAccessToken->AccessToken, $sOpenId));
 
 			return new UserInfo($oResult);
 		} catch (APIRequestException $ex) {
 			throw new APIRequestException('get_user_info', 0, $ex);
+		}
+	}
+
+	public function getSnsUserInfo($sOpenId, $sAccessToken)
+	{
+		if($this->verifyWebAccessToken($sAccessToken, $sOpenId) == false){
+			throw new InvalidAccessTokenException();
+		}
+
+		try {
+			$oResult = $this->ApiGetRequest(sprintf(
+				'https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN',
+				$sAccessToken, $sOpenId));
+
+			return new UserInfo($oResult);
+		}
+		catch(APIRequestException $ex){
+			throw new APIRequestException('get_sns_user_info', 0, $ex);
 		}
 	}
 
