@@ -16,6 +16,7 @@ namespace Raindrop;
 
 
 use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\ORM\Model;
 
 abstract class Identify
 {
@@ -78,7 +79,7 @@ abstract class Identify
 	 *
 	 * @param $sAccount
 	 * @param $sPassword
-	 * @return bool
+	 * @return bool|Model
 	 */
 	public abstract function SignUp($sAccount, $sPassword);
 
