@@ -160,9 +160,8 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 						throw new DataModelException('invalid_column_datetype:' . $_k);
 					}
 
-					$sName = $this->_aColumns[$_k]['Name'];
-					if (array_key_exists($sName, $this->_aIdentify)) {
-						$this->_aIdentify[$sName] = $_v;
+					if (array_key_exists($_k, $this->_aIdentify)) {
+						$this->_aIdentify[$_k] = $_v;
 					}
 				}
 			}
