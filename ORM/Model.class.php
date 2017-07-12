@@ -126,40 +126,46 @@ abstract class Model implements \JsonSerializable, \Serializable, \ArrayAccess
 	 * @throws InvalidArgumentException
 	 * @internal param array|null|\stdClass $oData
 	 */
-	public final function __construct($mData = null, $bCreate = true)
+	public final function __construct($mData = null)
 	{
 		$aScheme          = ModelAction::GetInstance()->getModelDefault(get_called_class());
 		$this->_aIdentify = array_key_case($aScheme['Identify'], CASE_LOWER);
 
+		//assign columns with default
+		foreach ($aScheme['Default'] AS $_col => $_val) {
+			$this->_aColumns[strtolower($_col)] = ['Name' => $_col, 'Value' => $_val];
+		}
+
 		//get default data
-		if ($mData === null) {
+		if (empty($mData)) {
 			$this->_iState = self::ModelState_Create;
-			//assign columns with default
-			foreach ($aScheme['Default'] AS $_col => $_val) {
-				$this->_aColumns[strtolower($_col)] = ['Name' => $_col, 'Value' => $_val];
-			}
 		} else {
 			if ($mData instanceof \stdClass) {
-				$aData = array_key_case(get_object_vars($mData), CASE_LOWER);
+				$aData         = array_key_case(get_object_vars($mData), CASE_LOWER);
+				$this->_iState = self::ModelState_Normal;
 			} else if (is_array($mData)) {
-				$aData = array_key_case($mData, CASE_LOWER);
+				$aData         = array_key_case($mData, CASE_LOWER);
+				$this->_iState = self::ModelState_Create;
 			} else {
 				throw new InvalidArgumentException('data');
 			}
 
-			foreach ($aScheme['Default'] AS $_col => $_val) {
-				$_lowCaseCol = strtolower($_col);
-				if (!array_key_exists($_lowCaseCol, $aData)) continue;
+			foreach ($aData AS $_k => $_v) {
+				if (array_key_exists($_k, $this->_aColumns)) {
+					$sTargetType = gettype($this->_aColumns[$_k]['Value']);
 
-				$sSourceType = gettype($_val);
+					if ($sTargetType == 'NULL' OR gettype($_v) == $sTargetType OR settype($_v, $sTargetType)) {
+						$this->_aColumns[$_k]['Value'] = $_v;
+					} else {
+						throw new DataModelException('invalid_column_datetype:' . $_k);
+					}
 
-				if ($sSourceType == 'NULL' OR gettype($aData[$_lowCaseCol]) == $sSourceType OR settype($aData[$_lowCaseCol], $sSourceType)) {
-					$this->_aColumns[$_lowCaseCol] = ['Name' => $_col, 'Value' => $aData[$_lowCaseCol]];
-				} else throw new DataModelException('invalid_column_datetype:' . $_col);
-
-				if (array_key_exists($_lowCaseCol, $this->_aIdentify)) $this->_aIdentify[$_lowCaseCol] = $aData[$_lowCaseCol];
+					$sName = $this->_aColumns[$_k]['Name'];
+					if (array_key_exists($sName, $this->_aIdentify)) {
+						$this->_aIdentify[$sName] = $_v;
+					}
+				}
 			}
-			$this->_iState = $bCreate == true ? self::ModelState_Create : self::ModelState_Normal;
 		}
 	}
 
