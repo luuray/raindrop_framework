@@ -14,7 +14,6 @@
 
 namespace Raindrop\ActionResult;
 
-use Raindrop\ActionResult;
 use Raindrop\Exceptions\FatalErrorException;
 use Raindrop\Exceptions\NotImplementedException;
 use Raindrop\Loader;
