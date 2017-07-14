@@ -17,6 +17,7 @@ namespace Raindrop\Component\WeChat;
 
 use Raindrop\Application;
 use Raindrop\Component\RandomString;
+use Raindrop\Component\WeChat\Model\UnifiedOrder;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\RuntimeException;
 use Raindrop\Logger;
@@ -38,6 +39,11 @@ class WeChatPay
 		$this->_sMCH_Id   = $sMCH_Id;
 		$this->_sMCH_Key  = $sMCH_Key;
 		$this->_sCallback = $sAPICallback;
+	}
+
+	public static function GetSignType()
+	{
+		return 'MD5';
 	}
 
 	public function getUnifiedOrder($sOrderNumber, $sBody, $fAmount, $sTradeType, $sAttach = null, $sDetail = null, $sOpenId = null)
@@ -129,5 +135,39 @@ class WeChatPay
 			$sErr = curl_error($rRequest);
 			throw new RuntimeException('wechat_pay_gateway:' . $sErr);
 		}
+
+		$aResult = $this->_decodeXml($sResponse);
+		if ($aResult == false) {
+			throw new RuntimeException('invalid_response');
+		} else if (!empty($aResult['return_code']) AND $aResult['return_code'] != 'SUCCESS') {
+			throw new RuntimeException('WeChatPayReturn:' . $aResult['return_msg']);
+		} else if (!empty($aResult['result_code']) AND $aResult['result_code'] != 'SUCCESS') {
+			throw new RuntimeException('WeChatPayResult:' . sprintf('[%s]%s', $aResult['err_code'], $aResult['err_code_des']));
+		} else {
+			return new UnifiedOrder($aResult);
+		}
+	}
+
+	protected function _decodeXml($sXml)
+	{
+		libxml_disable_entity_loader(true);
+		libxml_use_internal_errors(true);
+
+		$oXml = @simplexml_load_string($sXml, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+		if ($oXml === false) {
+			$aErrors = libxml_get_errors();
+			$aErrStr = [];
+			foreach ($aErrors AS $_item) {
+				$aErrStr[] = sprintf('[%s]%s,%s @Line: %s',
+					$_item->level == LIBXML_ERR_WARNING ? 'Warnint' : ($_item->level == LIBXML_ERR_ERROR ? 'Error' : ($_item->level == LIBXML_ERR_FATAL ? 'Fatal' : 'Undefined')),
+					$_item->code, $_item->message, $_item->line);
+			}
+			Logger::Warning('XmlDecode:' . implode(';', $aErrStr) . ', Source:' . $sXml);
+
+			return false;
+		}
+
+		return json_decode(json_encode($oXml), true);
 	}
 }
