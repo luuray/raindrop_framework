@@ -145,8 +145,33 @@ class WeChatPay
 			throw new RuntimeException('WeChatPayResult:' . sprintf('[%s]%s', $aResult['err_code'], $aResult['err_code_des']));
 		} else {
 			$aResult['total_fee'] = $fAmount;
+			$aResult['timestamp']=(string)Application::GetRequestTime();
 			return new UnifiedOrder($aResult);
 		}
+	}
+
+	public function paySign(UnifiedOrder $oOrder)
+	{
+		$aItems = [
+			'appId'=>$oOrder->AppId,
+			'timeStamp'=>$oOrder->Timestamp,
+			'nonceStr'=>$oOrder->NonceStr,
+			'package'=>'prepay_id='.$oOrder->PrepayId,
+			'signType'=>self::GetSignType(),
+		];
+
+		ksort($aItems);
+
+		$sSign = [];
+		foreach ($aItems AS $_k => $_v) {
+			$sSign[] = "{$_k}={$_v}";
+		}
+		$sSign = implode('&', $sSign);
+		$sSign .= '&key=' . $this->_sMCH_Key;
+
+		$aItems['paySign'] = strtoupper(md5($sSign));
+
+		return $aItems;
 	}
 
 	protected function _decodeXml($sXml)
