@@ -144,6 +144,7 @@ class WeChatPay
 		} else if (!empty($aResult['result_code']) AND $aResult['result_code'] != 'SUCCESS') {
 			throw new RuntimeException('WeChatPayResult:' . sprintf('[%s]%s', $aResult['err_code'], $aResult['err_code_des']));
 		} else {
+			$aResult['total_fee'] = $fAmount;
 			return new UnifiedOrder($aResult);
 		}
 	}
