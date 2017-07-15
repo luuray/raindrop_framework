@@ -217,10 +217,12 @@ class WeChatPay
 			unset($aData['sign']);
 		}
 
+		ksort($aData);
+
 		$aSign = [];
 		foreach ($aData AS $_k => $_v) {
 			if (!str_nullorwhitespace($_v)) {
-				$aSign = "{$_k}={$_v}";
+				$aSign[] = "{$_k}={$_v}";
 			}
 		}
 
