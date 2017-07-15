@@ -182,13 +182,17 @@ class WeChatPay
 	{
 		$aItems = [
 			'appId'     => $oOrder->AppId,
-			'timestamp' => $oOrder->Timestamp,
+			'timeStamp' => $oOrder->Timestamp,
 			'nonceStr'  => $oOrder->NonceStr,
 			'package'   => 'prepay_id=' . $oOrder->PrepayId,
 			'signType'  => self::GetSignType(),
 		];
 
 		$aItems['paySign'] = $this->makeSign($aItems);
+
+		//fucking wechat pay document
+		unset($aItems['timeStamp']);
+		$aItems['timestamp'] = $oOrder->Timestamp;
 
 		return $aItems;
 	}
