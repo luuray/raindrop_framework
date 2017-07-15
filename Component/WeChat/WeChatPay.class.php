@@ -15,6 +15,7 @@
 namespace Raindrop\Component\WeChat;
 
 
+use Raindrop\ActionResult\HttpCode;
 use Raindrop\Application;
 use Raindrop\Component\RandomString;
 use Raindrop\Component\WeChat\Model\UnifiedOrder;
@@ -44,6 +45,39 @@ class WeChatPay
 	public static function GetSignType()
 	{
 		return 'MD5';
+	}
+
+	public static function GetSuccessResponse()
+	{
+		return RawStream('<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>', HttpCode::CODE_OK);
+	}
+
+	public static function GetFailResponse($sMsg)
+	{
+		return RawStream('<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[' . $sMsg . ']]></return_msg></xml>', HttpCode::CODE_OK);
+	}
+
+	public static function DecodeXml($sXml)
+	{
+		libxml_disable_entity_loader(true);
+		libxml_use_internal_errors(true);
+
+		$oXml = @simplexml_load_string($sXml, 'SimpleXMLElement', LIBXML_NOCDATA);
+
+		if ($oXml === false) {
+			$aErrors = libxml_get_errors();
+			$aErrStr = [];
+			foreach ($aErrors AS $_item) {
+				$aErrStr[] = sprintf('[%s]%s,%s @Line: %s',
+					$_item->level == LIBXML_ERR_WARNING ? 'Warning' : ($_item->level == LIBXML_ERR_ERROR ? 'Error' : ($_item->level == LIBXML_ERR_FATAL ? 'Fatal' : 'Undefined')),
+					$_item->code, $_item->message, $_item->line);
+			}
+			Logger::Warning('XmlDecode:' . implode(';', $aErrStr) . ', Source:' . $sXml);
+
+			return false;
+		}
+
+		return json_decode(json_encode($oXml), true);
 	}
 
 	public function getUnifiedOrder($sOrderNumber, $sBody, $fAmount, $sTradeType, $sAttach = null, $sDetail = null, $sOpenId = null)
@@ -91,18 +125,11 @@ class WeChatPay
 			$aData['openid'] = $sOpenId;
 		}
 
-		ksort($aData);
-		$sSign = [];
-		foreach ($aData AS $_k => $_v) {
-			$sSign[] = "{$_k}={$_v}";
-		}
-		$sSign = implode('&', $sSign);
-		$sSign .= '&key=' . $this->_sMCH_Key;
-		$sSign = strtoupper(md5($sSign));
+		$sSign = $this->makeSign($aData);
 
 		$sTpl = "<xml>"
 			. "<appid>{$this->_sAppId}</appid>"
-			. "<attach>{$sAttach}</attach>"
+			. "<attach><![CDATA[{$sAttach}]]></attach>"
 			. "<body>{$sBody}</body>"
 			. "<mch_id>{$this->_sMCH_Id}</mch_id>"
 			. "<detail><![CDATA[{$sDetail}]]></detail>"
@@ -136,7 +163,7 @@ class WeChatPay
 			throw new RuntimeException('wechat_pay_gateway:' . $sErr);
 		}
 
-		$aResult = $this->_decodeXml($sResponse);
+		$aResult = self::DecodeXml($sResponse);
 		if ($aResult == false) {
 			throw new RuntimeException('invalid_response');
 		} else if (!empty($aResult['return_code']) AND $aResult['return_code'] != 'SUCCESS') {
@@ -145,55 +172,65 @@ class WeChatPay
 			throw new RuntimeException('WeChatPayResult:' . sprintf('[%s]%s', $aResult['err_code'], $aResult['err_code_des']));
 		} else {
 			$aResult['total_fee'] = $fAmount;
-			$aResult['timestamp']=(string)Application::GetRequestTime();
+			$aResult['timestamp'] = (string)Application::GetRequestTime();
+
 			return new UnifiedOrder($aResult);
 		}
 	}
 
-	public function paySign(UnifiedOrder $oOrder)
+	public function jsAPISign(UnifiedOrder $oOrder)
 	{
 		$aItems = [
-			'appId'=>$oOrder->AppId,
-			'timeStamp'=>$oOrder->Timestamp,
-			'nonceStr'=>$oOrder->NonceStr,
-			'package'=>'prepay_id='.$oOrder->PrepayId,
-			'signType'=>self::GetSignType(),
+			'appId'     => $oOrder->AppId,
+			'timestamp' => $oOrder->Timestamp,
+			'nonceStr'  => $oOrder->NonceStr,
+			'package'   => 'prepay_id=' . $oOrder->PrepayId,
+			'signType'  => self::GetSignType(),
 		];
 
-		ksort($aItems);
-
-		$sSign = [];
-		foreach ($aItems AS $_k => $_v) {
-			$sSign[] = "{$_k}={$_v}";
-		}
-		$sSign = implode('&', $sSign);
-		$sSign .= '&key=' . $this->_sMCH_Key;
-
-		$aItems['paySign'] = strtoupper(md5($sSign));
+		$aItems['paySign'] = $this->makeSign($aItems);
 
 		return $aItems;
 	}
 
-	protected function _decodeXml($sXml)
+	public function payResult($sResult)
 	{
-		libxml_disable_entity_loader(true);
-		libxml_use_internal_errors(true);
-
-		$oXml = @simplexml_load_string($sXml, 'SimpleXMLElement', LIBXML_NOCDATA);
-
-		if ($oXml === false) {
-			$aErrors = libxml_get_errors();
-			$aErrStr = [];
-			foreach ($aErrors AS $_item) {
-				$aErrStr[] = sprintf('[%s]%s,%s @Line: %s',
-					$_item->level == LIBXML_ERR_WARNING ? 'Warnint' : ($_item->level == LIBXML_ERR_ERROR ? 'Error' : ($_item->level == LIBXML_ERR_FATAL ? 'Fatal' : 'Undefined')),
-					$_item->code, $_item->message, $_item->line);
-			}
-			Logger::Warning('XmlDecode:' . implode(';', $aErrStr) . ', Source:' . $sXml);
-
-			return false;
+		$aResult = self::DecodeXml($sResult);
+		if (!empty($aResult['return_code']) AND $aResult['return_code'] != 'SUCCESS') {
+			throw new RuntimeException(sprintf('WeChatPayCallback: [%s] %s', $aResult['return_code'], $aResult['return_msg']));
+		} else if (!empty($aResult['result_code']) AND $aResult['return_code'] != 'SUCCESS') {
+			throw new RuntimeException(sprintf('WeChatPayCallback: [%s] %s', $aResult['err_code'], $aResult['err_code_des']));
 		}
 
-		return json_decode(json_encode($oXml), true);
+		$sSign = $this->makeSign($aResult);
+
+		if ($sSign != $aResult['sign']) {
+			throw new RuntimeException('invalid_sign');
+		} else {
+			return new UnifiedOrder($aResult);
+		}
+	}
+
+	public function makeSign($aData, $sType = 'MD5')
+	{
+		if (array_key_exists('sign', $aData)) {
+			unset($aData['sign']);
+		}
+
+		$aSign = [];
+		foreach ($aData AS $_k => $_v) {
+			if (!str_nullorwhitespace($_v)) {
+				$aSign = "{$_k}={$_v}";
+			}
+		}
+
+		$sSign = implode('&', $aSign);
+		$sSign .= '&key=' . $this->_sMCH_Key;
+
+		if ($sType == 'MD5') {
+			return strtoupper(md5($sSign));
+		} else {
+			return '';
+		}
 	}
 }
