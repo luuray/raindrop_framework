@@ -1,5 +1,20 @@
 <?php
 /**
+ * *
+ *  * DTeacher
+ *  *
+ *  *
+ *  *
+ *  * @author Luuray
+ *  * @copyright Rainhan System
+ *  * @id $Id$
+ *  *
+ *  * Copyright (c) 2010-2017, Rainhan System
+ *  * Site: www.rainhan.net/?proj=DTeacher
+ *
+ */
+
+/**
  * Raindrop Framework for PHP
  *
  * Unsubscrobe Event of WeChat Module
@@ -19,5 +34,7 @@ use Raindrop\Component\WeChat\Model\Message;
 
 class UnsubscribeEvent extends Message
 {
-
+	protected function _initialize($aData = null)
+	{
+	}
 }
