@@ -1,5 +1,20 @@
 <?php
 /**
+ * *
+ *  * DTeacher
+ *  *
+ *  *
+ *  *
+ *  * @author Luuray
+ *  * @copyright Rainhan System
+ *  * @id $Id$
+ *  *
+ *  * Copyright (c) 2010-2017, Rainhan System
+ *  * Site: www.rainhan.net/?proj=DTeacher
+ *
+ */
+
+/**
  * Raindrop Framework for PHP
  *
  * View Event of WeChat Module
@@ -19,5 +34,8 @@ use Raindrop\Component\WeChat\Model\Message;
 
 class ViewEvent extends Message
 {
-
+	protected function _initialize($aData = null)
+	{
+		// TODO: Implement _initialize() method.
+	}
 }
