@@ -1,5 +1,20 @@
 <?php
 /**
+ * *
+ *  * DTeacher
+ *  *
+ *  *
+ *  *
+ *  * @author Luuray
+ *  * @copyright Rainhan System
+ *  * @id $Id$
+ *  *
+ *  * Copyright (c) 2010-2017, Rainhan System
+ *  * Site: www.rainhan.net/?proj=DTeacher
+ *
+ */
+
+/**
  * Raindrop Framework for PHP
  *
  * Subscribe Event of WeChat Module
@@ -24,9 +39,9 @@ class SubscribeEvent extends Message
 
 	protected function _initialize($mData = null)
 	{
-		if(is_array($mData) AND isset($mData['EventKey'])){
+		if (is_array($mData) AND isset($mData['EventKey'])) {
 			$this->_sEventKey = $mData['EventKey'];
-			$this->_sTicket = $mData['Ticket'];
+			$this->_sTicket   = isset($mData['Ticket']) ? $mData['Ticket'] : null;
 		}
 	}
 
