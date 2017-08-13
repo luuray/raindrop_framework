@@ -2,7 +2,7 @@
 /**
  * Raindrop Framework for PHP
  *
- * UserInfo Module for WeChat Module
+ * UserInfo Model for WeChat Module
  *
  * @author Luuray
  * @copyright Rainhan System
@@ -21,7 +21,7 @@ class UserInfo implements \Serializable, \JsonSerializable
 
 	public function __construct($oObj)
 	{
-		$this->_aData = get_object_vars($oObj);
+		$this->_aData = array_key_case(get_object_vars($oObj), CASE_LOWER);
 	}
 
 	public function __get($sKey)
@@ -41,7 +41,7 @@ class UserInfo implements \Serializable, \JsonSerializable
 
 	public function unserialize($serialized)
 	{
-		$this->_aData = $this->unserialize($serialized);
+		$this->_aData = unserialize($serialized);
 	}
 
 	function jsonSerialize()
