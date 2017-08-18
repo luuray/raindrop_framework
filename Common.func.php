@@ -250,6 +250,11 @@ function number_to_half($sSubject)
 	return str_replace(array_values($aFullWidth), array_keys($aFullWidth), $sSubject);
 }
 
+function rand_str($bShort = false)
+{
+	return bin2hex(openssl_random_pseudo_bytes($bShort ? 8 : 16));
+}
+
 #endregion
 
 #region Numeric Functions
