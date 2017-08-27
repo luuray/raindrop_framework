@@ -159,13 +159,13 @@ final class Dispatcher
 				Debugger::Output('CallStack:' . $this->_sCallStack, 'Dispatcher');
 			}
 
+			//Invoke Controller's Instance
+			$oController = $oRefCtrl->newInstance();
+
 			//need identify
 			if ($this->_identification($sCtrlName::IdentifyRequired(), $sCtrlName::RequiredPermission()) == false) {
 				throw new NoPermissionException;
 			}
-
-			//Invoke Controller's Instance
-			$oController = $oRefCtrl->newInstance();
 
 			//prepare
 			$oPrepareResult = $oController->prepare();
