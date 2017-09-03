@@ -325,9 +325,14 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	 * which is a value of any type other than a resource.
 	 * @since 5.4.0
 	 */
-	function jsonSerialize()
+	public function jsonSerialize()
 	{
 		return serialize(array_key_case(['data' => $this->_aData, 'meta' => $this->_aMeta], CASE_LOWER_UNDERSCORE));
 	}
 	#endregion
+
+	public function toArray()
+	{
+		return $this->_aData;
+	}
 }
