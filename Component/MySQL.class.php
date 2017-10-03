@@ -25,7 +25,6 @@ use Raindrop\Exceptions\FileNotFoundException;
 use Raindrop\Exceptions\InvalidArgumentException;
 use Raindrop\Exceptions\Model\ModelNotFoundException;
 use Raindrop\Interfaces\IDbConnector;
-use Raindrop\Interfaces\ModelAbstract;
 use Raindrop\Logger;
 use Raindrop\ORM\Model;
 
