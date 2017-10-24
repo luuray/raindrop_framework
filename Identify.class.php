@@ -181,6 +181,23 @@ abstract class Identify
 	public abstract function GetRoles();
 	#endregion
 
+	#region User Identify
+	/**
+	 * Get User Identify
+	 *
+	 * @param mixed $mAppId
+	 */
+	public abstract function GetUserIdentify($mAppId=null);
+
+	/**
+	 * @param $mAppId
+	 * @param null $iExpireTime
+	 *
+	 * @return mixed
+	 */
+	public abstract function CreateUserIdentify($mAppId, $iExpireTime=null);
+	#endregion
+
 	#region Session Operators
 	/**
 	 * Load Identify Status

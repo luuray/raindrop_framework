@@ -579,6 +579,8 @@ function bson2json($sBSON, $bAssoc = false)
 {
 	$aJson = json_decode($sBSON, true);
 
+	if($aJson == false) return false;
+
 	array_walk_recursive($aJson, function (&$_v) {
 		if (is_string($_v)) {
 			$aMatch = [];
