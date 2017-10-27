@@ -67,7 +67,7 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 		if (array_key_exists(strtolower($sKey), $this->_aDataKeyMap)) {
 			$this->_aData[$this->_aDataKeyMap[strtolower($sKey)]] = $mValue;
 		} else {
-			$this->_aDataKeyMap[strtolower($sKey)] = $mValue;
+			$this->_aDataKeyMap[strtolower($sKey)] = $sKey;
 			$this->_aData[$sKey]                   = $mValue;
 		}
 	}
@@ -329,6 +329,7 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	{
 		return serialize(array_key_case(['data' => $this->_aData, 'meta' => $this->_aMeta], CASE_LOWER_UNDERSCORE));
 	}
+
 	#endregion
 
 	public function toArray()
