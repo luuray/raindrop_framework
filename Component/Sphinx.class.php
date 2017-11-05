@@ -57,16 +57,16 @@ class Sphinx implements ISearchProvider
 		try {
 			$aConditions = [];
 			$aCondParams = [];
-			$iCount = 0;
+			$iCount      = 0;
 
 			if ($oCondition != null) {
 				foreach ($oCondition AS $_item) {
 					if ($_item->Mode == SearchCondition::MODE_MATCH) {
-						$aConditions[]               = sprintf('MATCH(:%s)', md5_short($_item->Fields));
+						$aConditions[]                          = sprintf('MATCH(:%s)', md5_short($_item->Fields));
 						$aCondParams[md5_short($_item->Fields)] = sprintf('@(%s) %s', $_item->Fields, $_item->Value);
 					} else if ($_item->Mode == SearchCondition::MODE_EQUAL) {
-						$sFields               = $_item->Fields;
-						$aConditions[]         = sprintf('`%s`=:%s', $sFields, md5_short($sFields));
+						$sFields                          = $_item->Fields;
+						$aConditions[]                    = sprintf('`%s`=:%s', $sFields, md5_short($sFields));
 						$aCondParams[md5_short($sFields)] = (int)$_item->Value;
 					}
 				}
@@ -76,7 +76,12 @@ class Sphinx implements ISearchProvider
 				'SELECT COUNT(*) FROM `%s` %s',
 				$this->_sIndex, (empty($aConditions) ? '' : 'WHERE ' . implode(' AND ', $aConditions))));
 			foreach ($aCondParams AS $_k => $_v) {
-				$oStmt->bindValue(':' . $_k, $_v, is_int($_v) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+				if(is_int($_v)){
+					$oStmt->bindValue(':'.$_k,$_v,\PDO::PARAM_INT);
+				}
+				else{
+					$oStmt->bindValue(':'.$_k,$this->_escapeStr($_v),\PDO::PARAM_STR);
+				}
 			}
 
 			if ($oStmt->execute() == false) {
@@ -119,5 +124,13 @@ class Sphinx implements ISearchProvider
 		} catch (\PDOException $ex) {
 			throw new RuntimeException($ex->getMessage());
 		}
+	}
+
+	protected function _escapeStr($sSource)
+	{
+		return str_replace(
+			['\\', '(', ')', '|', '-', '!', '@', '~', '"', '&', '/', '^', '$', '='],
+			['\\\\', '\(', '\)', '\|', '\-', '\!', '\@', '\~', '\"', '\&', '\/', '\^', '\$', '\='],
+			$sSource);
 	}
 }
