@@ -6,9 +6,14 @@ class PushPayload {
 
     private static $EFFECTIVE_DEVICE_TYPES = array('ios', 'android', 'winphone');
     const PUSH_URL = 'https://api.jpush.cn/v3/push';
+    const GROUP_PUSH_URL = 'https://api.jpush.cn/v3/grouppush';
     const PUSH_VALIDATE_URL = 'https://api.jpush.cn/v3/push/validate';
+    const CID_URL = 'https://api.jpush.cn/v3/push/cid';
 
     private $client;
+    private $url;
+
+    private $cid;
     private $platform;
 
     private $audience;
@@ -17,6 +22,8 @@ class PushPayload {
     private $tagNots;
     private $alias;
     private $registrationIds;
+    private $segmentIds;
+    private $abtests;
 
     private $notificationAlert;
     private $iosNotification;
@@ -32,6 +39,17 @@ class PushPayload {
      */
     function __construct($client) {
         $this->client = $client;
+        $this->url = $this->client->is_group() ? PushPayload::GROUP_PUSH_URL :  PushPayload::PUSH_URL;
+    }
+
+    public function getCid($count = 1, $type = 'push') {
+        $url = self::CID_URL . '?count=' . $count . '&type =' . $type;
+        return Http::get($this->client, $url);
+    }
+
+    public function setCid($cid) {
+        $this->cid = trim($cid);
+        return $this;
     }
 
     public function setPlatform($platform) {
@@ -65,126 +83,53 @@ class PushPayload {
     }
 
     public function addTag($tag) {
-        if (is_null($this->tags)) {
-            $this->tags = array();
-        }
-
-        if (is_array($tag)) {
-            foreach($tag as $_tag) {
-                if (!is_string($_tag)) {
-                    throw new InvalidArgumentException("Invalid tag value");
-                }
-                if (!in_array($_tag, $this->tags)) {
-                    array_push($this->tags, $_tag);
-                }
-            }
-        } else if (is_string($tag)) {
-            if (!in_array($tag, $this->tags)) {
-                array_push($this->tags, $tag);
-            }
-        } else {
-            throw new InvalidArgumentException("Invalid tag value");
-        }
-
-        return $this;
-
+        return $this->updateAudience('tags', $tag, 'tag');
     }
 
     public function addTagAnd($tag) {
-        if (is_null($this->tagAnds)) {
-            $this->tagAnds = array();
-        }
-
-        if (is_array($tag)) {
-            foreach($tag as $_tag) {
-                if (!is_string($_tag)) {
-                    throw new InvalidArgumentException("Invalid tag_and value");
-                }
-                if (!in_array($_tag, $this->tagAnds)) {
-                    array_push($this->tagAnds, $_tag);
-                }
-            }
-        } else if (is_string($tag)) {
-            if (!in_array($tag, $this->tagAnds)) {
-                array_push($this->tagAnds, $tag);
-            }
-        } else {
-            throw new InvalidArgumentException("Invalid tag_and value");
-        }
-
-        return $this;
+        return $this->updateAudience('tagAnds', $tag, 'tag_and');
     }
 
     public function addTagNot($tag) {
-        if (is_null($this->tagNots)) {
-            $this->tagNots = array();
-        }
-
-        if (is_array($tag)) {
-            foreach($tag as $_tag) {
-                if (!is_string($_tag)) {
-                    throw new InvalidArgumentException("Invalid tag_not value");
-                }
-                if (!in_array($_tag, $this->tagNots)) {
-                    array_push($this->tagNots, $_tag);
-                }
-            }
-        } else if (is_string($tag)) {
-            if (!in_array($tag, $this->tagNots)) {
-                array_push($this->tagNots, $tag);
-            }
-        } else {
-            throw new InvalidArgumentException("Invalid tag_not value");
-        }
-
-        return $this;
+        return $this->updateAudience('tagNots', $tag, 'tag_not');
     }
 
     public function addAlias($alias) {
-        if (is_null($this->alias)) {
-            $this->alias = array();
-        }
-
-        if (is_array($alias)) {
-            foreach($alias as $_alias) {
-                if (!is_string($_alias)) {
-                    throw new InvalidArgumentException("Invalid alias value");
-                }
-                if (!in_array($_alias, $this->alias)) {
-                    array_push($this->alias, $_alias);
-                }
-            }
-        } else if (is_string($alias)) {
-            if (!in_array($alias, $this->alias)) {
-                array_push($this->alias, $alias);
-            }
-        } else {
-            throw new InvalidArgumentException("Invalid alias value");
-        }
-
-        return $this;
+        return $this->updateAudience('alias', $alias, 'alias');
     }
 
     public function addRegistrationId($registrationId) {
-        if (is_null($this->registrationIds)) {
-            $this->registrationIds = array();
+        return $this->updateAudience('registrationIds', $registrationId, 'registration_id');
+    }
+
+    public function addSegmentId($segmentId) {
+        return $this->updateAudience('segmentIds', $segmentId, 'segment_id');
+    }
+
+    public function addAbtest($abtest) {
+        return $this->updateAudience('abtests', $abtest, 'abtest');
+    }
+
+    private function updateAudience($key, $value, $name) {
+        if (is_null($this->$key)) {
+            $this->$key = array();
         }
 
-        if (is_array($registrationId)) {
-            foreach($registrationId as $_registrationId) {
-                if (!is_string($_registrationId)) {
-                    throw new InvalidArgumentException("Invalid registration_id value");
+        if (is_array($value)) {
+            foreach($value as $v) {
+                if (!is_string($v)) {
+                    throw new InvalidArgumentException("Invalid $name value");
                 }
-                if (!in_array($_registrationId, $this->registrationIds)) {
-                    array_push($this->registrationIds, $_registrationId);
+                if (!in_array($v, $this->$key)) {
+                    array_push($this->$key, $v);
                 }
             }
-        } else if (is_string($registrationId)) {
-            if (!in_array($registrationId, $this->registrationIds)) {
-                array_push($this->registrationIds, $registrationId);
+        } else if (is_string($value)) {
+            if (!in_array($value, $this->$key)) {
+                array_push($this->$key, $value);
             }
         } else {
-            throw new InvalidArgumentException("Invalid registration_id value");
+            throw new InvalidArgumentException("Invalid $name value");
         }
 
         return $this;
@@ -265,6 +210,10 @@ class PushPayload {
             throw new InvalidArgumentException("platform must be set");
         }
         $payload["platform"] = $this->platform;
+
+        if (!is_null($this->cid)) {
+            $payload['cid'] = $this->cid;
+        }
 
         // validate audience
         $audience = array();
@@ -370,8 +319,7 @@ class PushPayload {
     }
 
     public function send() {
-        $url = PushPayload::PUSH_URL;
-        return Http::post($this->client, $url, $this->build());
+        return Http::post($this->client, $this->url, $this->build());
     }
 
     public function validate() {
@@ -419,8 +367,6 @@ class PushPayload {
     }
 
     public function androidNotification($alert = '', array $notification = array()) {
-        # $required_keys = array('title', 'builder_id', 'priority', 'category', 'style',
-        #                        'alert_type', 'big_text', 'inbox', 'big_pic_path', 'extras');
         $android = array();
         $android['alert'] = is_string($alert) ? $alert : '';
         if (!empty($notification)) {
@@ -437,7 +383,7 @@ class PushPayload {
                 $android['priority'] = $notification['priority'];
             }
             if (isset($notification['category']) && is_string($notification['category'])) {
-                $android['category'] = $notification['category`'];
+                $android['category'] = $notification['category'];
             }
             if (isset($notification['style']) && is_int($notification['style'])) {
                 $android['style'] = $notification['style'];
@@ -454,6 +400,7 @@ class PushPayload {
             if (isset($notification['alert_type']) && is_int($notification['alert_type'])) {
                 $android['alert_type'] = $notification['alert_type'];
             }
+            $android = array_merge($notification, $android);
         }
         $this->androidNotification = $android;
         return $this;
@@ -498,6 +445,9 @@ class PushPayload {
             $options['apns_production'] = $opts['apns_production'];
         } else {
             $options['apns_production'] = false;
+        }
+        if (isset($opts['apns_collapse_id'])) {
+            $options['apns_collapse_id'] = $opts['apns_collapse_id'];
         }
         if (isset($opts['big_push_duration']) && is_int($opts['big_push_duration']) && $opts['big_push_duration'] <= 1400 && $opts['big_push_duration'] >= 0) {
             $options['big_push_duration'] = $opts['big_push_duration'];
