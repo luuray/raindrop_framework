@@ -69,6 +69,7 @@ class MySQL implements IDbConnector
 	}
 
 	#region Status
+
 	/**
 	 * Is Connected
 	 *
@@ -286,6 +287,7 @@ class MySQL implements IDbConnector
 	public function commitTransaction($sFlag = null)
 	{
 		if ($this->isConnected() == false) return false;//not connect, no transaction exists.
+
 		return $this->_oConn->commit();
 	}
 
@@ -299,6 +301,7 @@ class MySQL implements IDbConnector
 	public function rollbackTransaction($sFlag = null)
 	{
 		if ($this->isConnected() == false) return false;//not connect, no transaction exists.
+
 		return $this->_oConn->rollBack();
 	}
 	#endregion
@@ -341,7 +344,7 @@ class MySQL implements IDbConnector
 
 				if (Application::IsDebugging()) {
 					Logger::Message(sprintf(
-						'dsname: %s, query: %s, param: %s, SUCCESS, affected: %d',
+						'dsname: %s, query: %s, param: %s, SUCCESS, affected: %d, backtrace:' . implode(' => ' , backtrace()),
 						$this->_sDSName, $sQuery, var_export($aParam, true), $oStat->rowCount()));
 				}
 

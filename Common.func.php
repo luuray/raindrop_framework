@@ -440,27 +440,32 @@ function object_get_public_properties($oSubject)
 }
 
 /**
- * @param bool $bFilename
+ * @param bool $bWithArgs
+ * @param bool $bWithFileName
  *
  * @return array|null|string
  */
-function get_caller($bFilename = false)
+function backtrace($bWithArgs = false, $bWithFileName = false)
 {
-	$aBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+	$aBacktrace = $bWithArgs ? debug_backtrace() : debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-	if (isset($aBacktrace[2])) {
-		$pOffset = $aBacktrace[2];
-		if ($bFilename == false) {
-			return (isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $pOffset['function'];
-		} else {
-			return [
-				(isset($pOffset['class']) ? $pOffset['class'] : '') . (isset($pOffset['type']) ? $pOffset['type'] : '') . $pOffset['function'],
-				((isset($pOffset['file']) ? ($pOffset['file'] . ',' . (isset($pOffset['line']) ? $pOffset['line'] : null)) : null))
-			];
-		}
+	if (count($aBacktrace) <= 1) {
+		return ['**self**'];
 	}
 
-	return null;
+	array_shift($aBacktrace);
+	array_reverse($aBacktrace);
+
+	$aResult = [];
+
+	foreach ($aBacktrace AS $_item) {
+		$aResult[] =
+			($bWithFileName ? ("{$_item['file']}({$_item['line']}):") : '')
+			. (isset($_item['class']) ? "{$_item['class']}{$_item['type']}{$_item['function']}" : $_item['function'])
+			. ($bWithArgs ? '(' . (empty($_item['args']) ? '' : json_encode($_item['args'])) . ')' : '()');
+	}
+
+	return $aResult;
 }
 
 #endregion
@@ -579,7 +584,7 @@ function bson2json($sBSON, $bAssoc = false)
 {
 	$aJson = json_decode($sBSON, true);
 
-	if($aJson == false) return false;
+	if ($aJson == false) return false;
 
 	array_walk_recursive($aJson, function (&$_v) {
 		if (is_string($_v)) {
