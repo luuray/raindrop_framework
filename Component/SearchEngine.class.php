@@ -31,7 +31,7 @@ class SearchEngine
 		return new SearchCondition();
 	}
 
-	public static function Search($sProvider,SearchCondition $oConditions, $iLimit = 10, $iSkip = 0)
+	public static function Search($sProvider, SearchCondition $oConditions, $iLimit = 10, $iSkip = 0)
 	{
 		return self::_getInstance()->getProvider($sProvider)->search($oConditions, $iLimit, $iSkip);
 	}

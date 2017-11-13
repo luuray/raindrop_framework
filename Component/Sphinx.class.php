@@ -76,11 +76,10 @@ class Sphinx implements ISearchProvider
 				'SELECT COUNT(*) FROM `%s` %s',
 				$this->_sIndex, (empty($aConditions) ? '' : 'WHERE ' . implode(' AND ', $aConditions))));
 			foreach ($aCondParams AS $_k => $_v) {
-				if(is_int($_v)){
-					$oStmt->bindValue(':'.$_k,$_v,\PDO::PARAM_INT);
-				}
-				else{
-					$oStmt->bindValue(':'.$_k,$_v,\PDO::PARAM_STR);
+				if (is_int($_v)) {
+					$oStmt->bindValue(':' . $_k, intval($_v), \PDO::PARAM_INT);
+				} else {
+					$oStmt->bindValue(':' . $_k, $_v, \PDO::PARAM_STR);
 				}
 			}
 
@@ -108,7 +107,11 @@ class Sphinx implements ISearchProvider
 				sprintf(' LIMIT %d, %d', $iSkip, $iLimit)//limit
 			));
 			foreach ($aCondParams AS $_k => $_v) {
-				$oStmt->bindValue(':' . $_k, $_v, is_int($_v) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+				if (is_int($_v)) {
+					$oStmt->bindValue(':' . $_k, intval($_v), \PDO::PARAM_INT);
+				} else {
+					$oStmt->bindValue(':' . $_k, $_v, \PDO::PARAM_STR);
+				}
 			}
 
 			if ($oStmt->execute() == false) {
@@ -122,7 +125,7 @@ class Sphinx implements ISearchProvider
 
 			return new ArrayList($aResult, ['Skip' => $iSkip, 'Limit' => $iLimit, 'Count' => $iCount]);
 		} catch (\PDOException $ex) {
-			throw new RuntimeException($ex->getMessage());
+			throw new RuntimeException($ex->getMessage(), $ex->getCode(), $ex);
 		}
 	}
 
