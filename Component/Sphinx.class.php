@@ -63,11 +63,11 @@ class Sphinx implements ISearchProvider
 				foreach ($oCondition AS $_item) {
 					if ($_item->Mode == SearchCondition::MODE_MATCH) {
 						$aConditions[]                          = sprintf('MATCH(:%s)', md5_short($_item->Fields));
-						$aCondParams[md5_short($_item->Fields)] = sprintf('@(%s) %s', $_item->Fields, $_item->Value);
+						$aCondParams[md5_short($_item->Fields)] = sprintf('@(%s) %s', $this->_escapeStr($_item->Fields), $this->_escapeStr($_item->Value));
 					} else if ($_item->Mode == SearchCondition::MODE_EQUAL) {
 						$sFields                          = $_item->Fields;
 						$aConditions[]                    = sprintf('`%s`=:%s', $sFields, md5_short($sFields));
-						$aCondParams[md5_short($sFields)] = (int)$_item->Value;
+						$aCondParams[md5_short($sFields)] = $this->_escapeStr($_item->Value);
 					}
 				}
 			}
@@ -80,7 +80,7 @@ class Sphinx implements ISearchProvider
 					$oStmt->bindValue(':'.$_k,$_v,\PDO::PARAM_INT);
 				}
 				else{
-					$oStmt->bindValue(':'.$_k,$this->_escapeStr($_v),\PDO::PARAM_STR);
+					$oStmt->bindValue(':'.$_k,$_v,\PDO::PARAM_STR);
 				}
 			}
 
