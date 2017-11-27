@@ -181,7 +181,7 @@ class ComponentUndefinedException extends ApplicationException
  * Class InvalidArgumentException
  * @package Raindrop
  */
-class InvalidArgumentException extends ApplicationException
+class InvalidArgumentException extends RuntimeException
 {
 	public function __construct($sArgument, $sRequire = null, $sProvide = null)
 	{

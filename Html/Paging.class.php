@@ -22,6 +22,7 @@ class Paging extends Html implements \Iterator
 	protected $_iTotal = null;
 	protected $_iRecent = 1;
 	protected $_iDisplay = null;
+	protected $_sUrlTpl = null;
 
 	protected $_iPage = 1;
 	protected $_iFirst = 0;
@@ -31,12 +32,15 @@ class Paging extends Html implements \Iterator
 	 * @param $iTotal
 	 * @param $iRecent
 	 * @param int $iDisplay
+	 * @param null $sUrlTpl
 	 */
-	public function __construct($iTotal, $iRecent, $iDisplay = 5)
+	public function __construct($iTotal, $iRecent, $iDisplay = 5, $sUrlTpl=null)
 	{
 		$this->_iTotal   = intval($iTotal) <= 0 ? 0 : intval($iTotal);
 		$this->_iRecent  = intval($iRecent) <= 1 ? 1 : intval($iRecent);
 		$this->_iDisplay = intval($iDisplay) <= 3 ? 3 : intval($iDisplay);
+
+		$this->_sUrlTpl = $sUrlTpl;
 
 		$this->_resetPosition();
 	}
@@ -172,5 +176,10 @@ class Paging extends Html implements \Iterator
 		}
 		$this->_iFirst = $iFirst;
 		$this->_iLast  = $iLast;
+	}
+
+	protected function _urlGenerator()
+	{
+
 	}
 }

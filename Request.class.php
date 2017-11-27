@@ -138,7 +138,7 @@ abstract class Request implements \ArrayAccess
 
 	public function __get($sKey)
 	{
-		$sKey = strtolower($sKey);
+		$sKey = str_uc2underscore($sKey);
 		
 		//GET->POST
 		if(array_key_exists($sKey, $this->_aQuery)){
@@ -154,7 +154,7 @@ abstract class Request implements \ArrayAccess
 
 	public function __isset($sKey)
 	{
-		$sKey = strtolower($sKey);
+		$sKey = str_uc2underscore($sKey);
 
 		return array_key_exists($sKey, $this->_aQuery) OR array_key_exists($sKey, $this->_aData);
 	}
