@@ -34,7 +34,7 @@ class Paging extends Html implements \Iterator
 	 * @param int $iDisplay
 	 * @param null $sUrlTpl
 	 */
-	public function __construct($iTotal, $iRecent, $iDisplay = 5, $sUrlTpl=null)
+	public function __construct($iTotal, $iRecent, $iDisplay = 5, $sUrlTpl = null)
 	{
 		$this->_iTotal   = intval($iTotal) <= 0 ? 0 : intval($iTotal);
 		$this->_iRecent  = intval($iRecent) <= 1 ? 1 : intval($iRecent);
@@ -52,17 +52,12 @@ class Paging extends Html implements \Iterator
 
 	public function getPrev()
 	{
-		$oRequest = Application::GetRequest();
-		$iPage    = $this->_iRecent > 1 ? $this->_iRecent - 1 : 1;
+		$iPage = $this->_iRecent > 1 ? $this->_iRecent - 1 : 1;
 
 		return (object)array(
-			'page'      => $iPage,
-			'is_recent' => false,
-			'url'       => Url::Action(
-				$oRequest->getModule(),
-				$oRequest->getController(),
-				$oRequest->getAction(),
-				array_merge($oRequest->getQuery(), array('page' => $iPage))));
+			'page'       => $iPage,
+			'is_current' => false,
+			'url'        => $this->_urlGenerator($iPage));
 	}
 
 	public function hasNext()
@@ -72,17 +67,12 @@ class Paging extends Html implements \Iterator
 
 	public function getNext()
 	{
-		$oRequest = Application::GetRequest();
-		$iPage    = $this->_iRecent < $this->_iTotal ? $this->_iRecent + 1 : $this->_iRecent;
+		$iPage = $this->_iRecent < $this->_iTotal ? $this->_iRecent + 1 : $this->_iRecent;
 
 		return (object)array(
-			'page'      => $iPage,
-			'is_recent' => false,
-			'url'       => Url::Action(
-				$oRequest->getModule(),
-				$oRequest->getController(),
-				$oRequest->getAction(),
-				array_merge($oRequest->getQuery(), array('page' => $iPage))));
+			'page'       => $iPage,
+			'is_current' => false,
+			'url'        => $this->_urlGenerator($iPage));
 	}
 
 	public function getRecentPage()
@@ -103,16 +93,10 @@ class Paging extends Html implements \Iterator
 	 */
 	public function current()
 	{
-		$oRequest = Application::GetRequest();
-
 		return (object)array(
-			'page'      => $this->_iPage,
-			'is_recent' => $this->_iPage == $this->_iRecent,
-			'url'       => Url::Action(
-				$oRequest->getModule(),
-				$oRequest->getController(),
-				$oRequest->getAction(),
-				array_merge($oRequest->getQuery(), array('page' => $this->_iPage))));
+			'page'       => $this->_iPage,
+			'is_current' => $this->_iPage == $this->_iRecent,
+			'url'        => $this->_urlGenerator($this->_iPage));
 	}
 
 	/**
@@ -178,8 +162,18 @@ class Paging extends Html implements \Iterator
 		$this->_iLast  = $iLast;
 	}
 
-	protected function _urlGenerator()
+	protected function _urlGenerator($iPage)
 	{
+		if ($this->_sUrlTpl != null) {
+			return str_replace('%PAGE%', $iPage, $this->_sUrlTpl);
+		} else {
+			$oRequest = Application::GetRequest();
 
+			return Url::Action(
+				$oRequest->getModule(),
+				$oRequest->getController(),
+				$oRequest->getAction(),
+				array_merge($oRequest->getQuery(), array('page' => $this->_iPage)));
+		}
 	}
 }

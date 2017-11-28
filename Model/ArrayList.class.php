@@ -15,6 +15,7 @@
 namespace Raindrop\Model;
 
 ///TODO ArrayList Strut
+use Raindrop\Exceptions\InvalidArgumentException;
 use RecursiveIterator;
 
 class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serializable, \JsonSerializable
@@ -46,7 +47,16 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 			$sMetaName = substr($sTarget, 3);
 
 			return $this->_aMeta[$sMetaName];
-		} else {
+		} else if (str_beginwith($sTarget, 'set')) {
+			$sMetaName = substr($sTarget, 3);
+
+			if(count($aArgs) != 1){
+				throw new InvalidArgumentException('set_meta');
+			}
+
+			$this->_aMeta[$sMetaName] = $aArgs[0];
+		}
+		else {
 			return null;
 		}
 	}
