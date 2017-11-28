@@ -139,7 +139,7 @@ abstract class Request implements \ArrayAccess
 	public function __get($sKey)
 	{
 		$sKey = str_uc2underscore($sKey);
-		
+
 		//GET->POST
 		if(array_key_exists($sKey, $this->_aQuery)){
 			return $this->_aQuery[$sKey];
@@ -362,7 +362,7 @@ abstract class Request implements \ArrayAccess
 	}
 	public function offsetGet($mOffset)
 	{
-		$mOffset = strtolower($mOffset);
+		$mOffset = str_uc2underscore($mOffset);
 
 		if(array_key_exists($mOffset, $this->_aQuery)){
 			return $this->_aQuery[$mOffset];
