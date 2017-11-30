@@ -50,13 +50,12 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 		} else if (str_beginwith($sTarget, 'set')) {
 			$sMetaName = substr($sTarget, 3);
 
-			if(count($aArgs) != 1){
+			if (count($aArgs) != 1) {
 				throw new InvalidArgumentException('set_meta');
 			}
 
 			$this->_aMeta[$sMetaName] = $aArgs[0];
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
@@ -116,8 +115,11 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	 */
 	public function next()
 	{
-		next($this->_aData);
-		$this->_sOffset = key($this->_aData);
+		if (next($this->_aData) === false) {
+			$this->_sOffset = null;
+		} else {
+			$this->_sOffset = key($this->_aData);
+		};
 	}
 
 	/**
@@ -202,7 +204,7 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	 */
 	public function offsetExists($offset)
 	{
-		return array_key_exists(strtolower($offset), $this->_aDataKeyMap);
+		return $this->_sOffset !== null && array_key_exists(strtolower($offset), $this->_aDataKeyMap);
 	}
 
 	/**
@@ -250,8 +252,6 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	{
 		$this->_aDataKeyMap[strtolower($offset)] = $offset;
 		$this->_aData[$offset]                   = $value;
-
-		$this->rewind();
 	}
 
 	/**
@@ -344,6 +344,15 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 
 	public function toArray()
 	{
-		return $this->_aData;
+		$aResult = [];
+		foreach ($this->_aData AS $_k => $_v) {
+			if (is_object($_v) AND method_exists($_v, 'toArray')) {
+				$aResult[$_k] = $_v->toArray();
+			} else {
+				$aResult[$_k] = $_v;
+			}
+		}
+
+		return $aResult;
 	}
 }

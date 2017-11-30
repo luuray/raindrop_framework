@@ -84,7 +84,7 @@ class View extends ActionResult
 		$this->_oRequest  = Application::GetRequest();
 
 		//decide bodyPage
-		$sBodyView = str_nullorwhitespace($sTpl)?$this->_oRequest->getAction():$sTpl;
+		$sBodyView = str_nullorwhitespace($sTpl) ? $this->_oRequest->getAction() : $sTpl;
 
 		$this->_sBodyView = $this->_decidePath($sBodyView);
 
@@ -100,7 +100,7 @@ class View extends ActionResult
 	{
 		$sName = strtolower($sName);
 
-		switch($sName){
+		switch ($sName) {
 			case 'isvalid':
 				return self::$_bIsValid;
 			case 'validmessage':
@@ -114,7 +114,7 @@ class View extends ActionResult
 	{
 		if (Application::IsDebugging()) {
 			Debugger::Output($this->_oViewData, 'ViewData');
-			Debugger::Output(['BodyView'=>Loader::ClearPath($this->_sBodyView), 'Layout'=>Loader::ClearPath($this->_sLayout)], 'ViewPage');
+			Debugger::Output(['BodyView' => Loader::ClearPath($this->_sBodyView), 'Layout' => Loader::ClearPath($this->_sLayout)], 'ViewPage');
 		}
 
 		if ($this->_bIsBodyRendered != true) {
@@ -166,6 +166,7 @@ class View extends ActionResult
 	 *
 	 * @param string $sName Section Name
 	 * @param string $sContent Section Content
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	public function registerSection($sName, $sContent)
@@ -182,6 +183,7 @@ class View extends ActionResult
 	 * Get Registered Section
 	 *
 	 * @param string $sName
+	 *
 	 * @return mixed
 	 * @throws InvalidArgumentException
 	 */
@@ -230,7 +232,7 @@ class View extends ActionResult
 				$Identify = Application::GetIdentify();
 				try {
 					require_once Loader::Import($sViewName, null, false);
-				}catch(FileNotFoundException $ex){
+				} catch (FileNotFoundException $ex) {
 					throw new ViewNotFoundException($sViewName);
 				}
 			};
@@ -246,6 +248,7 @@ class View extends ActionResult
 	 * Decide ViewFile Path
 	 *
 	 * @param string $sPage
+	 *
 	 * @return string|false
 	 */
 	protected function _decidePath($sPage)
@@ -293,20 +296,20 @@ class View extends ActionResult
 
 			//public shared
 			$aPaths[] = implode(DIRECTORY_SEPARATOR, [AppDir, 'view', 'shared']) . DIRECTORY_SEPARATOR . $sPage;
-/*
-			if ($this->_oRequest->getModule() != null) {
-				$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'module' . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
-					'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
-			}
+			/*
+						if ($this->_oRequest->getModule() != null) {
+							$aPaths[] = AppDir . DIRECTORY_SEPARATOR . 'module' . DIRECTORY_SEPARATOR . $this->_oRequest->getModule() . DIRECTORY_SEPARATOR .
+								'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
+						}
 
-			$aPaths[] =
-				AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sPage;
+						$aPaths[] =
+							AppDir . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $this->_oRequest->getController() . DIRECTORY_SEPARATOR . $sPage;
 
-			$aPaths[] = AppDir . DIRECTORY_SEPARATOR .
-				'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
-			$aPaths[] = CorePath . DIRECTORY_SEPARATOR .
-				'ActionResult' . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $sPage;
-*/
+						$aPaths[] = AppDir . DIRECTORY_SEPARATOR .
+							'view' . DIRECTORY_SEPARATOR . 'shared' . DIRECTORY_SEPARATOR . $sPage;
+						$aPaths[] = CorePath . DIRECTORY_SEPARATOR .
+							'ActionResult' . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $sPage;
+			*/
 		}
 
 		foreach ($aPaths AS $_path) {
