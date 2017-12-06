@@ -15,7 +15,7 @@
 namespace Raindrop\Component\WeChat\Model;
 
 
-use Raindrop\Exceptions\NotImplementedException;
+use Raindrop\Exceptions\InvalidArgumentException;
 
 /**
  * Class WebAccessToken
@@ -82,7 +82,24 @@ class WebAccessToken implements \Serializable, \JsonSerializable
 
 	public function __set($sKey, $mValue)
 	{
-		throw new NotImplementedException();
+		$sKey = strtolower($sKey);
+		switch ($sKey) {
+			case 'access_token':
+			case 'accesstoken':
+				$this->_sAccessToken = $mValue;
+				break;
+			case 'refresh_token':
+			case 'refreshtoken':
+				$this->_sRefreshToken = $mValue;
+				break;
+			case 'expires_in':
+			case 'expiresin':
+				$this->_iExpiresIn  = (int)$mValue;
+				$this->_iExpireTime = (int)$mValue + time();
+				break;
+			default:
+				throw new InvalidArgumentException($sKey);
+		}
 	}
 
 	/**

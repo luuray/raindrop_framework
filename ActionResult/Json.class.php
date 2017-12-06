@@ -48,8 +48,7 @@ class Json extends ActionResult
 
 		ob_start();
 
-		http_response_code($this->_iHttpCode);
-		@header('Content-type: application/json');
+		@header('Content-type: application/json', true, $this->_iHttpCode);
 
 		if ($this->_bAllowGet == false AND Application::GetRequest()->getMethod() != 'POST') {
 			echo json_encode(array('status' => false, 'message' => 'post_method_only'));

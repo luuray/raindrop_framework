@@ -43,8 +43,7 @@ class JsonP extends ActionResult
 		ob_clean();
 		ob_start();
 
-		http_response_header($this->_iHttpCode);
-		@header('Content-Type: application/json');
+		@header('Content-Type: application/json', true,$this->_iHttpCode);
 
 		//callback header
 		printf('try{%s(', $this->_sCallback);

@@ -42,6 +42,12 @@ function Xml($bAllowGet = true, $mData = null)
 	return new \Raindrop\ActionResult\Xml($bAllowGet, $mData);
 }
 
+function SiteMap($mData = null, $bIsIndex=false)
+{
+	return new \Raindrop\ActionResult\SiteMap($mData, $bIsIndex);
+}
+
+
 function Redirect()
 {
 	$oRef = new ReflectionClass('\Raindrop\ActionResult\Redirect');

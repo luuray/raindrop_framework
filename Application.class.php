@@ -87,10 +87,10 @@ abstract class Application
 				return (new \ReflectionClass(get_called_class()))->newInstanceArgs(func_get_args());
 			} catch (\Exception $ex) {
 				@header_remove();
-				@header('Uncaught exception:' + $ex->getMessage(), true, 500);
+				@header('Uncaught exception:' . $ex->getMessage(), true, 500);
 				$sRequestUri =
 					isset($_SERVER['HTTP_HOST']) ?
-						(((empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) :
+						(((empty($_SERVER['HTTPS']) OR $_SERVER['HTTPS'] == 'off') ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) :
 						'Console';
 				$sPost       = file_get_contents('php://input');
 				$sGet        = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : 'NULL';
