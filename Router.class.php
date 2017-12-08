@@ -28,7 +28,7 @@ class Router
 
 	protected static $_oStaticRoute = [];
 
-	protected $_sRequest = '';
+	protected $_sRequest = null;
 
 	/**
 	 * @var null|Request
@@ -107,7 +107,7 @@ class Router
 				}
 		*/
 		if ($this->_matchStaticRoute() == false) {
-			$this->_sRequest = strtolower(!isset($_SERVER['PATH_INFO']) ? null : $_SERVER['PATH_INFO']);
+			$this->_sRequest = empty($_SERVER['PATH_INFO']) ? '/' : strtolower($_SERVER['PATH_INFO']);
 		}
 
 		$this->_decodeRoute();
@@ -146,7 +146,7 @@ class Router
 		$iMatch = 0;
 		$sType  = null;
 
-		if ($this->_sRequest == '/' OR $this->_sRequest == null) {
+		if ($this->_sRequest == '/') {
 			$this->_oRequest->setController('default');
 			$this->_oRequest->setAction('index');
 			$this->_oRequest->setType('View');
@@ -217,6 +217,10 @@ class Router
 				'Path: %s, MatchResult: %s, Module: %s, Controller: %s, Action: %s, Type: %s, Method: %s',
 				$this->_sRequest, $iMatch, $this->_oRequest->getModule(), $this->_oRequest->getController(),
 				$this->_oRequest->getAction(), $this->_oRequest->getType(), $this->_oRequest->getMethod()), 'Route');
+			Logger::Message(sprintf(
+				'Path: %s, MatchResult: %s, Module: %s, Controller: %s, Action: %s, Type: %s, Method: %s',
+				$this->_sRequest, $iMatch, $this->_oRequest->getModule(), $this->_oRequest->getController(),
+				$this->_oRequest->getAction(), $this->_oRequest->getType(), $this->_oRequest->getMethod()));
 		}
 	}
 } 
