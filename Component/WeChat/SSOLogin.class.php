@@ -65,7 +65,7 @@ class SSOLogin
 	{
 		try {
 			$oResult = $this->_apiRequest(
-				sprintf('https://api.weixin.qq.com/sns/oauth2/access_token?appid=\%APPID\%&secret=\%SECRET\%&code=%s&grant_type=authorization_code', $sCode));
+				sprintf('https://api.weixin.qq.com/sns/oauth2/access_token?appid=$APPID$&secret=$SECRET$&code=%s&grant_type=authorization_code', $sCode));
 
 			$oAccessToken = new WebAccessToken($oResult);
 
@@ -81,7 +81,7 @@ class SSOLogin
 	{
 		try {
 			$oResult = $this->_apiRequest(
-				sprintf('https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=\%APPID\%&grant_type=%s&refresh_token=REFRESH_TOKEN', $oToken->RefreshToken));
+				sprintf('https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=$APPID$&grant_type=%s&refresh_token=REFRESH_TOKEN', $oToken->RefreshToken));
 
 			$oRefreshedToken = new WebAccessToken($oResult);
 
@@ -145,7 +145,7 @@ class SSOLogin
 
 	protected function _apiRequest($sTarget)
 	{
-		$sTarget = str_replace(['%APPID%', '%SECRET%'], [$this->_sAppId, $this->_sAppSecret], $sTarget);
+		$sTarget = str_replace(['$APPID$', '$SECRET$'], [$this->_sAppId, $this->_sAppSecret], $sTarget);
 
 		$rAPI = curl_init($sTarget);
 		curl_setopt($rAPI, CURLOPT_RETURNTRANSFER, true);
