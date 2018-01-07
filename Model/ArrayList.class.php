@@ -250,8 +250,14 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	 */
 	public function offsetSet($offset, $value)
 	{
+		if ($offset === null) {
+			///TODO numeric index confident
+			$offset = count($this->_aData);
+		}
+
+		$this->_aData[$offset] = $value;
 		$this->_aDataKeyMap[strtolower($offset)] = $offset;
-		$this->_aData[$offset]                   = $value;
+
 	}
 
 	/**
@@ -300,8 +306,12 @@ class ArrayList implements \ArrayAccess, \Countable, \RecursiveIterator, \Serial
 	 */
 	public function unserialize($serialized)
 	{
-		$aResult = unserialize($serialized, false);
-		if (is_array($aResult) AND array_key_exists('Data') AND array_key_exists('Meta') AND array_key_exists('KeyMap')) {
+		$aResult = unserialize($serialized, ['allowed_classes' => false]);
+		if (is_array($aResult)
+			AND array_key_exists('Data', $aResult)
+			AND array_key_exists('Meta', $aResult)
+			AND array_key_exists('KeyMap', $aResult)) {
+
 			$this->_aData       = $aResult['Data'];
 			$this->_aMeta       = $aResult['Meta'];
 			$this->_aDataKeyMap = $aResult['KeyMap'];
