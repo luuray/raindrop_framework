@@ -74,3 +74,6 @@ crashlytics-build.properties
 fabric.properties
 
 .gitignore
+
+## Composer
+Component/vendor

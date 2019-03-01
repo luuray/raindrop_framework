@@ -38,6 +38,16 @@ class Loader
 
 			//register loader to spl
 			spl_autoload_register(array(self::$_oInstance, 'autoload'));
+
+			//register composer's loader
+			//project's
+			if(file_exists(SYS_ROOT.'/vendor/autoload.php')){
+				require_once SYS_ROOT.'/vendor/autoload.php';
+			}
+			//framework's
+			if(file_exists(SYS_ROOT.'/core/Component/vendor/autoload.php')){
+				require_once SYS_ROOT.'/core/Component/vendor/autoload.php';
+			}
 		}
 
 		return self::$_oInstance;
